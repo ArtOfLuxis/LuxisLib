@@ -1,0 +1,13 @@
+{
+  "name": "luxislib",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "vite build && copy dist\\bundle.js \"C:\\Users\\User\\AppData\\Roaming\\com.pvzge.game\\gp-next\\packs\\Luxis Lib\" && robocopy jsons \"C:\\Users\\User\\AppData\\Roaming\\com.pvzge.game\\gp-next\\packs\\Luxis Lib Test\\jsons\" /E"
+  },
+  "private": true,
+  "devDependencies": {
+    "vite": "^8.1.0"
+  }
+}

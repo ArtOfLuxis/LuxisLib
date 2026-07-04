@@ -1,0 +1,45 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Gzh0821/pvzg_site/refs/heads/main/src/.vuepress/public/jsons/schema/gpn-worldmap.schema.json",
+  "apiVersion": 1,
+  "worlds": {
+    "egypt": {
+      "data": {
+        "startingLevels": [],
+        "epicTarget": "",
+        "intro": ""
+      },
+      "map": {
+        "mode": "replace",
+        "reuseOriginalPositions": true,
+        "autoLayout": {
+          "xStep": 280,
+          "yStep": 100
+        },
+        "mainline": [
+          {
+            "id": "lvl-1",
+            "type": "level",
+            "appearance": "normal",
+            "levels": [
+              "egypt1"
+            ],
+            "title": "1"
+          },
+          {
+            "id": "lvl-2",
+            "type": "level",
+            "appearance": "normal",
+            "template": {
+              "levelId": "egypt2"
+            },
+            "levels": [
+              "custom_level_test"
+            ],
+            "title": "test"
+          }
+        ],
+        "branches": []
+      }
+    }
+  }
+}

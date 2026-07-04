@@ -1,0 +1,16 @@
+{
+  "#comment": "Zombie Types!",
+  "version": 1,
+  "objects": [
+    {
+      "objclass": "ZombieType",
+      "aliases": [
+        "tutorial_armor3"
+      ],
+      "objdata": {
+        "Properties": "RTID(tutorial_armor3@ZombieProps)",
+        "ZombieBasedOn": "tutorial_armor3"
+      }
+    }
+  ]
+}

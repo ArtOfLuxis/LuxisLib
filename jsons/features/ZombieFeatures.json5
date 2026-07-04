@@ -1,0 +1,23 @@
+{
+  "ZOMBIES": [
+    {
+      "_CARDSPRITENAME": "tutorialarmor2",
+      "CODENAME": "tutorial_armor3",
+      "OBTAINWORLD": "frontyard",
+      "ALMANAC": "RTID(tutorial@ZombieAlmanac)",
+      "PROPS": "RTID(tutorial_armor3@ZombieProps)",
+      "RES": "Basic",
+      "NAME": {
+        "en": "Helmet Zombie",
+        "zh": "Helmet Zombie"
+      }
+    }
+  ],
+  "ALMANAC": [
+    "tutorial",
+    "tutorial_armor1",
+    "tutorial_armor2",
+    "tutorial_armor3",
+    "tutorial_armor4",
+  ]
+}

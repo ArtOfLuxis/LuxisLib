@@ -1,0 +1,126 @@
+{
+  "#comment": "Projectile Properties!",
+  "version": 1,
+  "objects": [
+    {
+      "objclass": "ProjectileProperties",
+      "aliases": [
+        "pea"
+      ],
+      "objdata": {
+        "CanBePeaVineBuffed": false
+      }
+    },
+    {
+      "objclass": "ProjectileProperties",
+      "aliases": [
+        "pea1"
+      ],
+      "objdata": {
+        "ProjectileSpread": [
+          {
+            "ProjectileType": "pea_flame_yellow",
+            "ProjectileAmount": 9,
+            "ProjectileSpreadDegrees": [
+              { "min": -60, "max": -20 },
+              { "min": 20, "max": 60 },
+            ],
+            "FirstProjectileInterval": 0,
+            "ProjectileInterval": 0
+          },
+          {
+            "ProjectileType": "pea_flame_blue",
+            "ProjectileAmount": 2,
+            "ProjectileSpreadDegrees": [{ "min": -20, "max": 20 }],
+            "FirstProjectileInterval": 0,
+            "ProjectileInterval": 0
+          }
+        ]
+      }
+    },
+    {
+      "objclass": "ProjectileProperties",
+      "aliases": [
+        "cabbage"
+      ],
+      "objdata": {
+        "Scale": 2
+      }
+    },
+    {
+      "objclass": "ProjectileProperties",
+      "aliases": [
+        "coconut"
+      ],
+      "objdata": {
+        "ProjectileSpread": [
+          {
+            "ProjectileType": "pea",
+            "ProjectileAmount": 180,
+            "ProjectileSpreadDegrees": [{ "min": -40, "max": 40 }],
+            "FirstProjectileInterval": 0,
+            "ProjectileInterval": 0.001
+          }
+        ]
+      }
+    },
+    {
+      "objclass": "ProjectileProperties",
+      "aliases": [
+        "melon"
+      ],
+      "objdata": {
+        "Scale": 0.25
+      }
+    },
+    {
+      "objclass": "ProjectileProperties",
+      "aliases": [
+        "pea_shadow"
+      ],
+      "objdata": {
+        "ZombieInvisibilityPotion": { "value": false, "forced": true },
+        "ZombieSpeedPotion": { "value": 0.1, "max": 1, "min": 0 },
+      }
+    },
+    {
+      "objclass": "ProjectileProperties",
+      "aliases": [
+        "pea_sky"
+      ],
+      "objdata": {
+        "ZombieToughnessPotion": {
+          "value": -0.1,
+          "max": 999,
+          // 999 so it doesn't limit other sources of potions accidentally
+          "min": -5
+        },
+      }
+    },
+    {
+      "objclass": "ProjectileProperties",
+      "aliases": [
+        "cabbage"
+      ],
+      "objdata": {
+        "OnHitPropsOverride": {
+          "reversed": [{ "mode": "InvertBool" }],
+          "glittering": [{ "mode": "AddValue", "value": 1 }],
+          "sunbeanSunPerHitpoint": [{ "mode": "SetValue", "value": 0 }]
+        }
+      }
+    },
+    {
+      "objclass": "ProjectileProperties",
+      "aliases": [
+        "guacodile"
+      ],
+      "objdata": {
+        "OnHitPropsOverride": {
+          "freeze": [{ "mode": "AddValue", "value": 0.75 }],
+          // stacks on top of existing freeze unlike the normal freeze property
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "#comment": "Zombie Properties!",
+  "version": 1,
+  "objects": [
+    {
+      "objclass": "ZombieProperties",
+      "aliases": [
+        "tutorial"
+      ],
+      "objdata": {
+        "SpeedScale": 5
+      }
+    },
+    {
+      "objclass": "ZombieProperties",
+      "aliases": [
+        "tutorial_armor1"
+      ],
+      "objdata": {
+        "ImmuneToChiliBean": true
+      }
+    },
+    {
+      "objclass": "ZombieProperties",
+      "aliases": [
+        "tutorial_armor2"
+      ],
+      "objdata": {
+        "OnEnablePropsOverride": {
+          "chill": 10,
+          "freeze": 5,
+          "haveSun": 25
+        }
+      }
+    },
+    {
+      "objclass": "ZombieProperties",
+      "aliases": [
+        "tutorial_armor4"
+      ],
+      "objdata": {
+        "OnEnablePropsOverride": {
+          "hypnotized": true
+        }
+      }
+    },
+    {
+      "objclass": "ZombieProperties",
+      "aliases": [
+        "tutorial_flag"
+      ],
+      "objdata": {
+        "OnEnablePropsOverride": {
+          "reversed": true,
+          "glittering": 3
+        }
+      }
+    },
+    {
+      "objclass": "ZombieProperties",
+      "aliases": [
+        "tutorial_armor3"
+      ],
+      "objdata": {
+        "StartingArmors": [
+          "dark_armor3"
+        ]
+      }
+    }
+  ]
+}
