@@ -29,13 +29,19 @@
             "id": "lvl-2",
             "type": "level",
             "appearance": "normal",
-            "template": {
-              "levelId": "egypt2"
-            },
             "levels": [
               "custom_level_test"
             ],
-            "title": "test"
+            "title": "test 1"
+          },
+          {
+            "id": "lvl-3",
+            "type": "level",
+            "appearance": "normal",
+            "levels": [
+              "custom_level_test2"
+            ],
+            "title": "test 2"
           }
         ],
         "branches": []

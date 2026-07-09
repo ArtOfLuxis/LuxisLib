@@ -16,27 +16,35 @@ export function init(ctx) {
             target: proto,
             methodName: "onMouseScroll",
             handler: ({ args, thisArg, callOriginal }) => {
-                const sandboxZombies = libProperties.SandboxZombiesIDs;
+                const sandboxZombies = libProperties.SandboxZombiesIDs
 
-                if (sandboxZombies && sandboxZombies.length > 0) {
-                    const scroll = args[0].getScrollY() < 0 ? 1 : -1
-                    const len = sandboxZombies.length;
-
-                    const current = sandboxZombies.indexOf(thisArg.zombieCards[0].ID)
-
-                    if (current !== -1) {
-                        const start = (current + scroll + len) % len;
-
-                        thisArg.zombieCards.forEach((card, i) => {
-                            const id = sandboxZombies[(start + i) % len];
-                            card.cardGrouper(id, false);
-                        });
-
-                        return
-                    }
+                if (!sandboxZombies || sandboxZombies.length === 0) {
+                    return callOriginal(...args)
                 }
 
-                return callOriginal(...args)
+                const len = sandboxZombies.length
+                const scroll = args[0].getScrollY() < 0 ? 1 : -1
+
+                if (thisArg.___sandboxIndex == null) {
+                    const current = sandboxZombies.indexOf(thisArg.zombieCards[0].ID)
+                    if (current === -1) {
+                        return callOriginal(...args)
+                    }
+
+                    thisArg.___sandboxIndex = current
+                }
+
+                thisArg.___sandboxIndex =
+                    (thisArg.___sandboxIndex + scroll + len) % len
+
+                const start = thisArg.___sandboxIndex
+
+                thisArg.zombieCards.forEach((card, i) => {
+                    card.cardGrouper(
+                        sandboxZombies[(start + i) % len],
+                        false
+                    )
+                })
             }
         })
 

@@ -22,5 +22,25 @@ export function init(ctx) {
 
         ctx.events.emit("luxislib:zombie_enum")
 
+        ctx.hooks.wrapMethod({
+            target: zombies.zombies,
+            methodName: "SpawnRandomZombies",
+            handler: async ({ args, thisArg, callOriginal }) => {
+                const ids = libProperties.SandboxZombiesIDs
+                if (!ids?.length) return callOriginal(...args)
+
+                for (let lane = 0; lane < 5; lane++) {
+                    for (let i = 0; i < 3; i++) {
+                        const id = ids[Math.floor(Math.random() * ids.length)]
+
+                        if (zombies.zombies.f1BlackList.indexOf(id) !== -1)
+                            continue
+
+                        await zombies.zombies.spawnZombieFromLaneByID(lane, id);
+                    }
+                }
+            }
+        })
+
     })
 }

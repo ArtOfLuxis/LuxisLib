@@ -1,30 +1,20 @@
-import {wrapDetector} from "./extra/DetectorManager";
+import {wrapObjDataOwnPlant} from "./Plant";
 
 export function init(ctx) {
     ctx.events.on("engine:ready", () => {
         const mint = ctx.engine.getSystemModule("chunks:///_virtual/Mint.ts");
         const characterManager = ctx.engine.getSystemModule("chunks:///_virtual/CharacterManager.ts")
-        const plants = ctx.engine.getSystemModule("chunks:///_virtual/Plants.ts");
-        const plant = ctx.engine.getSystemModule("chunks:///_virtual/Plant.ts");
+        const plants = ctx.engine.getSystemModule("chunks:///_virtual/Plants.ts")
+        const plant = ctx.engine.getSystemModule("chunks:///_virtual/Plant.ts")
         const proto = mint.MintPlant.prototype;
 
-        const plantKeys = {
+        wrapObjDataOwnPlant(ctx, proto, {
             "BoostedFamilies": null,
+            "BoostedPlants": null,
             "BoostsPlants": null,
-        }
-
-        ctx.hooks.wrapProperty({
-            target: proto,
-            key: "_objdata",
-            get: ({thisArg, value}) => {
-                if (value) {
-                    Object.entries(plantKeys).forEach(([prop, value]) => {
-                        if (thisArg[prop] === undefined) thisArg[prop] = value
-                    })
-                }
-                return value
-            }
         })
+
+        plants.plants.SpecificPlantMintDuration = {}
 
         ctx.hooks.wrapMethod({
             target: proto,
@@ -35,33 +25,50 @@ export function init(ctx) {
                     thisArg.minting = true
                     thisArg.LifeCD = thisArg.objdataOwn.Lifespan
 
-                    const boosts = thisArg.objdata.BoostsPlants
-                    if (boosts || boosts === undefined) {
-                        const families = thisArg.objdata.BoostedFamilies ?? [plant.PlantFamily[thisArg.family]]
-
-                        console.log(thisArg.objdata.BoostedFamilies)
-                        console.log(thisArg.family)
-                        console.log(thisArg.family_str)
-                        console.log(families)
+                    const boosts = thisArg.objdataOwn.BoostsPlants
+                    if (boosts || boosts === undefined || boosts === null) {
+                        const boostedPlants = thisArg.objdataOwn.BoostedPlants ?? []
+                        const boostedFamilies = thisArg.objdataOwn.BoostedFamilies ?? [plant.PlantFamily[thisArg.family]]
 
                         characterManager.PlantPool.pool().filter(function (plant) {
-                            return families.includes(plant.family_str);
-                        }).forEach(function (t) {
-                            t.onMintBoostStart();
-                        });
+                            return (
+                                boostedFamilies.includes(plant.family_str) ||
+                                boostedPlants.includes(plant.Plant_Type)
+                            )
+                        }).forEach(function (plant) {
+                            plant.onMintBoostStart()
+                        })
 
-                        families.forEach((boostedFamily) => {
+                        boostedFamilies.forEach((boostedFamily) => {
                             plants.plants.MintDuration[boostedFamily] = Math.max(
                                 thisArg.objdataOwn.Lifespan,
                                 plants.plants.MintDuration[boostedFamily]
                             )
                         })
+                        boostedPlants.forEach((boostedPlant) => {
+                            plants.plants.SpecificPlantMintDuration[boostedPlant] = Math.max(
+                                thisArg.objdataOwn.Lifespan,
+                                plants.plants.SpecificPlantMintDuration[boostedPlant] ?? 0
+                            )
+                        })
                     }
 
-                    thisArg.specialMintAnimationListener(animation);
+                    thisArg.specialMintAnimationListener(animation)
                 } else {
                     callOriginal(animation)
                 }
+            }
+        })
+
+
+        ctx.hooks.wrapMethod({
+            target: proto,
+            methodName: "shovelable",
+            handler: ({thisArg, callOriginal}) => {
+                const forceShovelableMode = thisArg.objdataOwn.ForceShovelableMode
+                if (typeof forceShovelableMode === "boolean") return forceShovelableMode
+
+                return callOriginal()
             }
         })
 

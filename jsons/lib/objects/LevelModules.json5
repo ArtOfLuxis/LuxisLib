@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "objects": [
+    {
+      "objclass": "LLMaxSunAmountProps",
+      "aliases": [
+        "DefaultMaxSunAmountProps"
+      ],
+      "objdata": {
+        "MaxSunAmount": 1000
+      }
+    },
+  ]
+}

@@ -1,5 +1,4 @@
-export let libProperties;
-export let libCustomLevels = [];
+export let libProperties = undefined
 
 export function init(ctx) {
     ctx.events.on("engine:ready", async () => {
@@ -8,7 +7,7 @@ export function init(ctx) {
         const luxisLibAlias =
             (await ctx.settings.get("luxisLibAlias")) ?? "LuxisLibProps"
 
-        const sheets = JSONs.PvZ2ObjectContainer.PropertySheets;
+        const sheets = JSONs.PvZ2ObjectContainer.PropertySheets
         if (!Array.isArray(sheets) || sheets.length === 0) {
             return;
         }
@@ -22,18 +21,10 @@ export function init(ctx) {
 
         if (!libProperties) {
             ctx.log.error(`Unable to load libProperties (${luxisLibAlias})`)
-            ctx.ui.toast("Unable to load libProperties, try reloading!", "error")
+            ctx.ui.toast("Unable to load libProperties, add a PropertySheets file or try reloading!", "error")
         } else {
-            ctx.ui.toast("Loaded libProperties", "info")
+            ctx.ui.toast("Loaded libProperties", "success")
             ctx.events.emit("luxislib:properties")
         }
-
-
-        libCustomLevels = sheets.filter(obj =>
-            Array.isArray(obj?.aliases) &&
-            obj.objclass === "CustomLevelDefinition"
-        )
-
-        console.log(libCustomLevels)
     })
 }

@@ -1,0 +1,33 @@
+{
+  "#comment": "Tombstone Properties!",
+  "version": 1,
+  "objects": [
+    {
+      "objclass": "TombstoneProperties",
+      "aliases": [
+        "gravestone_egypt"
+      ],
+      "objdata": {
+        "ForceHypnotized": true
+      }
+    },
+    {
+      "objclass": "TombstoneProperties",
+      "aliases": [
+        "surfboard"
+      ],
+      "objdata": {
+        "ForceHypnotized": true
+      }
+    },
+    {
+      "objclass": "TombstoneProperties",
+      "aliases": [
+        "tent"
+      ],
+      "objdata": {
+        "ForceHypnotized": true
+      }
+    }
+  ]
+}

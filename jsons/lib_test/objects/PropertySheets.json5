@@ -1,0 +1,468 @@
+{
+  "version": 1,
+  "objects": [
+    {
+      "objclass": "LuxisLibProps",
+      "aliases": [
+        "LuxisLibProps"
+      ],
+      "objdata": {
+        // general
+        "MaxSunAmount": 999999, // default value is 9900
+        "FastForwardSpeed": 3, // default value is 1.5
+        "ImitaterSlotPlant": "wallnut",  // default value is imitater
+
+
+        // worlds and levels
+        "ForceSkipTutorial": true,
+        "StartingWorlds": ["pirate", "future"],
+        "WorldOrder": [
+          // deleting a world from here won't remove it from the order and
+          // will just cause the world to be in front the ones in the list
+          "Future",
+          "Crack",
+          "Pirate",
+          "Unknown",
+          "Sky",
+          "Modern",
+          "Egypt",
+          "Cowboy",
+          "Dark",
+          "LostCity",
+          "Beach",
+          "Dino",
+          "IceAge",
+          "Kongfu",
+          "Eighties",
+        ],
+        "ArcadeCustomLevels": {
+          // only adds levels the first time you open arcade after you open the main menu
+          "DEBUG": {
+            "custom_level_test": "Level 1"
+          },
+          "Rhythm": {
+            "custom_level_test": "Level 2"
+          },
+          "Floawerpot": {
+            "custom_level_test": "Level 3"
+          },
+          "Shooting Starfruit": {
+            "custom_level_test": "Level 4"
+          },
+          "Random Plants": {
+            "custom_level_test": "Level 5"
+          },
+          "Random Zomboss Fight": {
+            "custom_level_test": "Level 6"
+          },
+          "Bank Theft": {
+            "custom_level_test": "Level 7"
+          },
+          "Beghouled": {
+            "custom_level_test": "Level 8"
+          },
+          "Dangerroom": {
+            "custom_level_test": "Level 9"
+          }
+        },
+
+
+        // zombies
+        "SandboxZombies": [
+          // there is no original list since the game just uses all zombie ids
+          // so you'd have to recreate the original list by hand if you want to use it
+          // or you could just copy the almanac list from ZombieFeatures
+          "tutorial",
+          "tutorial_gargantuar",
+          "tutorial_armor1",
+          "tutorial_armor2",
+          "tutorial_armor3",
+          "tutorial_armor4",
+          "pirate_armor1",
+          "pirate_armor2",
+          "tutorial_flag",
+          "tomb_raiser",
+          "beach_surfer",
+          "lostcity_impporter",
+          "modern_allstar",
+          "zomboni",
+          "prospector",
+          "dino_bully",
+          "iceage_hunter_veteran",
+          "lostcity_crystalskull",
+          "kongfu_bomb",
+          "dino_armor2"
+        ],
+        "ZombieEnumAdd": [
+          // adding a zombie to the ZombieEnum allows you to properly use custom ZombieFeatures (in the almanac etc)
+          "tutorial_armor3"
+        ],
+        "ZombieInvisibilityPotionOpacity": 0.2, // default value is 0.5
+        "ZombieChillSpeedMultiplier": 0.5, // default value is 0.5
+        "ZombiePerfumeSpeedMultiplier": 0.5, // default value is 0.5
+        "ZombieSapSpeedMultiplier": 0.5, // default value is 0.5
+        "ZombieDarkmatterHealthRatioMultiplier": 0.75, // default value is 0.75, lowering this will make lower hp zombies less affected
+        "ZombieDarkmatterSpeedMultiplier": 1 // default value is 1, total speed multiplier when affected by darkmatter
+      }
+    },
+
+    { // lets you use this level in the arcade (look at ArcadeCustomLevels) and with worldmap modding
+      "objclass": "CustomLevelDefinition",
+      "aliases": [
+        "custom_level_test"
+      ],
+      "objdata": {
+        "LevelModules": [
+          {
+            "objclass": "LevelDefinition",
+            "objdata": {
+              "Description": "[PLAYERS_HOUSE]",
+              "LevelNumber": 4,
+              "Loot": "RTID(NoLoot@LevelModules)",
+              "Modules": [
+                "RTID(250MaxSunAmountProps@CurrentLevel)",
+                "RTID(StandardIntro@LevelModules)",
+                "RTID(DefaultSunDropper@LevelModules)",
+                "RTID(ZombiesDeadWinCon@LevelModules)",
+                "RTID(FrontLawnMowers@LevelModules)",
+                "RTID(SeedBank@CurrentLevel)",
+                "RTID(DefaultZombieWinCondition@LevelModules)",
+                "RTID(NewWaves@CurrentLevel)"
+              ],
+              "Name": "[TUTORIAL_LEVEL_NAME]",
+              "StageModule": "RTID(TutorialStage@LevelModules)",
+            }
+          },
+          {
+            "objclass": "LLMaxSunAmountProps",
+            "aliases": [
+              "250MaxSunAmountProps"
+            ],
+            "objdata": {
+              "MaxSunAmount": 250
+            }
+          },
+          {
+            "aliases": [
+              "SeedBank"
+            ],
+            "objclass": "SeedBankProperties",
+            "objdata": {
+              "SuppressObjectiveTip": true,
+              "SelectionMethod": "chooser"
+            }
+          },
+          {
+            "aliases": [
+              "NewWaves"
+            ],
+            "objclass": "WaveManagerModuleProperties",
+            "objdata": {
+              "WaveManagerProps": "RTID(WaveManagerProps@CurrentLevel)"
+            }
+          },
+          {
+            "aliases": [
+              "WaveManagerProps"
+            ],
+            "objclass": "WaveManagerProperties",
+            "objdata": {
+              "MinNextWaveHealthPercentage": 0.5,
+              "MaxNextWaveHealthPercentage": 0.65,
+              "FlagWaveInterval": 4,
+              "WaveCount": 4,
+              "WaveSpendingPointIncrement": 10,
+              "WaveSpendingPoints": 100,
+              "Waves": [
+                [
+                  "RTID(Wave1@CurrentLevel)"
+                ],
+                [
+                  "RTID(Wave2@CurrentLevel)"
+                ],
+                [
+                  "RTID(Wave3@CurrentLevel)"
+                ],
+                [
+                  "RTID(Wave4@CurrentLevel)"
+                ],
+              ]
+            }
+          },
+          {
+            "aliases": [
+              "Wave1"
+            ],
+            "objclass": "SpawnZombiesJitteredWaveActionProps",
+            "objdata": {
+              "Zombies": [
+                {
+                  "Row": "3",
+                  "Type": "RTID(tutorial@ZombieTypes)"
+                }
+              ]
+            }
+          },
+          {
+            "aliases": [
+              "Wave2"
+            ],
+            "objclass": "SpawnZombiesJitteredWaveActionProps",
+            "objdata": {
+              "Zombies": [
+                {
+                  "Row": "4",
+                  "Type": "RTID(tutorial@ZombieTypes)"
+                }
+              ]
+            }
+          },
+          {
+            "aliases": [
+              "Wave3"
+            ],
+            "objclass": "SpawnZombiesJitteredWaveActionProps",
+            "objdata": {
+              "Zombies": [
+                {
+                  "Row": "2",
+                  "Type": "RTID(tutorial@ZombieTypes)"
+                },
+                {
+                  "Type": "RTID(tutorial@ZombieTypes)"
+                }
+              ]
+            }
+          },
+          {
+            "aliases": [
+              "Wave4"
+            ],
+            "objclass": "SpawnZombiesJitteredWaveActionProps",
+            "objdata": {
+              "Zombies": [
+                {
+                  "Type": "RTID(tutorial@ZombieTypes)"
+                },
+                {
+                  "Type": "RTID(tutorial@ZombieTypes)"
+                }
+              ]
+            }
+          },
+        ]
+      }
+    },
+    {
+      "objclass": "CustomLevelDefinition",
+      "aliases": [
+        "custom_level_test2"
+      ],
+      "objdata": {
+        "LevelModules": [
+          {
+            "objclass": "LevelDefinition",
+            "objdata": {
+              "Description": "[PLAYERS_HOUSE]",
+              "LevelNumber": 4,
+              "Loot": "RTID(NoLoot@LevelModules)",
+              "Modules": [
+                "RTID(OnUpdateActions@CurrentLevel)",
+                "RTID(StandardIntro@LevelModules)",
+                "RTID(DefaultSunDropper@LevelModules)",
+                "RTID(ZombiesDeadWinCon@LevelModules)",
+                "RTID(FrontLawnMowers@LevelModules)",
+                "RTID(SeedBank@CurrentLevel)",
+                "RTID(DefaultZombieWinCondition@LevelModules)",
+                "RTID(NewWaves@CurrentLevel)"
+              ],
+              "Name": "[TUTORIAL_LEVEL_NAME]",
+              "StageModule": "RTID(TutorialStage@LevelModules)",
+            }
+          },
+          {
+            "aliases": [
+              "OnStartActions"
+            ],
+            "objclass": "LLSetOnStartActions",
+            "objdata": {
+              "Actions": [{
+                "kind": "ConsoleLog",
+                "values": ["yayy started"]
+              }]
+            }
+          },
+          {
+            "aliases": [
+              "OnUpdateActions"
+            ],
+            "objclass": "LLSetOnUpdateActions",
+            "objdata": {
+              "Actions": [
+                {
+                  "kind": "If",
+                  "condition": {
+                    "kind": "ArrayAllObjects",
+                    "array": { "kind": "GetObjectProperty", "property": "currentMowerLanes" },
+                    "variable": "mowerExists",
+                    "condition": {
+                      "left": { "kind": "GetContextObject", "name": "mowerExists" },
+                      "kind": "==",
+                      "right": false
+                    }
+                  },
+                  "then": [
+                    {
+                      "kind": "InvokeObjectMethod",
+                      "method": "victory"
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "aliases": [
+              "SeedBank"
+            ],
+            "objclass": "SeedBankProperties",
+            "objdata": {
+              "SuppressObjectiveTip": true,
+              "SelectionMethod": "chooser"
+            }
+          },
+          {
+            "aliases": [
+              "SeedBank"
+            ],
+            "objclass": "SeedBankProperties",
+            "objdata": {
+              "SuppressObjectiveTip": true,
+              "SelectionMethod": "chooser"
+            }
+          },
+          {
+            "aliases": [
+              "NewWaves"
+            ],
+            "objclass": "WaveManagerModuleProperties",
+            "objdata": {
+              "WaveManagerProps": "RTID(WaveManagerProps@CurrentLevel)"
+            }
+          },
+          {
+            "aliases": [
+              "WaveManagerProps"
+            ],
+            "objclass": "WaveManagerProperties",
+            "objdata": {
+              "FlagWaveInterval": 3,
+              "WaveCount": 3,
+              "Waves": [
+                [
+                  "RTID(Wave1@CurrentLevel)"
+                ],
+                [
+                  "RTID(Wave2@CurrentLevel)"
+                ],
+                [
+                  "RTID(Wave3@CurrentLevel)"
+                ]
+              ]
+            }
+          },
+          {
+            "aliases": [
+              "Wave1"
+            ],
+            "objclass": "SpawnZombiesJitteredWaveActionProps",
+            "objdata": {
+              "Zombies": [
+                {
+                  "Row": 1,
+                  "Type": "RTID(tutorial@ZombieTypes)"
+                },
+                {
+                  "Row": 2,
+                  "Type": "RTID(tutorial@ZombieTypes)"
+                },
+                {
+                  "Row": 3,
+                  "Type": "RTID(tutorial@ZombieTypes)"
+                },
+                {
+                  "Row": 4,
+                  "Type": "RTID(tutorial@ZombieTypes)"
+                },
+                {
+                  "Row": 5,
+                  "Type": "RTID(tutorial@ZombieTypes)"
+                }
+              ]
+            }
+          },
+          {
+            "aliases": [
+              "Wave2"
+            ],
+            "objclass": "SpawnZombiesJitteredWaveActionProps",
+            "objdata": {
+              "Zombies": [
+                {
+                  "Row": 1,
+                  "Type": "RTID(tutorial@ZombieTypes)"
+                },
+                {
+                  "Row": 2,
+                  "Type": "RTID(tutorial@ZombieTypes)"
+                },
+                {
+                  "Row": 3,
+                  "Type": "RTID(tutorial@ZombieTypes)"
+                },
+                {
+                  "Row": 4,
+                  "Type": "RTID(tutorial@ZombieTypes)"
+                },
+                {
+                  "Row": 5,
+                  "Type": "RTID(tutorial@ZombieTypes)"
+                }
+              ]
+            }
+          },
+          {
+            "aliases": [
+              "Wave3"
+            ],
+            "objclass": "SpawnZombiesJitteredWaveActionProps",
+            "objdata": {
+              "Zombies": [
+                {
+                  "Row": 1,
+                  "Type": "RTID(tutorial@ZombieTypes)"
+                },
+                {
+                  "Row": 2,
+                  "Type": "RTID(tutorial@ZombieTypes)"
+                },
+                {
+                  "Row": 3,
+                  "Type": "RTID(tutorial@ZombieTypes)"
+                },
+                {
+                  "Row": 4,
+                  "Type": "RTID(tutorial@ZombieTypes)"
+                },
+                {
+                  "Row": 5,
+                  "Type": "RTID(tutorial@ZombieTypes)"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

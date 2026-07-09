@@ -1,0 +1,1249 @@
+{
+  "version": 1,
+  "objects": [
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "sunflower"
+      ],
+      "objdata": {
+        "ColorOffset": { "r": 150, "g": 0, "b": 0, "holo": 0, "s": 0 },
+        "CostOverride": {
+          "CounterMode": "OnField",
+          "IncrementSunCost": 25,
+          "ListSunCost": [50, 75],
+        },
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "squash"
+      ],
+      "objdata": {
+        "SmashAOE": { "x": 3, "y": 3, "lanes": [-1, 0, 1]},
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "loquat"
+      ],
+      "objdata": {
+        "TornadoAOE": { "x": 1.5, "y": 5, "lanes": [-2, -1, 0, 1, 2]},
+        "TornadoDamage": {
+          "DPS": 25,
+          "ArmorProtection": false,
+          "ArmorAlsoDamagedWhenNotProtecting": true,
+          "ArmorKnockSound": true,
+          "BodyKnockSound": true,
+          "DamageDirection": { "x": 0, "y": 25 },
+          "DamageType": "fire",
+          "Flash": true,
+        }
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "stallia"
+      ],
+      "objdata": {
+        "AlwaysMintBoosted": true,
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "peashooter"
+      ],
+      "objdata": {
+        "ColorOffset": { "r": 0, "g": 0, "b": 0, "holo": -0.5, "a": -127, "s": -0.6},
+        "PeaType": "pea1",
+        "DetectorOverride": { "x": 5, "y": 3, "lanes": [-1, 0, 1], "xOffset": 0.2, "yOffset": 0 },
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "bowlingbulb"
+      ],
+      "objdata": {
+        "DetectorOverride": { "x": 0.5, "y": 1, "lanes": [0], "xOffset": 2, "yOffset": 0 },
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "pvine"
+      ],
+      "objdata": {
+        "BuffsPeas": false
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "shinevine"
+      ],
+      "objdata": {
+        "BuffsSunProduction": true
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "repeater"
+      ],
+      "objdata": {
+        "ColorOffset": { "r": 0, "g": 150, "b": 150, "holo": -0.4, "a": -140, "s": -0.6 },
+        "PeaType": "pea2",
+        "SpeedScale": 3,
+        "Toughness": 1500,
+        "HealAfterPF": false,
+        "DetectorOverride": { "x": 9, "y": 3, "lanes": [-1, 1] },
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "endurian"
+      ],
+      "objdata": {
+        "UsableInStages": { "blacklist": true, "stages": ["Egypt"] },
+        "OnEnableActions": [
+          {
+            "kind": "SetObjectProperty",
+            "property": "PlantfoodOnGameStart",
+            "value": true
+          }
+        ]
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "wallnut"
+      ],
+      "objdata": {
+        "OnEnableActions": [
+          {
+            "kind": "SetObjectProperty",
+            "property": "eaterDetectable",
+            "value": false
+          },
+          {
+            "kind": "SetObjectProperty",
+            "property": "smasherDetectable",
+            "value": false
+          }
+        ]
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "twinsunflower"
+      ],
+      "objdata": {
+        "OnEnableActions": [
+          {
+            "kind": "Sleep",
+            "time": 3,
+            "actions": [{
+              "kind": "InvokeObjectMethod",
+              "method": "food"
+            }]
+          }
+        ],
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "murkadamia"
+      ],
+      "objdata": {
+        "OnEnableActions": [ // this code kills murkadamia after 4s and spawns a tallnut in its place
+          {
+            "kind": "Sleep",
+            "time": 4,
+            "actions": [
+              {
+                "kind": "InvokeObjectMethod",
+                "object": {
+                  "kind": "GetObjectProperty",
+                  "property": "inLnC"
+                },
+                "method": "SpawnPlantByType",
+                "args": ["tallnut", false, true, false, true, false, true]
+              },
+              {
+                "kind": "InvokeObjectMethod",
+                "method": "die",
+                "args": [false, false, false, false]
+              },
+              {
+                "kind": "InvokeObjectMethod",
+                "object": {
+                  "kind": "GetObjectProperty",
+                  "property": "node"
+                },
+                "method": "destroy",
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "tallnut"
+      ],
+      "objdata": {
+        "SmashDamageInsteadOfDeath": {
+          "forcedDamage": null // tries to take SmashDamage from a zombie, defaults to 1500
+        },
+        "OnUpdateActions": [ // this code makes tallnut heal 75 hp/second
+          {
+            "kind": "InvokeObjectMethod",
+            "method": "heal",
+            "args": [{
+              "left": 75,
+              "kind": "*",
+              "right": {
+                "kind": "GetContextObject",
+                "name": "deltaTime"
+              }
+            }]
+          }
+        ],
+        "OnEatenActions": [ // this code makes a tallnut spawn a hypnotized zombie when eaten
+          {
+            "kind": "SpawnZombie",
+            "lnc": {
+              "kind": "GetObjectProperty",
+              "property": "inLnC"
+            },
+            "type": "dino_armor2",
+            "spawnStyle": "dirtspawn",
+            "playSound": true,
+            "columnOffset": -0.5,
+            "delay": 0,
+            "playRiseAnimation": true,
+            "reversed": false,
+            "hypnotized": true
+          }
+        ]
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "iceburg"
+      ],
+      "objdata": {
+        "OnEnableActions": [
+          {
+            "kind": "SetObjectProperty",
+            "property": "___existTime",
+            "value": 0
+          }
+        ],
+        "OnUpdateActions": [ // this code changes iceburg's size from -0.5 to 1 and back over time
+          {
+            "kind": "SetObjectProperty",
+            "property": "___existTime",
+            "value": {
+              "kind": "+",
+              "left": {
+                "kind": "GetObjectProperty",
+                "property": "___existTime"
+              },
+              "right": {
+                "kind": "GetContextObject",
+                "name": "deltaTime"
+              }
+            }
+          },
+          {
+            "kind": "SetObjectProperty",
+            "property": "plantScale",
+            "value": {
+              "left": 0.25,
+              "kind": "+",
+              "right": {
+                "left": 0.75,
+                "kind": "*",
+                "right": {
+                  "kind": "sin",
+                  "value": {
+                    "left": {
+                      "kind": "GetObjectProperty",
+                      "property": "___existTime"
+                    },
+                    "kind": "*",
+                    "right": 4
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    { // hexar's sun statue
+      "objclass": "PlantProperties",
+      "aliases": [
+        "primalsunflower"
+      ],
+      "objdata": {
+        "ColorOffset": { "r": 0, "g": 0, "b": 0, "holo": 0, "s": -1 },
+        "SpeedScale": 0.00001,
+        "OnEnableActions": [
+          {
+            "kind": "SetObjectProperty",
+            "property": "eaterDetectable",
+            "value": false
+          },
+          {
+            "kind": "SetObjectProperty",
+            "property": "smasherDetectable",
+            "value": false
+          },
+          {
+            "kind": "SetObjectProperty",
+            "property": "invincible",
+            "value": true
+          },
+          {
+            "kind": "SetObjectProperty",
+            "property": "foodable",
+            "value": false
+          },
+          {
+            "kind": "SetObjectProperty",
+            "property": "___ClickCooldown",
+            "value": 0
+          }
+        ],
+        "OnUpdateActions": [
+          {
+            "kind": "SetObjectProperty",
+            "property": "___ClickCooldown",
+            "value": {
+              "left": {
+                "kind": "GetObjectProperty",
+                "property": "___ClickCooldown"
+              },
+              "kind": "-",
+              "right": {
+                "kind": "GetContextObject",
+                "name": "deltaTime"
+              }
+            }
+          },
+          {
+            "kind": "If",
+            "condition": {
+              "left": {
+                "kind": "GetObjectProperty",
+                "property": "___ClickCooldown"
+              },
+              "kind": ">",
+              "right": 0
+            },
+            "then": [
+              {
+                "kind": "SetObjectProperty",
+                "property": "baseColor",
+                "value": {
+                  "kind": "InvokeConstructor",
+                  "object": {
+                    "kind": "GetObjectProperty",
+                    "property": "baseColor"
+                  },
+                  "args": [80, 80, 80, 255]
+                }
+              }
+            ],
+            "else": [
+              {
+                "kind": "SetObjectProperty",
+                "property": "baseColor",
+                "value": {
+                  "kind": "InvokeConstructor",
+                  "object": {
+                    "kind": "GetObjectProperty",
+                    "property": "baseColor"
+                  },
+                  "args": [255, 255, 255, 255]
+                }
+              }
+            ]
+          }
+        ],
+        "OnLeftClickActions": [
+          {
+            "kind": "If",
+            "condition": {
+              "left": {
+                "kind": "GetObjectProperty",
+                "property": "___ClickCooldown"
+              },
+              "kind": "<=",
+              "right": 0
+            },
+            "then": [
+              {
+                "kind": "SetContextObject",
+                "name": "SunValue",
+                "object": 50
+              },
+              {
+                "kind": "SetContextObject",
+                "name": "EffectTime",
+                "object": 10
+              },
+              {
+                "kind": "SetContextObject",
+                "name": "LevelPlay",
+                "object": {
+                  "kind": "GetObjectProperty",
+                  "object": {
+                    "kind": "GetSystemModule",
+                    "name": "levelController"
+                  },
+                  "property": "LevelPlay"
+                }
+              },
+              {
+                "kind": "SetContextObject",
+                "name": "3x3Area",
+                "object": {
+                  "kind": "CreateRectangle",
+                  "node": {
+                    "kind": "GetObjectProperty",
+                    "property": "node"
+                  },
+                  "width": 3,
+                  "height": 3
+                }
+              },
+              {
+                "kind": "SetContextObject",
+                "name": "CurrentLnC",
+                "object": {
+                  "kind": "GetObjectProperty",
+                  "property": "inLnC"
+                }
+              },
+              {
+                "kind": "SetContextObject",
+                "name": "CurrentLane",
+                "object": {
+                  "kind": "GetObjectProperty",
+                  "object": {
+                    "kind": "GetContextObject",
+                    "name": "CurrentLnC"
+                  },
+                  "property": "inLane"
+                }
+              },
+              {
+                "kind": "InvokeObjectMethod",
+                "object": {
+                  "kind": "GetContextObject",
+                  "name": "LevelPlay"
+                },
+                "method": "shakeScreen",
+                "args": [0.6]
+              },
+              {
+                "kind": "SetObjectProperty",
+                "property": "___ClickCooldown",
+                "value": 25
+              },
+              {
+                "kind": "For",
+                "variable": "lane",
+                "iterable": [
+                  {
+                    "kind": "GetContextObject",
+                    "name": "CurrentLane"
+                  },
+                  {
+                    "kind": "GetObjectProperty",
+                    "object": {
+                      "kind": "GetContextObject",
+                      "name": "CurrentLane"
+                    },
+                    "property": "UpperLane"
+                  },
+                  {
+                    "kind": "GetObjectProperty",
+                    "object": {
+                      "kind": "GetContextObject",
+                      "name": "CurrentLane"
+                    },
+                    "property": "LowerLane"
+                  }
+                ],
+                "actions": [
+                  {
+                    "kind": "For",
+                    "variable": "zombie",
+                    "iterable": {
+                      "kind": "InvokeObjectMethod",
+                      "object": {
+                        "kind": "GetContextObject",
+                        "name": "lane"
+                      },
+                      "method": "zombiePool"
+                    },
+                    "actions": [
+                      {
+                        "kind": "If",
+                        "condition": {
+                          "kind": "InvokeObjectMethod",
+                          "object": {
+                            "kind": "GetContextObject",
+                            "name": "3x3Area"
+                          },
+                          "method": "judgeCrossRec",
+                          "args": [
+                            {
+                              "kind": "GetObjectProperty",
+                              "object": {
+                                "kind": "GetContextObject",
+                                "name": "zombie"
+                              },
+                              "property": "bodyRecReal"
+                            }
+                          ],
+                        },
+                        "then": [
+                          {
+                            "kind": "InvokeObjectMethod",
+                            "object": {
+                              "kind": "GetContextObject",
+                              "name": "zombie"
+                            },
+                            "method": "setChill",
+                            "args": [
+                              {
+                                "kind": "GetContextObject",
+                                "name": "EffectTime"
+                              }
+                            ]
+                          },
+                          {
+                            "kind": "If",
+                            "condition": {
+                              "left": {
+                                "kind": "GetContextObject",
+                                "name": "SunValue"
+                              },
+                              "kind": ">",
+                              "right": {
+                                "kind": "GetObjectProperty",
+                                "object": {
+                                  "kind": "GetContextObject",
+                                  "name": "zombie"
+                                },
+                                "property": "haveSun"
+                              }
+                            },
+                            "then": [
+                              {
+                                "kind": "If",
+                                "condition": {
+                                  "kind": "InvokeObjectMethod",
+                                  "object": {
+                                    "kind": "GetContextObject",
+                                    "name": "zombie"
+                                  },
+                                  "method": "isAlive"
+                                },
+                                "then": [
+                                  {
+                                    "kind": "SetObjectProperty",
+                                    "object": {
+                                      "kind": "GetContextObject",
+                                      "name": "zombie"
+                                    },
+                                    "property": "haveSun",
+                                    "value": {
+                                      "kind": "GetContextObject",
+                                      "name": "SunValue"
+                                    }
+                                  },
+                                  {
+                                    "kind": "InvokeObjectMethod",
+                                    "object": {
+                                      "kind": "GetContextObject",
+                                      "name": "zombie"
+                                    },
+                                    "method": "setSunBeanParticleCD",
+                                    "args": [
+                                      {
+                                        "kind": "GetContextObject",
+                                        "name": "EffectTime"
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "kind": "Sleep",
+                                    "cloneContext": true,
+                                    "time": {
+                                      "kind": "GetContextObject",
+                                      "name": "EffectTime"
+                                    },
+                                    "object": {
+                                      "kind": "GetContextObject",
+                                      "name": "zombie"
+                                    },
+                                    "actions": [
+                                      {
+                                        "kind": "SetObjectProperty",
+                                        "object": {
+                                          "kind": "GetContextObject",
+                                          "name": "zombie"
+                                        },
+                                        "property": "haveSun",
+                                        "value": 0
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "bonkchoy"
+      ],
+      "objdata": {
+        "TimeBeforeSelfExplode": {
+          "Time": 8,
+          "CanBeResurrected": false,
+          "RestoreTimeOnPF": true,
+          "PauseWhileFooding": true,
+          "BlinkingStartTime": 5,
+          "BlinkPeriod": 0.7,
+          "BlinkMinAlpha": 100,
+          "BlinkMaxAlpha": 255,
+        }
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "goldbloom"
+      ],
+      "objdata": {
+        "SpeedScale": 0.2
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "cherry_bomb"
+      ],
+      "objdata": {
+        "SpeedScale": 0.5,
+        "Toughness": 500,
+        "OnEnableActions": [
+          {
+            "kind": "SetObjectProperty",
+            "property": "eaterDetectable",
+            "value": true
+          },
+          {
+            "kind": "SetObjectProperty",
+            "property": "smasherDetectable",
+            "value": true
+          },
+          {
+            "kind": "SetObjectProperty",
+            "property": "invincible",
+            "value": false
+          }
+        ],
+        "CostOverride": {
+          "CounterMode": "TotalPlanted",
+          "IncrementSunCost": 25,
+          "ListSunCost": [150],
+        },
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "redstinger"
+      ],
+      "objdata": {
+        "SecondStageColumns": [2, 4, 6],
+        "ThirdStageColumns": [5, 7, 9],
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "minireed"
+      ],
+      "objdata": {
+        "WorldPositionOffset": { "x": 0.25, "y": -0.25, "shade": -0.25 },
+        "SpawnedScale": 0.5,
+        "SunCost": 50,
+        "ImmuneToLightningCharge": true,
+        "Damage": 5,
+        "SplashDamage": 5,
+        "SplashCount": 4,
+        "AttackInterval": 0.95,
+        "AttackIntervalAdditional": 0.1,
+        "PlantfoodDPS": 200,
+        "PlantfoodDuration": 15,
+        "Cooldown": 5,
+        "CooldownFrom": 0.5,
+        "BeghouledCost": 1000,
+        "Toughness": 300,
+        "Family": "Electricity",
+        "RedAttackStunDuration": 0.25,
+        "CallsElectricCurrant": true,
+        "MintDamageFactor": 5,
+        "MintBoostedProps": {
+          "ResistanceMult": 1,
+          "SpeedMult": 2,
+          "Plantfood": false
+        }
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "threepeater"
+      ],
+      "objdata": {
+        "ExtraSidePeas": true,
+        "DetectorOverride": { "x": 9, "y": 5, "lanes": [2] },
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "applemortar"
+      ],
+      "objdata": {
+        "ExtraSideApples": true
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "puffshroom"
+      ],
+      "objdata": {
+        "DetectorOverride": { "x": 9, "y": 1, "lanes": [0] },
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "enlightenmint"
+      ],
+      "objdata": {
+        "BoostedFamilies": ["Peashooter", "Sun"],
+        "BoostedPlants": ["cabbagepult"]
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "appeasemint"
+      ],
+      "objdata": {
+        "BoostsPlants": false
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "shadowpeashooter"
+      ],
+      "objdata": {
+        "NoShadowBoost": true
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "moonflower"
+      ],
+      "objdata": {
+        "DoesntShadowBoost": true
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "noctarine"
+      ],
+      "objdata": {
+        "DoesntShadowBoost": true
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "gloomshroom"
+      ],
+      "objdata": {
+        "DoesntShadowBoost": true
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "gloomvine"
+      ],
+      "objdata": {
+        "DoesntShadowBoost": true
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "potatomine"
+      ],
+      "objdata": {
+        "ForceShovelableMode": false
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "armamint"
+      ],
+      "objdata": {
+        "ForceShovelableMode": true
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "banana"
+      ],
+      "objdata": {
+        "BananasPerPFAnimation": 5,
+        "MaxPFAnimationCycles": { "amount": 2, "forceEndFooding": true }
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "gatling"
+      ],
+      "objdata": {
+        "MaxShootAnimationCycles": 1,
+        "PeaType": "pea1_flame_yellow"
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "megagatling"
+      ],
+      "objdata": {
+        "MaxShootAnimationCycles": 1,
+        "PeaType": "pea2_flame_yellow"
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "splitpea"
+      ],
+      "objdata": {
+        "BackPeaType": "pea_snow"
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "dandelion"
+      ],
+      "objdata": {
+        "AlwaysShoots": true // didnt work in vanilla
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "spikeweed"
+      ],
+      "objdata": {
+        "OnFoodActions": [ // this code just prints 123 in console but also uses an object to store a value
+          {
+            "kind": "SetContextObject",
+            "name": "variables",
+            "object": {
+              "test": 123
+            }
+          },
+          {
+            "kind": "ConsoleLog",
+            "values": [{
+              "kind": "GetObjectProperty",
+              "object": {
+                "kind": "GetContextObject",
+                "name": "variables"
+              },
+              "property": "test"
+            }]
+          }
+        ]
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "springbean"
+      ],
+      "objdata": {
+        "OnEatenActions": [ // this code makes spring bean explode on being killed
+          {
+            "kind": "InvokeObjectMethod",
+            "object": {
+              "kind": "GetObjectProperty",
+              "object": {
+                "kind": "GetContextObject",
+                "name": "target"
+              },
+              "property": "inLnC"
+            },
+            "method": "explodeCherry3x3",
+            "args": [1800, true]
+          }
+        ]
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "bloomerang"
+      ],
+      "objdata": {
+        "DynamicPlantableCondition": { // this code makes bloomerang only plantable on gold tiles
+          "left": {
+            "kind": "GetObjectProperty",
+            "property": "GoldTile"
+          },
+          "kind": "&&",
+          "right": {
+            "kind": "InvokeObjectMethod",
+            "method": "plantable",
+            "args": [
+              {"kind": "GetContextObject", "name": "checkOverlap"},
+              {"kind": "GetContextObject", "name": "plantID"},
+              {"kind": "GetContextObject", "name": "terrainRestrictions"}
+            ]
+          }
+        }
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "skyshooter"
+      ],
+      "objdata": {
+        "DynamicPlantableCondition": { // this code makes skyshooter also plantable on pirate seas water and rails
+          "kind": "InvokeObjectMethod",
+          "method": "plantableIgnoreConditions",
+          "args": [
+            { "kind": "GetContextObject", "name": "checkOverlap" },
+            { "kind": "GetContextObject", "name": "plantID" },
+            { "kind": "GetContextObject", "name": "terrainRestrictions" },
+            true, // ignoreRails
+            false, // ignoreTombs
+            false, //ignoreWater
+            false, // ignoreSky
+            true, // ignoreSea
+          ]
+        }
+      }
+    },
+    { // hexar's manual jackolantern
+      "aliases": [
+        "jackolantern"
+      ],
+      "objclass": "PlantProperties",
+      "objdata": {
+        "DPS": 0,
+        "DPSPlantfood": 200,
+        "ShootDuration": 0,
+        "RechargeTime": 99999999999,
+        "Distance": 0,
+        "PlantfoodFireCount": 10,
+        "Cooldown": 25,
+        "CooldownFrom": 0,
+        "SunCost": 175,
+        "BeghouledCost": 1000,
+        "Toughness": 1000,
+        "Family": "Explosive",
+        "ImmuneToIceblock": true,
+        "OnEnableActions": [
+          {
+            "kind": "SetObjectProperty",
+            "property": "___ClickCooldown",
+            "value": 0
+          }
+        ],
+        "OnUpdateActions": [
+          {
+            "kind": "SetObjectProperty",
+            "property": "___ClickCooldown",
+            "value": {
+              "left": {
+                "kind": "GetObjectProperty",
+                "property": "___ClickCooldown"
+              },
+              "kind": "-",
+              "right": {
+                "kind": "GetContextObject",
+                "name": "deltaTime"
+              }
+            }
+          },
+          {
+            "kind": "If",
+            "condition": {
+              "left": {
+                "kind": "GetObjectProperty",
+                "property": "___ClickCooldown"
+              },
+              "kind": ">",
+              "right": 0
+            },
+            "then": [
+              {
+                "kind": "SetObjectProperty",
+                "property": "baseColor",
+                "value": {
+                  "kind": "InvokeConstructor",
+                  "object": {
+                    "kind": "GetObjectProperty",
+                    "property": "baseColor"
+                  },
+                  "args": [
+                    80,
+                    80,
+                    80,
+                    255
+                  ]
+                }
+              }
+            ],
+            "else": [
+              {
+                "kind": "SetObjectProperty",
+                "property": "baseColor",
+                "value": {
+                  "kind": "InvokeConstructor",
+                  "object": {
+                    "kind": "GetObjectProperty",
+                    "property": "baseColor"
+                  },
+                  "args": [
+                    255,
+                    255,
+                    255,
+                    255
+                  ]
+                }
+              }
+            ]
+          }
+        ],
+        "OnLeftClickActions": [
+          {
+            "kind": "If",
+            "condition": {
+              "left": {
+                "kind": "GetObjectProperty",
+                "property": "___ClickCooldown"
+              },
+              "kind": "<=",
+              "right": 0
+            },
+            "then": [
+              {
+                "kind": "SetObjectProperty",
+                "property": "___ClickCooldown",
+                "value": 25
+              },
+              {
+                "kind": "InvokeObjectMethod",
+                "method": "shootEnd"
+              },
+              {
+                "kind": "InvokeObjectMethod",
+                "method": "shootEnd"
+              },
+              {
+                "kind": "InvokeObjectMethod",
+                "object": {
+                  "kind": "GetProjectileShootingFunctions"
+                },
+                "method": "shootOnePea",
+                "args": [
+                  "jackolantern_spread",
+                  {
+                    "kind": "GetObjectProperty",
+                    "property": "worldPosition"
+                  },
+                  40,
+                  {
+                    "kind": "GetObjectProperty",
+                    "property": "inLane.prjLayer"
+                  },
+                  {
+                    "kind": "CreateVec2",
+                    "x": 8,
+                    "y": 0
+                  },
+                  {
+                    "kind": "GetCharacterType",
+                    "name": "zombie"
+                  },
+                  false
+                ],
+              }
+            ]
+          }
+        ],
+        "WarmingRadius": {
+          "PulseInitialDelay": 5,
+          "PulseCooldown": 10,
+          "GridItemDamage": 200
+        }
+      }
+    },
+    { // nitro's red with stinger custom plantfood
+      "objclass": "PlantProperties",
+      "aliases": [
+        "redstinger"
+      ],
+      "objdata": {
+        "SecondStageColumns": [],
+        "ThirdStageColumns": [],
+        "PeaType": "redstinger",
+        "PeaTypeWeak": "redstinger_weak",
+        "ShootInterval": 1.5,
+        "ShootIntervalAdditional": 0,
+        "DamageScale0": 1,
+        "DamageScale1": 0.25,
+        "DamageScale2": 0.125,
+        "PFDuration": 10,
+        "PFDPS": 0,
+        "Cooldown": 7.5,
+        "CooldownFrom": 1,
+        "SunCost": 250,
+        "BeghouledCost": 2000,
+        "Toughness": 300,
+        "Family": "",
+        "OnFoodActions": [
+          {
+            "kind": "InvokeObjectMethod",
+            "method": "rayDB.playAnimation",
+            "args": ["Die", 2]
+          },
+          {
+            "kind": "InvokeObjectMethod",
+            "object": {
+              "kind": "GetProjectileShootingFunctions"
+            },
+            "method": "shootOnePea",
+            "args": [
+              "pea_sky2_flame_yellow",
+              {
+                "kind": "GetObjectProperty",
+                "property": "worldPosition"
+              },
+              40,
+              {
+                "kind": "GetObjectProperty",
+                "property": "inLane.prjLayer"
+              },
+              {
+                "kind": "CreateVec2",
+                "x": 8,
+                "y": 0
+              },
+              {
+                "kind": "GetCharacterType",
+                "name": "zombie"
+              },
+              false
+            ],
+          },
+          {
+            "kind": "Sleep",
+            "time": 4,
+            "cloneContext": false,
+            "actions": [
+              {
+                "kind": "InvokeObjectMethod",
+                "method": "foodEnd"
+              }
+            ]
+          }
+        ],
+        "MintPlantfoodDPSMult": 5,
+        "MintBoostedProps": {
+          "ResistanceMult": 1,
+          "SpeedMult": 2,
+          "Plantfood": false
+        }
+      }
+    },
+    { // hexar's sunpod
+      "objclass": "PlantProperties",
+      "aliases": [
+        "peapod"
+      ],
+      "objdata": {
+        "MaxPeaHeads": 1,
+        "OnUpdateActions": [
+          {
+            "kind": "SetObjectProperty",
+            "property": "headCount",
+            "value": {
+              "left": {
+                "left": { "kind": "GetCurrentSunCount" },
+                "kind": "//",
+                "right": 250
+              },
+              "kind": "+",
+              "right": 1
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -5,7 +5,7 @@ export function init(ctx) {
         const playerProperties = ctx.engine.getSystemModule("chunks:///_virtual/PlayerProperties.ts")
         const allPlayerProperties = playerProperties.AllPlayerProperties
 
-        allPlayerProperties.StartingWorlds = libProperties.StartingWorlds.map((world) => {
+        if (libProperties?.StartingWorlds) allPlayerProperties.StartingWorlds = libProperties.StartingWorlds.map((world) => {
             return playerProperties.WorldMapSceneDisplayEnum[world]
         })
 
@@ -17,7 +17,7 @@ export function init(ctx) {
             target: allPlayerProperties,
             methodName: "getForceLevel",
             handler: ({thisArg, callOriginal}) => {
-                if (libProperties.ForceSkipTutorial) {
+                if (libProperties?.ForceSkipTutorial) {
                     if (thisArg.currentPlayer.forceLevel == null || tutorialLevels.includes(thisArg.currentPlayer.forceLevel)) {
                         thisArg.currentPlayer.forceLevel = "";
                         thisArg.savePP();

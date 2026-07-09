@@ -1,0 +1,16 @@
+{
+  "#comment": "Plant Types!",
+  "version": 1,
+  "objects": [
+    {
+      "objclass": "PlantType",
+      "aliases": [
+        "minireed"
+      ],
+      "objdata": {
+        "PlantBasedOn": "minireed",
+        "Properties": "RTID(minireed@PlantProps)"
+      }
+    }
+  ]
+}

@@ -1,0 +1,419 @@
+{
+  "#comment": "Projectile Properties!",
+  "version": 1,
+  "objects": [
+    {
+      "objclass": "ProjectileProperties",
+      "aliases": [
+        "pea"
+      ],
+      "objdata": {
+        "ColorMult": { "r": 0.5, "g": 0.5, "b": 0.5 },
+        "CanBePeaVineBuffed": false,
+        "OnHitActions": [
+          {
+            "kind": "If",
+            "condition": {
+              "left": { "left": 75, "kind": ">", "right": {
+                "kind": "GetObjectProperty",
+                "object": {
+                  "kind": "GetContextObject",
+                  "name": "target"
+                  // the object always defaults to target if not specified so you dont have to specify it
+                },
+                "property": "haveSun"
+              }},
+              "kind": "&&",
+              "right": {
+                "kind": "InvokeObjectMethod",
+                "object": {
+                  "kind": "GetContextObject",
+                  "name": "target"
+                },
+                "method": "isAlive",
+                "args": []
+              }
+            },
+            "then": [
+              {
+                "kind": "SetObjectProperty",
+                "object": {
+                  "kind": "GetContextObject",
+                  "name": "target"
+                },
+                "property": "haveSun",
+                "value": 75
+              },
+              {
+                "kind": "InvokeObjectMethod",
+                "object": {
+                  "kind": "GetContextObject",
+                  "name": "target"
+                },
+                "method": "setSunBeanParticleCD",
+                "args": [0.5]
+              }
+            ],
+            "else": []
+          }
+        ]
+      }
+    },
+    {
+      "objclass": "ProjectileProperties",
+      "aliases": [
+        "pea_snow"
+      ],
+      "objdata": {
+        "OnHitActions": [
+          {
+            "kind": "InvokeObjectMethod",
+            "method": "defaultDealDamage",
+            "args": [{
+              "kind": "CreateDamageDetails",
+              "damage": {
+                "left": { "kind": "GetObjectProperty", "property": "toughness" },
+                "kind": "*",
+                "right": 0.025
+              },
+              "armorProtection": true,
+              "armorKnockSound": true,
+              "bodyKnockSound": true,
+              "damageDirection": {
+                "kind": "CreateVec2",
+                "x": 0,
+                "y": 15
+              },
+              "damageType": "physicle",
+              "flash": true,
+              "armorAlsoDamagedWhenNotProtecting": false,
+              "bugKiller": false,
+              "balloonKiller": false,
+              "shockRGB": 1, // no idea what this does
+              "DamageScaleForArmorRack": 1
+            }]
+          }
+        ]
+      }
+    },
+    {
+      "objclass": "ProjectileProperties",
+      "aliases": [
+        "corn"
+      ],
+      "objdata": {
+        "EnemyTypeOverride": "plant"
+      }
+    },
+    {
+      "objclass": "ProjectileProperties",
+      "aliases": [
+        "pea2"
+      ],
+      "objdata": {
+        "SpeedMult": 0.5,
+        "Scale": 0.5,
+        "Damage": 10,
+        "ColorOffset": { "r": 0, "g": 50, "b": 50 }
+      }
+    },
+    {
+      "objclass": "ProjectileProperties",
+      "aliases": [
+        "coconut"
+      ],
+      "objdata": {
+        "ProjectileSpread": [
+          {
+            "ProjectileType": "pea",
+            "ProjectileAmount": 180, // must be a multiple of ProjectilesPerInterval
+            "ProjectileSpreadDegrees": [{ "min": -40, "max": 40 }],
+            "FirstProjectileInterval": 0,
+            "ProjectileInterval": 0, // 0 interval is 1 frame
+            "ProjectilesPerInterval": 10, // amount of projectiles every ProjectileInterval
+            "InitialDegreeOffset": 0,
+            "CenterOffset": { "x": 0.05, "y": -0.2 },
+          }
+        ]
+      }
+    },
+    {
+      "objclass": "ProjectileProperties",
+      "aliases": [
+        "pea1_flame_yellow"
+      ],
+      "objdata": {
+        "ProjectileSpread": [
+          {
+            "ProjectileType": "pea_flame_yellow",
+            "ProjectileAmount": 2,
+            "ProjectileSpreadDegrees": [{ "min": 0, "max": 0 }],
+            "FirstProjectileInterval": 0,
+            "ProjectileInterval": 0.05,
+            "ProjectilesPerInterval": 1,
+            "InitialDegreeOffset": 0,
+            "CenterOffset": { "x": 0, "y": -0 },
+          }
+        ]
+      }
+    },
+    {
+      "objclass": "ProjectileProperties",
+      "aliases": [
+        "pea2_flame_yellow"
+      ],
+      "objdata": {
+        "ProjectileSpread": [
+          {
+            "ProjectileType": "pea",
+            "ProjectileAmount": 1,
+            "ProjectileSpreadDegrees": [{ "min": 0, "max": 0 }],
+            "FirstProjectileInterval": 0,
+            "ProjectileInterval": 0,
+            "ProjectilesPerInterval": 1,
+            "InitialDegreeOffset": 0,
+            "CenterOffset": { "x": 0, "y": -0 },
+          },
+          {
+            "ProjectileType": "pea",
+            "ProjectileAmount": 1,
+            "ProjectileSpreadDegrees": [{ "min": 45, "max": 45 }],
+            "FirstProjectileInterval": 0,
+            "ProjectileInterval": 0,
+            "ProjectilesPerInterval": 1,
+            "InitialDegreeOffset": 0,
+            "CenterOffset": { "x": 0, "y": -0 },
+          },
+          {
+            "ProjectileType": "pea",
+            "ProjectileAmount": 1,
+            "ProjectileSpreadDegrees": [{ "min": 90, "max": 90 }],
+            "FirstProjectileInterval": 0,
+            "ProjectileInterval": 0,
+            "ProjectilesPerInterval": 1,
+            "InitialDegreeOffset": 0,
+            "CenterOffset": { "x": 0, "y": -0 },
+          },
+          {
+            "ProjectileType": "pea",
+            "ProjectileAmount": 1,
+            "ProjectileSpreadDegrees": [{ "min": 135, "max": 135 }],
+            "FirstProjectileInterval": 0,
+            "ProjectileInterval": 0,
+            "ProjectilesPerInterval": 1,
+            "InitialDegreeOffset": 0,
+            "CenterOffset": { "x": 0, "y": -0 },
+          },
+          {
+            "ProjectileType": "pea",
+            "ProjectileAmount": 1,
+            "ProjectileSpreadDegrees": [{ "min": 180, "max": 180 }],
+            "FirstProjectileInterval": 0,
+            "ProjectileInterval": 0,
+            "ProjectilesPerInterval": 1,
+            "InitialDegreeOffset": 0,
+            "CenterOffset": { "x": 0, "y": -0 },
+          },
+          {
+            "ProjectileType": "pea",
+            "ProjectileAmount": 1,
+            "ProjectileSpreadDegrees": [{ "min": 225, "max": 225 }],
+            "FirstProjectileInterval": 0,
+            "ProjectileInterval": 0,
+            "ProjectilesPerInterval": 1,
+            "InitialDegreeOffset": 0,
+            "CenterOffset": { "x": 0, "y": -0 },
+          },
+          {
+            "ProjectileType": "pea",
+            "ProjectileAmount": 1,
+            "ProjectileSpreadDegrees": [{ "min": 270, "max": 270 }],
+            "FirstProjectileInterval": 0,
+            "ProjectileInterval": 0,
+            "ProjectilesPerInterval": 1,
+            "InitialDegreeOffset": 0,
+            "CenterOffset": { "x": 0, "y": -0 },
+          },
+          {
+            "ProjectileType": "pea",
+            "ProjectileAmount": 1,
+            "ProjectileSpreadDegrees": [{ "min": 315, "max": 315 }],
+            "FirstProjectileInterval": 0,
+            "ProjectileInterval": 0,
+            "ProjectilesPerInterval": 1,
+            "InitialDegreeOffset": 0,
+            "CenterOffset": { "x": 0, "y": -0 },
+          }
+        ]
+      }
+    },
+    {
+      "objclass": "ProjectileProperties",
+      "aliases": [
+        "pea1"
+      ],
+      "objdata": {
+        "ProjectileSpread": [
+          {
+            "ProjectileType": "pea_flame_yellow",
+            "ProjectileAmount": 9,
+            "ProjectileSpreadDegrees": [
+              { "min": -60, "max": -20 },
+              { "min": 20, "max": 60 },
+            ],
+            "FirstProjectileInterval": 0,
+            "ProjectileInterval": 0,
+            "ProjectilesPerInterval": 9,
+            "InitialDegreeOffset": 0,
+            "CenterOffset": { "x": 0, "y": 0 },
+          },
+          {
+            "ProjectileType": "pea_flame_blue",
+            "ProjectileAmount": 2,
+            "ProjectileSpreadDegrees": [{ "min": -20, "max": 20 }],
+            "FirstProjectileInterval": 0,
+            "ProjectileInterval": 0,
+            "ProjectilesPerInterval": 2,
+            "InitialDegreeOffset": 0,
+            "CenterOffset": { "x": 0, "y": 0 },
+          }
+        ]
+      }
+    },
+    {
+      "objclass": "ProjectileProperties",
+      "aliases": [
+        "pea2_snap_flame_blue"
+      ],
+      "objdata": {
+        "OnEnableActions": [
+          {
+            "kind": "InvokeObjectMethod",
+            "method": "fade"
+          }
+        ]
+      }
+    },
+    {
+      "objclass": "ProjectileProperties",
+      "aliases": [
+        "cabbage"
+      ],
+      "objdata": {
+        "Scale": 2
+      }
+    },
+    {
+      "objclass": "ProjectileProperties",
+      "aliases": [
+        "melon"
+      ],
+      "objdata": {
+        "Scale": 0.25,
+        "OnUpdateActions": [
+          {
+            "kind": "InvokeObjectMethod",
+            "method": "dealSplashDamage"
+          },
+          {
+            "kind": "InvokeObjectMethod",
+            "method": "fade"
+          }
+        ]
+      }
+    },
+    {
+      "objclass": "ProjectileProperties",
+      "aliases": [
+        "winter_melon"
+      ],
+      "objdata": {
+        "Scale": 0.25,
+        "OnUpdateActions": [
+          {
+            "kind": "InvokeObjectMethod",
+            "object": {
+              "kind": "GetObjectProperty",
+              "property": "inLnC"
+            },
+            "method": "explodeCherry3x3",
+            "args": [1800, true]
+          }
+        ]
+      }
+    },
+    {
+      "objclass": "ProjectileProperties",
+      "aliases": [
+        "pea_shadow"
+      ],
+      "objdata": {
+        "ZombieInvisibilityPotion": { "value": false, "forced": true },
+        "ZombieSpeedPotion": { "value": 0.1, "max": 1, "min": 0 },
+      }
+    },
+    {
+      "objclass": "ProjectileProperties",
+      "aliases": [
+        "pea_sky"
+      ],
+      "objdata": {
+        "ZombieInvisibilityPotion": { "value": true, "forced": false },
+        "ZombieToughnessPotion": {
+          "value": -0.1,
+          "max": 999,
+          // 999 so it doesn't limit other sources of potions accidentally
+          "min": -5
+        },
+      }
+    },
+    {
+      "aliases": [
+        "jackolantern_spread"
+      ],
+      "objclass": "ProjectileProperties",
+      "objdata": {
+        "ProjectileSpread": [
+          {
+            "ProjectileType": "pea_flame_yellow",
+            "ProjectileAmount": 12,
+            "ProjectileSpreadDegrees": [
+              {
+                "min": -15,
+                "max": 15
+              }
+            ],
+            "FirstProjectileInterval": 0,
+            "ProjectileInterval": 0.2,
+            "ProjectilesPerInterval": 3,
+            "InitialDegreeOffset": 0,
+            "CenterOffset": {
+              "x": -0.4,
+              "y": 0.1
+            }
+          }
+        ]
+      }
+    },
+    {
+      "objclass": "ProjectileProperties",
+      "aliases": [
+        "pea_sky2_flame_yellow"
+      ],
+      "objdata": {
+        "ProjectileSpread": [
+          {
+            "ProjectileType": "redstinger2",
+            "ProjectileAmount": 30,
+            "ProjectileSpreadDegrees": [{ "min": -20, "max": 20 }],
+            "FirstProjectileInterval": 1.75,
+            "ProjectileInterval": 0.5,
+            "ProjectilesPerInterval": 6,
+            "InitialDegreeOffset": 0,
+            "CenterOffset": { "x": 0.3, "y": -0.2 },
+          }
+        ]
+      }
+    }
+  ]
+}

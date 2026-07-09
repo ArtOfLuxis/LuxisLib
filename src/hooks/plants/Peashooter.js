@@ -1,25 +1,39 @@
+import {wrapObjDataOwnPlant} from "./Plant";
 
 export function init(ctx) {
     ctx.events.on("engine:ready", () => {
-        const peashooter = ctx.engine.getSystemModule("chunks:///_virtual/Peashooter.ts");
-        const proto = peashooter.PeashooterPlant.prototype;
+        const peashooter = ctx.engine.getSystemModule("chunks:///_virtual/Peashooter.ts")
+        const proto = peashooter.PeashooterPlant.prototype
 
-        const plantKeys = {
-            "DetectorOverride": null,
-        }
+        wrapObjDataOwnPlant(ctx, proto, {
+            "MaxShootAnimationCycles": null
+        })
 
-        ctx.hooks.wrapProperty({
+        ctx.hooks.wrapMethod({
             target: proto,
-            key: "_objdata",
-            get: ({thisArg, value}) => {
-                if (value) {
-                    Object.entries(plantKeys).forEach(([prop, value]) => {
-                        if (thisArg[prop] === undefined) thisArg[prop] = value
-                    })
+            methodName: "shotInitialize",
+            handler: ({args, thisArg, callOriginal}) => {
+                const proj = args[0]
+                const maxShootAnimationCycles = thisArg.objdataOwn.MaxShootAnimationCycles
+                if (thisArg._foodLeftPeaCount === 0 && typeof maxShootAnimationCycles === "number") {
+                    if ((thisArg.___LuxisLibShootAnimationCycles ??= 0) >= maxShootAnimationCycles) {
+                        proj.fade()
+                        return
+                    }
+                    thisArg.___LuxisLibShootAnimationCycles += 1
                 }
-                return value
+                callOriginal()
             }
         })
 
+
+        ctx.hooks.wrapMethod({
+            target: proto,
+            methodName: "startShooting",
+            handler: ({args, thisArg, callOriginal}) => {
+                thisArg.___LuxisLibShootAnimationCycles = 0
+                callOriginal()
+            }
+        })
     })
 }

@@ -24,7 +24,8 @@ export function init(ctx) {
                     } else if (costOverride.CounterMode === "TotalPlanted") {
                         count = thisArg.TotalPlanted || 0
                     } else {
-                        console.warn("[Luxis Lib] Unknown CounterMode: " + costOverride.CounterMode)
+                        ctx.ui.toast("Unknown CounterMode", "error");
+                        ctx.log.error("Unknown CounterMode: " + costOverride.CounterMode)
                     }
 
                     const listSunCost = costOverride.ListSunCost

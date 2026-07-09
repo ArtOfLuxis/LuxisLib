@@ -1,0 +1,17 @@
+{
+  "objects": [
+    {
+      "objclass": "ArmorProperties",
+      "aliases": [
+        "modern_armor3"
+      ],
+      "objdata": {
+        "ColorOffset": { "r": 0, "g": 150, "b": 0, "holo": -0.5, "s": -0.5 },
+        "isMetal": true,
+        "isIce": false,
+        "Toughness": 1600,
+        "BowlingLevel": 3
+      }
+    }
+  ]
+}

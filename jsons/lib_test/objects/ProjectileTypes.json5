@@ -1,0 +1,16 @@
+{
+  "#comment": "Projectile Types!",
+  "version": 1,
+  "objects": [
+    {
+      "objclass": "ProjectileType",
+      "aliases": [
+        "jackolantern_spread"
+      ],
+      "objdata": {
+        "ProjectileBasedOn": "missiletoe2",
+        "Props": "RTID(jackolantern_spread@ProjectileProps)"
+      }
+    }
+  ]
+}

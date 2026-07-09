@@ -1,0 +1,14 @@
+{
+  "objects": [
+    {
+      "objclass": "ArmorType",
+      "aliases": [
+        "modern_armor3"
+      ],
+      "objdata": {
+        "Properties": "RTID(modern_armor3@ArmorProps)",
+        "ArmorBasedOn": "dark_armor3"
+      }
+    }
+  ]
+}

@@ -1,0 +1,841 @@
+{
+  "#comment": "Zombie Properties!",
+  "version": 1,
+  "objects": [
+    {
+      "objclass": "ZombieProperties",
+      "aliases": [
+        "tutorial"
+      ],
+      "objdata": {
+        "SpeedScale": 5,
+      }
+    },
+    {
+      "objclass": "ZombieProperties",
+      "aliases": [
+        "tutorial_armor1"
+      ],
+      "objdata": {
+        "ColorOffset": { "r": 120, "g": 0, "b": 0, "holo": -0.6, "s": 1 },
+        "ImmuneToChiliBean": true,
+        "ImmuneToHypnoShroom": true
+      }
+    },
+    {
+      "objclass": "ZombieProperties",
+      "aliases": [
+        "tutorial_armor2"
+      ],
+      "objdata": {
+        "OnEnableActions": [
+          {
+            "kind": "SetObjectProperty",
+            "property": "chill",
+            "value": 10
+          },
+          {
+            "kind": "SetObjectProperty",
+            "property": "freeze",
+            "value": 5
+          },
+          {
+            "kind": "SetObjectProperty",
+            "property": "haveSun",
+            "value": 25
+          }
+        ]
+      }
+    },
+    {
+      "objclass": "ZombieProperties",
+      "aliases": [
+        "tutorial_armor4"
+      ],
+      "objdata": {
+        "OnEnableActions": [
+          {
+            "kind": "SetObjectProperty",
+            "property": "coloredWhenHypnotized",
+            "value": false
+          },
+          {
+            "kind": "SetObjectProperty",
+            "property": "hypnotized",
+            "value": true
+          }
+        ]
+      }
+    },
+    {
+      "objclass": "ZombieProperties",
+      "aliases": [
+        "tutorial_flag"
+      ],
+      "objdata": {
+        "OnEnableActions": [
+          {
+            "kind": "SetObjectProperty",
+            "property": "reversed",
+            "value": true
+          },
+          {
+            "kind": "SetObjectProperty",
+            "property": "glittering",
+            "value": 3
+          }
+        ]
+      }
+    },
+    {
+      "objclass": "ZombieProperties",
+      "aliases": [
+        "tutorial_armor3"
+      ],
+      "objdata": {
+        "StartingArmors": [
+          "modern_armor3"
+        ],
+      }
+    },
+    {
+      "objclass": "ZombieProperties",
+      "aliases": [
+        "dino_armor2"
+      ],
+      "objdata": {
+        "OnUpdateActions": [
+          {
+            "kind": "If",
+            "condition": {
+              "kind": "InvokeObjectMethod",
+              "method": "isAlive"
+            },
+            "then": [
+              {
+                "kind": "SetObjectProperty",
+                "property": "___hypnotizedWhileAlive",
+                "value": {
+                  "kind": "GetObjectProperty",
+                  "property": "hypnotized"
+                }
+              }
+            ]
+          }
+        ],
+        "OnDeathActions": [
+            {
+              "kind": "SpawnGridItem",
+              "lnc": {
+                "kind": "GetObjectProperty",
+                "property": "inLnC"
+              },
+              "type": "gravestone_pirate",
+              "spawnLight": true, // for tombs
+              "playHeavySound": false, // for tombs
+              "ignorePlants": false, // for tombs
+              "requireLawn": true, // for tombs
+              "playSpawnParticle": true, // for tombs
+              "tileData": null, // for tiles/liquids
+              "tileInitialize": true // for tiles
+          }
+        ]
+      }
+    },
+    {
+      "objclass": "ZombieProperties",
+      "aliases": [
+        "pirate_armor1"
+      ],
+      "objdata": {
+        "TimeBeforeSelfExplode": {
+          "Time": 99999,
+          "DeathDamageDetails": {
+            "Damage": Infinity,
+            "DamageType": "fire",
+            "DamageDirection": { "x": 5, "y": 20 }
+          }
+        },
+        "OnBiteActions": [
+          {
+            "kind": "SetObjectProperty",
+            "object": { "kind": "GetContextObject", "name": "source" },
+            "property": "___LuxisLibTimeBeforeSelfExplode",
+            "value": 0
+          },
+          {
+            "kind": "SpawnLaneFire",
+            "lnc": {
+              "kind": "GetObjectProperty",
+              "property": "inLnC"
+            },
+            "damage": 500,
+            "armorProtection": true,
+            "duration": 3,
+            "length": 15,
+            "color": "yellow",
+            "spreadStyle": "split",
+            "fireLength": 18,
+            "fireWidth": 9,
+            "whitelist": [],
+            "hypnoIncluded": true,
+            "plantsIncluded": true,
+            "isDPS": false,
+            "burnsFlying": true,
+            "parent": null
+          }
+        ]
+      }
+    },
+    {
+      "objclass": "ZombieProperties",
+      "aliases": [
+        "prospector"
+      ],
+      "objdata": {
+        "OnDamageActions": [ // this code makes the prospector tnt reappear and ignite when taking fire damage
+          {
+            "kind": "If",
+            "condition": {
+              "left": {
+                "kind": "GetObjectProperty",
+                "property": "dirty"
+              },
+              "kind": "&&",
+              "right": {
+                "left": {
+                  "kind": "GetObjectProperty",
+                  "object": {
+                    "kind": "GetContextObject",
+                    "name": "damageDetails"
+                  },
+                  "property": "damageType"
+                },
+                "kind": "==",
+                "right": 1 // fire damage type
+              },
+            },
+            "then": [
+              {
+                "kind": "SetObjectProperty",
+                "property": "dirty",
+                "value": false
+              },
+              {
+                "kind": "SetObjectProperty",
+                "property": "ignited",
+                "value": true
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "objclass": "ZombieProperties",
+      "aliases": [
+        "lostcity_crystalskull"
+      ],
+      "objdata": {
+        "LaserBeamLength": 0,
+        "WalkSPS": 0.25,
+        "ChargingTime": 9999999,
+        "OnUpdateActions": [
+          {
+            "kind": "If",
+            "condition": {
+              "left": {
+                "left": {
+                  "kind": "GetObjectProperty",
+                  "property": "cIndex"
+                },
+                "kind": "<=",
+                "right": 7
+              },
+              "kind": "&&",
+              "right": {
+                "left": {
+                  "kind": "not",
+                  "value": {
+                    "kind": "GetObjectProperty",
+                    "property": "absorbing"
+                  }
+                },
+                "kind": "&&",
+                "right": {
+                  "kind": "InvokeObjectMethod",
+                  "method": "isAlive"
+                }
+              }
+            },
+            "then": [
+              {
+                "kind": "InvokeObjectMethod",
+                "method": "absorbStart"
+              }
+            ],
+          },
+          {
+            "kind": "If",
+            "condition": {
+              "left": {
+                "kind": "GetObjectProperty",
+                "property": "absorbing"
+              },
+              "kind": "&&",
+              "right": {
+                "kind": "InvokeObjectMethod",
+                "method": "isAlive"
+              }
+            },
+            "then": [
+              {
+                "kind": "For",
+                "variable": "plant",
+                "iterable": {
+                  "kind": "InvokeObjectMethod",
+                  "method": "inLane.plantPool"
+                },
+                "actions": [
+                  {
+                    "kind": "If",
+                    "condition": {
+                      "kind": "GetObjectProperty",
+                      "object": { "kind": "GetContextObject", "name": "plant" },
+                      "property": "___InitialSpeedScale"
+                    },
+                    "then": [
+                      {
+                        "kind": "SetObjectProperty",
+                        "object": { "kind": "GetContextObject", "name": "plant" },
+                        "property": "objdataOwn.SpeedScale",
+                        "value": {
+                          "left": {
+                            "kind": "GetObjectProperty",
+                            "object": { "kind": "GetContextObject", "name": "plant" },
+                            "property": "___InitialSpeedScale"
+                          },
+                          "kind": "/",
+                          "right": 2
+                        }
+                      },
+                      {
+                        "kind": "SetObjectProperty",
+                        "object": { "kind": "GetContextObject", "name": "plant" },
+                        "property": "objdataOwn.ColorMult",
+                        "value": { "r": 0.4, "g": 1, "b": 3 }
+                      }
+                    ],
+                    "else": [
+                      {
+                        "kind": "SetObjectProperty",
+                        "object": { "kind": "GetContextObject", "name": "plant" },
+                        "property": "___InitialSpeedScale",
+                        "value": {
+                          "kind": "GetObjectProperty",
+                          "object": { "kind": "GetContextObject", "name": "plant" },
+                          "property": "objdataOwn.SpeedScale"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "OnDeathActions": [
+          {
+            "kind": "For",
+            "variable": "plant",
+            "iterable": {
+              "kind": "InvokeObjectMethod",
+              "method": "inLane.plantPool"
+            },
+            "actions": [
+              {
+                "kind": "If",
+                "condition": {
+                  "kind": "GetObjectProperty",
+                  "object": { "kind": "GetContextObject", "name": "plant" },
+                  "property": "___InitialSpeedScale"
+                },
+                "then": [
+                  {
+                    "kind": "SetObjectProperty",
+                    "object": { "kind": "GetContextObject", "name": "plant" },
+                    "property": "objdataOwn.SpeedScale",
+                    "value": {
+                      "kind": "GetObjectProperty",
+                      "object": { "kind": "GetContextObject", "name": "plant" },
+                      "property": "___InitialSpeedScale"
+                    }
+                  },
+                  {
+                    "kind": "SetObjectProperty",
+                    "object": { "kind": "GetContextObject", "name": "plant" },
+                    "property": "objdataOwn.ColorMult",
+                    "value": { "r": 1, "g": 1, "b": 1 }
+                  },
+                  {
+                    "kind": "SetObjectProperty",
+                    "object": { "kind": "GetContextObject", "name": "plant" },
+                    "property": "___InitialSpeedScale",
+                    "value": null
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "objclass": "ZombieProperties",
+      "aliases": [
+        "kongfu_bomb"
+      ],
+      "objdata": {
+        "WalkSPS": 0.15,
+        "OnUpdateActions": [
+          {
+            "kind": "If",
+            "condition": {
+              "left": {
+                "left": {
+                  "kind": "GetObjectProperty",
+                  "property": "cIndex"
+                },
+                "kind": "<=",
+                "right": 6
+              },
+              "kind": "&&",
+              "right": {
+                "kind": "InvokeObjectMethod",
+                "method": "isAlive"
+              }
+            },
+            "then": [
+              {
+                "kind": "InvokeObjectMethod",
+                "method": "explode"
+              },
+            ],
+          },
+        ],
+      }
+    },
+    {
+      "aliases": [
+        "dino_bully"
+      ],
+      "objclass": "ZombieProperties",
+      "objdata": {
+        "WalkSPS": 0.2,
+        "OnEnableActions": [
+          {
+            "kind": "SetObjectProperty",
+            "property": "_BuffCooldown",
+            "value": 6
+          }
+        ],
+        "OnUpdateActions": [
+          {
+            "kind": "SetObjectProperty",
+            "property": "_BuffCooldown",
+            "value": {
+              "left": {
+                "kind": "GetObjectProperty",
+                "property": "_BuffCooldown"
+              },
+              "kind": "-",
+              "right": {
+                "kind": "GetContextObject",
+                "name": "deltaTime"
+              }
+            }
+          },
+          {
+            "kind": "If",
+            "condition": {
+              "left": {
+                "kind": "GetObjectProperty",
+                "property": "_BuffCooldown"
+              },
+              "kind": "<=",
+              "right": 0
+            },
+            "then": [
+              {
+                "kind": "SetObjectProperty",
+                "property": "_BuffCooldown",
+                "value": 12
+              },
+              {
+                "kind": "InvokeObjectMethod",
+                "method": "playSmashAnm"
+              },
+              {
+                "kind": "SetContextObject",
+                "name": "3x3Area",
+                "object": {
+                  "kind": "CreateRectangle",
+                  "node": {
+                    "kind": "GetObjectProperty",
+                    "property": "node"
+                  },
+                  "width": 3,
+                  "height": 3
+                }
+              },
+              {
+                "kind": "Sleep",
+                "cloneContext": true,
+                "time": 0.9,
+                "actions": [
+                  {
+                    "kind": "For",
+                    "variable": "lane",
+                    "iterable": [
+                      {
+                        "kind": "GetObjectProperty",
+                        "property": "inLane"
+                      },
+                      {
+                        "kind": "GetObjectProperty",
+                        "object": {
+                          "kind": "GetObjectProperty",
+                          "property": "inLane"
+                        },
+                        "property": "UpperLane"
+                      },
+                      {
+                        "kind": "GetObjectProperty",
+                        "object": {
+                          "kind": "GetObjectProperty",
+                          "property": "inLane"
+                        },
+                        "property": "LowerLane"
+                      }
+                    ],
+                    "actions": [
+                      {
+                        "kind": "For",
+                        "variable": "zombie",
+                        "iterable": {
+                          "kind": "InvokeObjectMethod",
+                          "object": {
+                            "kind": "GetContextObject",
+                            "name": "lane"
+                          },
+                          "method": "zombiePool"
+                        },
+                        "actions": [
+                          {
+                            "kind": "If",
+                            "condition": {
+                              "kind": "InvokeObjectMethod",
+                              "object": {
+                                "kind": "GetContextObject",
+                                "name": "3x3Area"
+                              },
+                              "method": "judgeCrossRec",
+                              "args": [
+                                {
+                                  "kind": "GetObjectProperty",
+                                  "object": {
+                                    "kind": "GetContextObject",
+                                    "name": "zombie"
+                                  },
+                                  "property": "bodyRecReal"
+                                }
+                              ]
+                            },
+                            "then": [
+                              {
+                                "kind": "If",
+                                "condition": {
+                                  "left": {
+                                    "left": {
+                                      "kind": "GetObjectProperty",
+                                      "object": {
+                                        "kind": "GetContextObject",
+                                        "name": "zombie"
+                                      },
+                                      "property": "potionToughnessLevel",
+                                    },
+                                    "kind": "<=",
+                                    "right": 2
+                                  },
+                                  "kind": "&&",
+                                  "right": {
+                                    "left": {
+                                      "kind": "InvokeObjectMethod",
+                                      "object": {
+                                        "kind": "GetContextObject",
+                                        "name": "zombie"
+                                      },
+                                      "method": "defaultShouldSpeedScale",
+                                    },
+                                    "kind": "!=",
+                                    "right": 0
+                                  }
+                                },
+                                "then": [
+                                  {
+                                    "kind": "SetObjectProperty",
+                                    "object": {
+                                      "kind": "GetContextObject",
+                                      "name": "zombie"
+                                    },
+                                    "property": "potionToughnessLevel",
+                                    "value": {
+                                      "left": {
+                                        "kind": "GetObjectProperty",
+                                        "object": {
+                                          "kind": "GetContextObject",
+                                          "name": "zombie"
+                                        },
+                                        "property": "potionToughnessLevel",
+                                      },
+                                      "kind": "+",
+                                      "right": 0.5
+                                    }
+                                  }
+                                ]
+                              },
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+            ]
+          }
+        ],
+        "WavePointCost": 1400,
+        "Weight": 4500,
+        "HitRect": "RTID(BullyHitRect@RectangleProps)",
+        "AttackRect": "RTID(LongAttackRect@RectangleProps)"
+      }
+    },
+    {
+      "objclass": "ZombieProperties",
+      "aliases": [
+        "iceage_hunter_veteran"
+      ],
+      "objdata": {
+        "SnowballType": "pea2_snap_flame_blue",
+        "LobInterval": 99999999,
+        "OnEnableActions": [
+          {
+            "kind": "SetObjectProperty",
+            "property": "___ShootCooldown",
+            "value": 8
+          },
+          {
+            "kind": "SetObjectProperty",
+            "property": "lobCD",
+            "value": 99999999
+          }
+        ],
+        "OnUpdateActions": [
+          {
+            "kind": "DecrementObjectProperty",
+            "property": "___ShootCooldown",
+            "value": {
+              "kind": "GetContextObject",
+              "name": "deltaTime"
+            },
+          },
+          {
+            "kind": "If",
+            "condition": {
+              "left": {
+                "left": {
+                  "kind": "GetObjectProperty",
+                  "property": "___ShootCooldown"
+                },
+                "kind": "<=",
+                "right": 0
+              },
+              "kind": "&&",
+              "right": {
+                "left": {
+                  "kind": "InvokeObjectMethod",
+                  "method": "defaultShouldSpeedScale",
+                },
+                "kind": "!=",
+                "right": 0
+              }
+            },
+            "then": [
+              {
+                "kind": "SetObjectProperty",
+                "property": "___ShootCooldown",
+                "value": 8
+              },
+              {
+                "kind": "InvokeObjectMethod",
+                "method": "playLob"
+              },
+              {
+                "kind": "Sleep",
+                "cloneContext": true,
+                "time": 0.9,
+                "actions": [
+                  {
+                    "kind": "If",
+                    "condition": {
+                      "left": {
+                        "kind": "InvokeObjectMethod",
+                        "method": "defaultShouldSpeedScale",
+                      },
+                      "kind": "!=",
+                      "right": 0
+                    },
+                    "then": [
+                      {
+                        "kind": "For",
+                        "variable": "TargetObject",
+                        "iterable": {
+                          "kind": "GetRandomArrayEntries",
+                          "amount": 5,
+                          "array": {
+                            "kind": "Ternary",
+                            "condition": {
+                              "kind": "GetObjectProperty",
+                              "property": "hypnotized"
+                            },
+                            "then": { "kind": "GetZombiePoolArray" },
+                            "else": { "kind": "GetPlantPoolArray" }
+                          }
+                        },
+                        "actions": [
+                          {
+                            "kind": "If",
+                            "condition": {
+                              "kind": "GetObjectProperty",
+                              "property": "hypnotized"
+                            },
+                            "then": [
+                              {
+                                "kind": "InvokeObjectMethod",
+                                "object": { "kind": "GetProjectileShootingFunctions" },
+                                "method": "lobOneCabbageOnZombie",
+                                "args": [
+                                  "pea_primal",
+                                  {
+                                    "kind": "CreateVec2",
+                                    "x": {
+                                      "kind": "GetObjectProperty",
+                                      "property": "snowSpawnPoint.worldPosition.x"
+                                    },
+                                    "y": {
+                                      "kind": "GetObjectProperty",
+                                      "property": "worldPositionY"
+                                    }
+                                  },
+                                  {
+                                    "left": {
+                                      "kind": "GetObjectProperty",
+                                      "property": "snowSpawnPoint.worldPosition.y"
+                                    },
+                                    "kind": "-",
+                                    "right": {
+                                      "kind": "GetObjectProperty",
+                                      "property": "worldPositionY"
+                                    }
+                                  },
+                                  {
+                                    "kind": "GetObjectProperty",
+                                    "property": "inLane.prjLayer"
+                                  },
+                                  {
+                                    "kind": "GetContextObject",
+                                    "name": "TargetObject"
+                                  },
+                                  0,
+                                  {
+                                    "kind": "GetCharacterType",
+                                    "name": "zombie"
+                                  },
+                                  false,
+                                  60
+                                ]
+                              }
+                            ],
+                            "else": [
+                              {
+                                "kind": "InvokeObjectMethod",
+                                "object": { "kind": "GetProjectileShootingFunctions" },
+                                "method": "lobOneCabbageOnPlant",
+                                "args": [
+                                  "pea_primal",
+                                  {
+                                    "kind": "CreateVec2",
+                                    "x": {
+                                      "kind": "GetObjectProperty",
+                                      "property": "snowSpawnPoint.worldPosition.x"
+                                    },
+                                    "y": {
+                                      "kind": "GetObjectProperty",
+                                      "property": "worldPositionY"
+                                    }
+                                  },
+                                  {
+                                    "left": {
+                                      "kind": "GetObjectProperty",
+                                      "property": "snowSpawnPoint.worldPosition.y"
+                                    },
+                                    "kind": "-",
+                                    "right": {
+                                      "kind": "GetObjectProperty",
+                                      "property": "worldPositionY"
+                                    }
+                                  },
+                                  {
+                                    "kind": "GetObjectProperty",
+                                    "property": "inLane.prjLayer"
+                                  },
+                                  {
+                                    "kind": "GetContextObject",
+                                    "name": "TargetObject"
+                                  },
+                                  0,
+                                  {
+                                    "kind": "GetCharacterType",
+                                    "name": "plant"
+                                  },
+                                  false,
+                                  60
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "Sleep",
+                        "time": 0.6,
+                        "cloneContext": false,
+                        "actions": [
+                          {
+                            "kind": "InvokeObjectMethod",
+                            "method": "switchingFalse"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
