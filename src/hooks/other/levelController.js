@@ -52,7 +52,7 @@ export function init(ctx) {
                 const result = callOriginal(...args)
 
                 if (thisArg.OnStartActions) {
-                    executeActions(this.OnStartActions, {
+                    executeActions(thisArg.OnStartActions, {
                         target: thisArg,
                         source: thisArg
                     })

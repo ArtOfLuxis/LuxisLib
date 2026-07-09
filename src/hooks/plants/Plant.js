@@ -54,7 +54,6 @@ export function init(ctx) {
         const proto = plant.Plant.prototype
 
         const cc = ctx.engine.getCc()
-        const Vec4 = cc.Vec4
 
         wrapObjDataOwnPlant(ctx, proto, {
             "OnEnableActions": null,
@@ -87,7 +86,7 @@ export function init(ctx) {
             handler: ({ thisArg, callOriginal }) => {
                 callOriginal()
 
-                let addColor = new Vec4(0, 0, 0, 1)
+                let addColor = new cc.Vec4(0, 0, 0, 1)
                 let saturation = 0
 
                 if (thisArg.hurting > 0) {
