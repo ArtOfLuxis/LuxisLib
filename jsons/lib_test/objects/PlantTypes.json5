@@ -11,6 +11,16 @@
         "PlantBasedOn": "minireed",
         "Properties": "RTID(minireed@PlantProps)"
       }
+    },
+    {
+      "objclass": "PlantType",
+      "aliases": [
+        "random_imitater"
+      ],
+      "objdata": {
+        "PlantBasedOn": "random_imitater",
+        "Properties": "RTID(random_imitater@PlantProps)"
+      }
     }
   ]
 }

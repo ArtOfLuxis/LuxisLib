@@ -27,7 +27,7 @@ export function init(ctx) {
                         }
                     } else
                         thisArg.dealDamage(damage)
-                } else callOriginal()
+                } else callOriginal(...args)
             }
         })
     })

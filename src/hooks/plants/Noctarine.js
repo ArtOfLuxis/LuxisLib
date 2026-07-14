@@ -2,8 +2,8 @@ import {wrapObjDataOwnPlant} from "./Plant";
 
 export function init(ctx) {
     ctx.events.on("engine:ready", () => {
-        const noctarine = ctx.engine.getSystemModule("chunks:///_virtual/Noctarine.ts");
-        const proto = noctarine.NoctarinePlant.prototype;
+        const noctarine = ctx.engine.getSystemModule("chunks:///_virtual/Noctarine.ts")
+        const proto = noctarine.NoctarinePlant.prototype
 
         wrapObjDataOwnPlant(ctx, proto, {
             "DoesntShadowBoost": null,
@@ -13,8 +13,8 @@ export function init(ctx) {
         ctx.hooks.wrapMethod({
             target: proto,
             methodName: "explode",
-            handler: ({thisArg, callOriginal}) => {
-                callOriginal()
+            handler: ({args, thisArg, callOriginal}) => {
+                callOriginal(...args)
 
                 if (thisArg.objdataOwn.DoesntShadowBoost === true) {
                     thisArg.inLnC.get3x3().forEach(function (LnC) {

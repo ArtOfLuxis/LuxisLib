@@ -1,3 +1,5 @@
+import {evaluate, executeActions} from "../../modules/JSONActionsSystem";
+
 export let libProperties = undefined
 
 export function init(ctx) {
@@ -9,7 +11,7 @@ export function init(ctx) {
 
         const sheets = JSONs.PvZ2ObjectContainer.PropertySheets
         if (!Array.isArray(sheets) || sheets.length === 0) {
-            return;
+            return
         }
 
         const match = sheets.find(obj =>

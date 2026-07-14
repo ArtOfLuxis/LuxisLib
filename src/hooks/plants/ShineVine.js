@@ -12,8 +12,8 @@ export function init(ctx) {
         ctx.hooks.wrapMethod({
             target: proto,
             methodName: "specialPlantUpdate",
-            handler: ({thisArg, callOriginal}) => {
-                callOriginal()
+            handler: ({args, thisArg, callOriginal}) => {
+                callOriginal(...args)
                 const buffsSunProduction = thisArg.objdataOwn.BuffsSunProduction
                 if (buffsSunProduction === false) {
                     thisArg.plantInLnC.ShineVineBuffCD = 0

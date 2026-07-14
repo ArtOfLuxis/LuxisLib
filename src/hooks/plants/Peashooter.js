@@ -22,7 +22,7 @@ export function init(ctx) {
                     }
                     thisArg.___LuxisLibShootAnimationCycles += 1
                 }
-                callOriginal()
+                callOriginal(...args)
             }
         })
 
@@ -32,7 +32,7 @@ export function init(ctx) {
             methodName: "startShooting",
             handler: ({args, thisArg, callOriginal}) => {
                 thisArg.___LuxisLibShootAnimationCycles = 0
-                callOriginal()
+                callOriginal(...args)
             }
         })
     })

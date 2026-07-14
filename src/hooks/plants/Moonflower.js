@@ -2,8 +2,8 @@ import {wrapObjDataOwnPlant} from "./Plant";
 
 export function init(ctx) {
     ctx.events.on("engine:ready", () => {
-        const moonflower = ctx.engine.getSystemModule("chunks:///_virtual/Moonflower.ts");
-        const proto = moonflower.MoonflowerPlant.prototype;
+        const moonflower = ctx.engine.getSystemModule("chunks:///_virtual/Moonflower.ts")
+        const proto = moonflower.MoonflowerPlant.prototype
 
         wrapObjDataOwnPlant(ctx, proto, {
             "DoesntShadowBoost": null,
@@ -13,9 +13,9 @@ export function init(ctx) {
         ctx.hooks.wrapMethod({
             target: proto,
             methodName: "specialPlantUpdateForce",
-            handler: ({thisArg, callOriginal}) => {
+            handler: ({args, thisArg, callOriginal}) => {
                 if (thisArg.objdataOwn.DoesntShadowBoost !== true) {
-                    callOriginal()
+                    callOriginal(...args)
                 }
             }
         })

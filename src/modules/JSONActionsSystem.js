@@ -1,3 +1,5 @@
+import {createProjectileSpread} from "../hooks/projectiles/commonShot";
+import {libProperties} from "../hooks/other/JSONs";
 
 export let executeActions
 export let evaluateExpression
@@ -11,9 +13,11 @@ export function init(ctx) {
         const square = ctx.engine.getSystemModule("chunks:///_virtual/Square.ts")
         const LnC = ctx.engine.getSystemModule("chunks:///_virtual/LnC.ts")
         const characterManager = ctx.engine.getSystemModule("chunks:///_virtual/CharacterManager.ts")
+        const levelController = ctx.engine.getSystemModule("chunks:///_virtual/levelController.ts")
         const sunCount = ctx.engine.getSystemModule("chunks:///_virtual/SunCount.ts")
         const jalapeno = ctx.engine.getSystemModule("chunks:///_virtual/Jalapeno.ts")
         const groundFire = ctx.engine.getSystemModule("chunks:///_virtual/GroundFire.ts")
+        const soundResources = ctx.engine.getSystemModule("chunks:///_virtual/SoundRescourses.ts")
 
         const cc = ctx.engine.getCc()
 
@@ -56,6 +60,28 @@ export function init(ctx) {
                         }
 
                         target[last] = evaluate(action.value, context)
+                        break
+                    }
+
+
+                    case "SetObjectProperties": {
+                        const object = action.object
+                            ? evaluate(action.object, context)
+                            : context.target
+
+                        const properties = evaluate(action.properties, context)
+
+                        for (const [property, value] of Object.entries(properties)) {
+                            const path = property.split(".")
+                            const last = path.pop()
+
+                            let target = object
+                            for (const key of path) {
+                                target = target[key]
+                            }
+
+                            target[last] = value
+                        }
                         break
                     }
 
@@ -140,11 +166,11 @@ export function init(ctx) {
                             evaluate(action.duration, context),
                             evaluate(action.length, context) ?? 10,
                             groundFire.GroundFireColorEnum[
-                            evaluate(action.color, context) ?? "yellow"
-                                ],
+                                evaluate(action.color, context) ?? "yellow"
+                            ],
                             groundFire.GroundFireSpreadStyleEnum[
-                            evaluate(action.spreadStyle, context) ?? "cross"
-                                ],
+                                evaluate(action.spreadStyle, context) ?? "cross"
+                            ],
                             evaluate(action.fireLength, context) ?? 9,
                             evaluate(action.fireWidth, context) ?? 9,
                             evaluate(action.whitelist, context) ?? [],
@@ -157,6 +183,19 @@ export function init(ctx) {
                         break
                     }
 
+                    case "SpawnProjectileSpread": {
+                        const origin = evaluate(action.origin, context)
+                        createProjectileSpread(
+                            evaluate(action.spread, context),
+                            evaluate(action.scheduler, context) ?? context.target,
+                            origin.x, origin.y,
+                            evaluate(action.height, context) ?? 0,
+                            evaluate(action.speed, context) ?? 8,
+                            evaluate(action.layer, context) ?? context.target?.inLane?.prjLayer,
+                            character.CharacterType[evaluate(action.enemyType, context) ?? "zombie"]
+                        )
+                        break
+                    }
 
                     case "SpawnZombie": {
                         evaluateExpression(action, context)
@@ -193,7 +232,20 @@ export function init(ctx) {
                         object = object?.[key]
                     }
 
-                    return object[last](...evaluate(expr.args ?? [], context))
+                    const fn = object?.[last]
+
+                    if (typeof fn !== "function") {
+                        ctx.ui.toast("InvokeObjectMethod failed", "error")
+                        console.error("InvokeObjectMethod failed", {
+                            object,
+                            last,
+                            value: fn,
+                            method: evaluate(expr.method, context)
+                        })
+                        return
+                    }
+
+                    return fn.apply(object, evaluate(expr.args ?? [], context))
                 }
                 case "InvokeConstructor": {
                     const object = evaluate(expr.object, context)
@@ -238,7 +290,7 @@ export function init(ctx) {
                         object = object?.[key]
                     }
 
-                    return object
+                    return object ?? evaluate(expr.default, context)
                 }
                 case "GetObjectProperty": {
                     let object = expr.object
@@ -251,7 +303,7 @@ export function init(ctx) {
                         object = object?.[key]
                     }
 
-                    return object
+                    return object ?? evaluate(expr.default, context)
                 }
                 case "GetSystemModule": {
                     return ctx.engine.getSystemModule(`chunks:///_virtual/${evaluate(expr.name, context)}.ts`)
@@ -332,6 +384,9 @@ export function init(ctx) {
                 }
                 case "GetCurrentSunCount": {
                     return sunCount.SunCount.Value
+                }
+                case "GetLevelPlayComponent": {
+                    return levelController.LevelPlay.component
                 }
 
                 case "GetRandomArrayEntries": {
@@ -491,6 +546,40 @@ export function init(ctx) {
                 result[key] = evaluate(value[key], context)
 
             return result
+        }
+    })
+
+    ctx.events.on("luxislib:properties", () => {
+        ctx.log.info("Loading JSONActionHooks from libProperties")
+
+        try {
+            libProperties.JSONActionHooks?.forEach(hook => {
+                const context = {}
+                const className = evaluate(hook.className, context)
+                const method = evaluate(hook.method, context)
+
+                ctx.hooks.wrapMethod({
+                    className: className,
+                    methodName: method,
+                    handler: ({ args, thisArg, callOriginal }) => {
+                        const hookContext = {
+                            target: thisArg,
+                            [evaluate(hook.thisVariable, context) ?? "this"]: thisArg,
+                            [evaluate(hook.originalCallVariable, context) ?? "callOriginal"]: callOriginal,
+                            [evaluate(hook.argsVariable, context) ?? "args"]: args,
+                        }
+
+                        executeActions(hook.actions, hookContext)
+
+                        return hookContext[evaluate(hook.returnVariable, hookContext) ?? "return"]
+                    }
+                })
+            })
+
+            ctx.ui.toast("JSONActionHooks loaded!", "success")
+        } catch (err) {
+            ctx.ui.toast("error encountered in JSONActionHooks :c", "error")
+            ctx.log.error(err.message)
         }
     })
 }

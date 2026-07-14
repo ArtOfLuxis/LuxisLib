@@ -5,12 +5,30 @@
     {
       "objclass": "ProjectileProperties",
       "aliases": [
+        "redstinger"
+      ],
+      "objdata": {
+        "PierceOverride": {
+          "Amount": { "min": 3, "max": 3 },
+          "PlayHitSound": true,
+          "PlayHitParticle": true
+        }
+      }
+    },
+    {
+      "objclass": "ProjectileProperties",
+      "aliases": [
         "pea"
       ],
       "objdata": {
         "ColorMult": { "r": 0.5, "g": 0.5, "b": 0.5 },
         "CanBePeaVineBuffed": false,
         "OnHitActions": [
+          {
+            "kind": "InvokeObjectMethod",
+            "method": "setPerfume",
+            "args": [5]
+          },
           {
             "kind": "If",
             "condition": {
@@ -65,7 +83,19 @@
         "pea_snow"
       ],
       "objdata": {
-        "OnHitActions": [
+        "OnEnableActions": [
+          {
+            "kind": "SetObjectProperty",
+            "property": "followRotation",
+            "value": false // makes the projectile not follow the movement direction
+          },
+          {
+            "kind": "SetObjectProperty",
+            "property": "bodyOmega",
+            "value": 3 // makes the projectile spin clockwise 180 degrees/s
+          }
+        ],
+        "OnHitActions": [ // deals 2.5% of zombie's max hp as damage
           {
             "kind": "InvokeObjectMethod",
             "method": "defaultDealDamage",

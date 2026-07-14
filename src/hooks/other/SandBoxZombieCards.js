@@ -8,15 +8,15 @@ export function init(ctx) {
 
         libProperties.SandboxZombiesIDs = []
         libProperties.SandboxZombies.forEach((zombie) => {
-            const zombieEnum = zombies.zombies.getZombieEnumWithPropByZombieTypes(zombie)
-            libProperties.SandboxZombiesIDs.push(zombieEnum.z)
+            const zombieEnum = zombies.zombies.getZombieEnumByCodename(zombie)
+            libProperties.SandboxZombiesIDs.push(zombieEnum)
         })
 
         ctx.hooks.wrapMethod({
             target: proto,
             methodName: "onMouseScroll",
             handler: ({ args, thisArg, callOriginal }) => {
-                const sandboxZombies = libProperties.SandboxZombiesIDs
+                const sandboxZombies = libProperties?.SandboxZombiesIDs
 
                 if (!sandboxZombies || sandboxZombies.length === 0) {
                     return callOriginal(...args)

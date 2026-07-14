@@ -68,7 +68,7 @@ export function init(ctx) {
 
                 cf.cardGrouperByType(
                     isImitater ? imitaterType : type,
-                    !isImitater
+                    true
                 )
 
                 const ca = cf.ca
@@ -82,8 +82,8 @@ export function init(ctx) {
                     node.parent = thisArg.imitatorSlot
                     node.position = new cc.Vec3(0, 0, 0)
 
-                    ca.suncostShown = false
-                    ca.defaultSunCostShown = false
+                    ca.suncostShown = true
+                    ca.defaultSunCostShown = true
                 }
 
                 ca.seedChooserModeOn = true
@@ -95,6 +95,28 @@ export function init(ctx) {
                     thisArg.switchPlant(index, ca.disallowed)
                     soundResources.sounds.playCardChosen()
                 })
+            }
+        })
+
+
+        ctx.hooks.wrapMethod({
+            target: proto,
+            methodName: "judgeAllowed",
+            handler: ({ args, callOriginal }) => {
+                callOriginal(...args)
+
+                const [cf, ca] = args
+
+                const isImitater =
+                    cf.PF?.RES?.Plant === "Imitater"
+
+                if (!isImitater)
+                    return
+
+                if (ca.disallowed >= 1 && ca.disallowed <= 3)
+                    return
+
+                ca.disallowed = cf.Prop?.DoesntImitate ? 0 : 4
             }
         })
 

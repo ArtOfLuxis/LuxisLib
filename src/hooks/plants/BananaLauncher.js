@@ -19,19 +19,19 @@ export function init(ctx) {
             methodName: "animationListener",
             handler: ({args, thisArg, callOriginal}) => {
                 const animation = args[0]
-
-                if (animation.name !== "drop") return callOriginal()
-
                 const maxCycles = thisArg._objdataOwn.MaxPFAnimationCycles
+
+                if (animation.name !== "drop" || !maxCycles) return callOriginal(...args)
+
                 const currentCycles = thisArg.___LuxisLibBananaPFCycles ?? 0
                 if (currentCycles >= maxCycles.amount) {
                     if (maxCycles.forceEndFooding)
-                        thisArg.anmControl.playAnimation("foodEnd", 1);
+                        thisArg.anmControl.playAnimation("foodEnd", 1)
                     return
                 }
                 thisArg.___LuxisLibBananaPFCycles = currentCycles + 1
 
-                if (typeof thisArg._objdataOwn.BananasPerPFAnimation !== "number") return callOriginal()
+                if (typeof thisArg._objdataOwn.BananasPerPFAnimation !== "number") return callOriginal(...args)
 
                 for (let i = 0; i < thisArg._objdataOwn.BananasPerPFAnimation; i++) {
                     let target = zombiePool.ZombiePool.inLawnPool()
@@ -63,7 +63,7 @@ export function init(ctx) {
             target: proto,
             methodName: "specialPlantFoodEnd",
             handler: ({args, thisArg, callOriginal}) => {
-                callOriginal()
+                callOriginal(...args)
                 thisArg.___LuxisLibBananaPFCycles = 0
             }
         })

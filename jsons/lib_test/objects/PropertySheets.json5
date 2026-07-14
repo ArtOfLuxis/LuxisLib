@@ -10,7 +10,32 @@
         // general
         "MaxSunAmount": 999999, // default value is 9900
         "FastForwardSpeed": 3, // default value is 1.5
-        "ImitaterSlotPlant": "wallnut",  // default value is imitater
+        "ImitaterSlotPlant": "wallnut",  // default value is "imitater"
+        "SunValueOverrides": {
+          "5": 5,
+          "25": 25,
+          "50": 49,
+          "75": 75
+        },
+        "SunDropsOverride": {
+          "5": ["SunTiny"],
+          "25": ["SunSmall"],
+          "50": ["SunMid"],
+          "75": ["SunLarge"],
+          "100": ["SunMid", "SunMid"],
+          "1000001": [
+            {
+              "Name": "PlantCardDropped",
+              "PlantTypes": ["peashooter", "sunflower", "wallnut"]
+            }
+          ],
+          "1000002": ["plantFood", "SunBomb", "Gem", "Sprout", "CoinGold", "CoinSilver"]
+        },
+
+
+        // plants
+        "GlacierShroomSaturation": -1, // default is 0.5
+        "PeaVineDamageBoost": 10, // default is 1.5
 
 
         // worlds and levels
@@ -68,6 +93,13 @@
 
 
         // zombies
+        "ZombieInvisibilityPotionOpacity": 0.2, // default value is 0.5
+        "ZombieChillSpeedMultiplier": 0.5, // default value is 0.5
+        "ZombiePerfumeSpeedMultiplier": 0.5, // default value is 0.5
+        "ZombieSapSpeedMultiplier": 0.5, // default value is 0.5
+        "ZombieDarkmatterHealthRatioMultiplier": 0.75, // default value is 0.75, lowering this will make lower hp zombies less affected
+        "ZombieDarkmatterSpeedMultiplier": 1, // default value is 1, total speed multiplier when affected by darkmatter
+        "ZombieScaredByTyrannoSpeedMultiplier": 4, // default value is 4
         "SandboxZombies": [
           // there is no original list since the game just uses all zombie ids
           // so you'd have to recreate the original list by hand if you want to use it
@@ -91,18 +123,99 @@
           "iceage_hunter_veteran",
           "lostcity_crystalskull",
           "kongfu_bomb",
-          "dino_armor2"
+          "dino_armor2",
+          "lawn",
+          "lawn_armor1"
         ],
         "ZombieEnumAdd": [
           // adding a zombie to the ZombieEnum allows you to properly use custom ZombieFeatures (in the almanac etc)
           "tutorial_armor3"
         ],
-        "ZombieInvisibilityPotionOpacity": 0.2, // default value is 0.5
-        "ZombieChillSpeedMultiplier": 0.5, // default value is 0.5
-        "ZombiePerfumeSpeedMultiplier": 0.5, // default value is 0.5
-        "ZombieSapSpeedMultiplier": 0.5, // default value is 0.5
-        "ZombieDarkmatterHealthRatioMultiplier": 0.75, // default value is 0.75, lowering this will make lower hp zombies less affected
-        "ZombieDarkmatterSpeedMultiplier": 1 // default value is 1, total speed multiplier when affected by darkmatter
+
+
+        // json hooks
+        "JSONActionHooks": [
+          {
+            "className": "PerfumeShroomPlant",
+            "method": "specialOnLaneChange",
+            "actions": [] // just makes the original method do nothing
+            //(makes perfume shroom be on the same layer as all other plants instead of on top)
+          },
+          {
+            "className": "PerfumeShroomPlant",
+            "method": "explode",
+            "thisVariable": "this",
+            "originalCallVariable": "callOriginal",
+            "argsVariable": "args",
+            "returnVariable": "return",
+            "actions": [ // makes perfume shroom stall on explosion
+              {
+                "kind": "InvokeObjectMethod",
+                "object": { "kind": "GetContext" },
+                "method": "callOriginal",
+                "args": { "kind": "GetContextObject", "name": "args" }
+              },
+              {
+                "kind": "For",
+                "iterable": {
+                  "kind": "InvokeObjectMethod",
+                  "method": "inLane.zombiePool"
+                },
+                "variable": "zombie",
+                "actions": [
+                  {
+                    "kind": "InvokeObjectMethod",
+                    "object": { "kind": "GetContextObject", "name": "zombie" },
+                    "method": "setPerfume",
+                    "args": [{
+                      "kind": "GetObjectProperty",
+                      "property": "___NormalStallDuration"
+                    }]
+                  }
+                ]
+              }
+            ]
+          },
+
+
+
+
+          {
+            "className": "EscapeRootPlant",
+            "method": "animationOnComplete",
+            "thisVariable": "this",
+            "originalCallVariable": "callOriginal",
+            "argsVariable": "args",
+            "returnVariable": "return",
+            "actions": [ // kills the escape root after swapping places with another plant
+              {
+                "kind": "If",
+                "condition": {
+                  "kind": "GetObjectProperty",
+                  "property": "switching"
+                },
+                "then": [
+                  {
+                    "kind": "SetObjectProperty",
+                    "property": "deathAnm",
+                    "value": "Death_Silently"
+                  },
+                  {
+                    "kind": "InvokeObjectMethod",
+                    "method": "die",
+                    "args": [true, false, false]
+                  }
+                ]
+              },
+              {
+                "kind": "InvokeObjectMethod",
+                "object": { "kind": "GetContext" },
+                "method": "callOriginal",
+                "args": { "kind": "GetContextObject", "name": "args" }
+              },
+            ]
+          }
+        ]
       }
     },
 
@@ -120,7 +233,7 @@
               "LevelNumber": 4,
               "Loot": "RTID(NoLoot@LevelModules)",
               "Modules": [
-                "RTID(250MaxSunAmountProps@CurrentLevel)",
+                "RTID(500MaxSunAmountProps@CurrentLevel)",
                 "RTID(StandardIntro@LevelModules)",
                 "RTID(DefaultSunDropper@LevelModules)",
                 "RTID(ZombiesDeadWinCon@LevelModules)",
@@ -136,10 +249,10 @@
           {
             "objclass": "LLMaxSunAmountProps",
             "aliases": [
-              "250MaxSunAmountProps"
+              "500MaxSunAmountProps"
             ],
             "objdata": {
-              "MaxSunAmount": 250
+              "MaxSunAmount": 500
             }
           },
           {
@@ -288,8 +401,9 @@
             "objclass": "LLSetOnStartActions",
             "objdata": {
               "Actions": [{
-                "kind": "ConsoleLog",
-                "values": ["yayy started"]
+                "kind": "SetObjectProperty",
+                "property": "___IZombieColumns",
+                "value": 3
               }]
             }
           },

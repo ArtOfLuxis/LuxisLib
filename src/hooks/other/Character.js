@@ -8,8 +8,8 @@ export function init(ctx) {
         ctx.hooks.wrapMethod({
             target: proto,
             methodName: "followShade",
-            handler: ({ thisArg, callOriginal }) => {
-                callOriginal();
+            handler: ({ args, thisArg, callOriginal }) => {
+                callOriginal(...args)
 
                 const offset = thisArg.objdataOwn?.WorldPositionOffset;
                 if (!offset || !thisArg.shade) return

@@ -9,7 +9,7 @@ export function init(ctx) {
         delete zombies.ZombieEnum[zombies.ZombieEnum.zombieAmount]
         delete zombies.ZombieEnum.zombieAmount
 
-        libProperties.ZombieEnumAdd.forEach((zombie) => {
+        libProperties?.ZombieEnumAdd?.forEach((zombie) => {
             if (!Object.keys(zombies.ZombieEnum).includes(zombie)) {
                 zombies.ZombieEnum[zombie] = id
                 zombies.ZombieEnum[id] = zombie

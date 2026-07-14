@@ -16,7 +16,7 @@ export function init(ctx) {
         ctx.hooks.wrapMethod({
             target: proto,
             methodName: "onLoad",
-            handler: ({ thisArg, callOriginal }) => {
+            handler: ({ args, thisArg, callOriginal }) => {
                 thisArg.icons.sort((a, b) =>
                     (order[a.node._name] ?? Infinity) -
                     (order[b.node._name] ?? Infinity)
@@ -32,7 +32,7 @@ export function init(ctx) {
                     )
                 })
 
-                return callOriginal()
+                return callOriginal(...args)
             }
         })
     })

@@ -14,7 +14,7 @@ export function init(ctx) {
             target: proto,
             methodName: "specialPlantOnSquareChange",
             handler: ({args, thisArg, callOriginal}) => {
-                callOriginal()
+                callOriginal(...args)
 
                 const tile = args[1]
                 const column = tile.cIndex + 1;

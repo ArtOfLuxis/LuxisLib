@@ -1,0 +1,24 @@
+{
+  "#comment": "Tile Properties!",
+  "version": 1,
+  "objects": [
+    {
+      "objclass": "TileProperties",
+      "aliases": [
+        "goldtile"
+      ],
+      "objdata": {
+        "PlantTypeIndicatesTo": "RTID(goldleaf@PlantTypes)",
+        "Rect": "RTID(TileDefaultRect@RectangleProps)",
+        "ProduceInterval": {
+          "Min": 2,
+          "Max": 2
+        },
+        "FirstProduceValue": 75,
+        "ProduceValue": 5,
+        "PlantDetector": { "x": 3, "y": 3, "xOffset": 0, "yOffset": 0 },
+        "Scale": { "x": 3, "y": 3 }
+      }
+    }
+  ]
+}

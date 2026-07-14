@@ -2,7 +2,7 @@ import { libProperties } from "./JSONs";
 
 export function init(ctx) {
     ctx.events.on("engine:ready", () => {
-        const sunCount = ctx.engine.getSystemModule("chunks:///_virtual/SunCount.ts");
+        const sunCount = ctx.engine.getSystemModule("chunks:///_virtual/SunCount.ts")
         const levelController = ctx.engine.getSystemModule("chunks:///_virtual/levelController.ts")
         const proto = sunCount.SunCount.prototype
 

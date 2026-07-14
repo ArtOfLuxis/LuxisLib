@@ -5,6 +5,7 @@ export function init(ctx) {
         const LnC = ctx.engine.getSystemModule("chunks:///_virtual/LnC.ts")
         const cards = ctx.engine.getSystemModule("chunks:///_virtual/Cards.ts")
         const plants = ctx.engine.getSystemModule("chunks:///_virtual/Plants.ts")
+        const square = ctx.engine.getSystemModule("chunks:///_virtual/Square.ts")
         const proto = LnC.LnC.prototype
 
         ctx.hooks.wrapMethod({
@@ -54,8 +55,10 @@ export function init(ctx) {
                         "plantID": plantID,
                         "terrainRestrictions": args[2] ?? true
                     })
-                }
 
+                    if (plants.plants.getPlantFeature(plantID).RES.Plant === "Imitater")
+                        return true
+                }
 
                 return result
             }
@@ -111,6 +114,21 @@ export function init(ctx) {
                     this.squareType !== LnC.SquareType.sea
                 )
             )
+        }
+
+        proto.getArea = function (x, y, xOffset = 0, yOffset = 0) {
+            const result = []
+            const startX = this.cIndex + xOffset - Math.floor(x / 2)
+            const startY = this.lIndex - yOffset - Math.floor(y / 2)
+
+            for (let ly = 0; ly < y; ly++) {
+                for (let lx = 0; lx < x; lx++) {
+                    const lnc = square.Square.getLnC(startY + ly, startX + lx)
+                    if (lnc) result.push(lnc)
+                }
+            }
+
+            return result
         }
 
     })

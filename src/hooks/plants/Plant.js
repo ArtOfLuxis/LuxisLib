@@ -1,5 +1,6 @@
 import {executeActions} from "../../modules/JSONActionsSystem"
 import {isGameRunning} from "../other/levelController"
+import {libProperties} from "../other/JSONs";
 
 const prototypeDefaults = new WeakMap()
 let wrapped = false
@@ -57,11 +58,11 @@ export function init(ctx) {
 
         wrapObjDataOwnPlant(ctx, proto, {
             "OnEnableActions": null,
+            "BeforeEnableActions": null,
             "OnFoodActions": null,
             "OnEatActions": null,
             "OnEatenActions": null,
             "OnUpdateActions": null,
-            "OnAnimationActions": null,
             "OnLeftClickActions": null,
             "OnRightClickActions": null,
             "DynamicPlantableCondition": null,
@@ -78,13 +79,14 @@ export function init(ctx) {
             "TimeBeforeSelfExplode": null,
             "AlwaysMintBoosted": false,
             "DetectorOverride": null,
+            "Hooks": null,
         })
 
         ctx.hooks.wrapMethod({
             target: proto,
             methodName: "shouldMaterial",
-            handler: ({ thisArg, callOriginal }) => {
-                callOriginal()
+            handler: ({ args, thisArg, callOriginal }) => {
+                callOriginal(...args)
 
                 let addColor = new cc.Vec4(0, 0, 0, 1)
                 let saturation = 0
@@ -97,7 +99,7 @@ export function init(ctx) {
                 }
 
                 if (thisArg._cdScaleByPlantCD > 0) {
-                    saturation += 0.5
+                    saturation += libProperties?.GlacierShroomSaturation ?? 0.5
                 }
 
                 if (thisArg.hidden > 0) {
@@ -142,8 +144,8 @@ export function init(ctx) {
         ctx.hooks.wrapMethod({
             target: proto,
             methodName: "_getShouldColor",
-            handler: ({thisArg, callOriginal}) => {
-                const color = callOriginal().clone()
+            handler: ({args, thisArg, callOriginal}) => {
+                const color = callOriginal(...args).clone()
 
                 const colorOffset = thisArg.objdataOwn.ColorOffset
                 if (colorOffset && colorOffset.a) {
@@ -157,8 +159,8 @@ export function init(ctx) {
         ctx.hooks.wrapMethod({
             target: proto,
             methodName: "die",
-            handler: ({thisArg, callOriginal}) => {
-                const result = callOriginal()
+            handler: ({args, thisArg, callOriginal}) => {
+                const result = callOriginal(...args)
 
                 cards.Cards.component.CFs.forEach((card) => {
                     card.SUNCOST += 0 // to update suncost on all cards
@@ -172,7 +174,7 @@ export function init(ctx) {
             target: proto,
             methodName: "eat",
             handler: ({args, thisArg, callOriginal}) => {
-                const result = callOriginal()
+                const result = callOriginal(...args)
 
                 const [damageDetails, zombie] = args
 
@@ -212,8 +214,8 @@ export function init(ctx) {
         ctx.hooks.wrapMethod({
             target: proto,
             methodName: "defaultShouldSpeedScale",
-            handler: ({thisArg, callOriginal}) => {
-                let speed = callOriginal()
+            handler: ({args, thisArg, callOriginal}) => {
+                let speed = callOriginal(...args)
 
                 const speedScale = thisArg.objdataOwn.SpeedScale
                 if (speedScale) speed *= speedScale
@@ -226,6 +228,14 @@ export function init(ctx) {
             target: proto,
             methodName: "characterOnEnable",
             handler: ({args, thisArg, callOriginal}) => {
+                const beforeEnableActions = thisArg.objdataOwn.BeforeEnableActions
+                if (beforeEnableActions) {
+                    executeActions(beforeEnableActions, {
+                        target: thisArg,
+                        source: thisArg,
+                    })
+                }
+
                 callOriginal(...args)
 
                 const onEnableActions = thisArg.objdataOwn.OnEnableActions
@@ -239,24 +249,6 @@ export function init(ctx) {
                 if (thisArg.objdataOwn.TimeBeforeSelfExplode) {
                     thisArg.___LuxisLibSelfExploding = true
                     thisArg.___LuxisLibTimeBeforeSelfExplode = thisArg.objdataOwn.TimeBeforeSelfExplode.Time
-                }
-
-
-                const onAnimationActions = thisArg.objdataOwn.OnAnimationActions
-                if (onAnimationActions) {
-                    const animationListener = (animation) => {
-                        executeActions(onAnimationActions, {
-                            target: thisArg,
-                            source: thisArg,
-                            animation: animation
-                        })
-                    }
-                    thisArg.anmControl.db.on("animation frame event", function (animation) {
-                        animationListener(animation)
-                    }, this)
-                    thisArg.anmControl.db.on("animation sound event", function (animation) {
-                        animationListener(animation)
-                    }, this)
                 }
 
             }
@@ -324,8 +316,8 @@ export function init(ctx) {
         ctx.hooks.wrapMethod({
             target: proto,
             methodName: "_onRealPosChange",
-            handler: ({ thisArg, callOriginal }) => {
-                callOriginal()
+            handler: ({ args, thisArg, callOriginal }) => {
+                callOriginal(...args)
 
                 const offset = thisArg.objdataOwn.WorldPositionOffset
                 if (!offset) return
@@ -341,9 +333,9 @@ export function init(ctx) {
         ctx.hooks.wrapMethod({
             target: proto,
             methodName: "food",
-            handler: ({thisArg, callOriginal}) => {
+            handler: ({args, thisArg, callOriginal}) => {
                 let originalHP = thisArg.health
-                const result = callOriginal()
+                const result = callOriginal(...args)
 
                 if (thisArg.objdataOwn.HealAfterPF === false) {
                     thisArg.health = originalHP
@@ -376,9 +368,9 @@ export function init(ctx) {
         ctx.hooks.wrapMethod({
             target: proto,
             methodName: "judgeShadowPlantMode",
-            handler: ({thisArg, callOriginal}) => {
+            handler: ({args, thisArg, callOriginal}) => {
                 if (thisArg.haveDarkMode && thisArg.objdataOwn.NoShadowBoost !== true) {
-                    callOriginal()
+                    callOriginal(...args)
                 }
             }
         })
@@ -387,11 +379,9 @@ export function init(ctx) {
             target: proto,
             methodName: "dealMint",
             handler: ({thisArg, callOriginal}) => {
-                const specificPlantMintDuration =
-                    plants.plants.SpecificPlantMintDuration[thisArg.Plant_Type] ?? 0
                 const boostTime = Math.max(
-                    plants.plants.MintDuration[thisArg.family_str],
-                    specificPlantMintDuration
+                    plants.plants.MintDuration[thisArg.family_str] ?? 0,
+                    plants.plants.SpecificPlantMintDuration[thisArg.Plant_Type] ?? 0
                 )
 
                 const isAlive = thisArg.isAlive()
@@ -416,11 +406,11 @@ export function init(ctx) {
         ctx.hooks.wrapMethod({
             target: proto,
             methodName: "shovelable",
-            handler: ({thisArg, callOriginal}) => {
+            handler: ({args, thisArg, callOriginal}) => {
                 const forceShovelableMode = thisArg.objdataOwn.ForceShovelableMode
                 if (typeof forceShovelableMode === "boolean") return forceShovelableMode
 
-                return callOriginal()
+                return callOriginal(...args)
             }
         })
 
@@ -441,7 +431,7 @@ export function init(ctx) {
                     thisArg.dealDamage(damage)
                 }
 
-                return callOriginal()
+                return callOriginal(...args)
             }
         })
 

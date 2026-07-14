@@ -19,7 +19,8 @@
       "objdata": {
         "ColorOffset": { "r": 120, "g": 0, "b": 0, "holo": -0.6, "s": 1 },
         "ImmuneToChiliBean": true,
-        "ImmuneToHypnoShroom": true
+        "ImmuneToHypnoShroom": true,
+        "ForceFlyingMode": true
       }
     },
     {

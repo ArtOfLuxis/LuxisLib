@@ -26,9 +26,9 @@ export function init(ctx) {
                     thisArg.LifeCD = thisArg.objdataOwn.Lifespan
 
                     const boosts = thisArg.objdataOwn.BoostsPlants
-                    if (boosts || boosts === undefined || boosts === null) {
+                    if (boosts !== false) {
                         const boostedPlants = thisArg.objdataOwn.BoostedPlants ?? []
-                        const boostedFamilies = thisArg.objdataOwn.BoostedFamilies ?? [plant.PlantFamily[thisArg.family]]
+                        const boostedFamilies = thisArg.objdataOwn.BoostedFamilies ?? [thisArg.family_str]
 
                         characterManager.PlantPool.pool().filter(function (plant) {
                             return (
@@ -64,11 +64,11 @@ export function init(ctx) {
         ctx.hooks.wrapMethod({
             target: proto,
             methodName: "shovelable",
-            handler: ({thisArg, callOriginal}) => {
+            handler: ({args, thisArg, callOriginal}) => {
                 const forceShovelableMode = thisArg.objdataOwn.ForceShovelableMode
                 if (typeof forceShovelableMode === "boolean") return forceShovelableMode
 
-                return callOriginal()
+                return callOriginal(...args)
             }
         })
 

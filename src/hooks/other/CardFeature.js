@@ -12,7 +12,7 @@ export function init(ctx) {
                 let sun = value
 
                 const costOverride = thisArg.Prop.CostOverride
-                if (square.Square.component && square.Square.component.inLawnLnCs && costOverride) {
+                if (square.Square.component?.inLawnLnCs && costOverride) {
                     let count = 0
 
                     if (costOverride.CounterMode === "OnField") {

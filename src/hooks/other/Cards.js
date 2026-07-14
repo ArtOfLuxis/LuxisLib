@@ -1,13 +1,13 @@
 
 export function init(ctx) {
     ctx.events.on("engine:ready", () => {
-        const cards = ctx.engine.getSystemModule("chunks:///_virtual/Cards.ts");
-        const levelController = ctx.engine.getSystemModule("chunks:///_virtual/levelController.ts");
-        const playerProperties = ctx.engine.getSystemModule("chunks:///_virtual/PlayerProperties.ts");
-        const frontyard = ctx.engine.getSystemModule("chunks:///_virtual/FrontYard.ts");
+        const cards = ctx.engine.getSystemModule("chunks:///_virtual/Cards.ts")
+        const levelController = ctx.engine.getSystemModule("chunks:///_virtual/levelController.ts")
+        const playerProperties = ctx.engine.getSystemModule("chunks:///_virtual/PlayerProperties.ts")
+        const frontyard = ctx.engine.getSystemModule("chunks:///_virtual/FrontYard.ts")
         const levelPlay = levelController.LevelPlay
         const allPlayerProperties = playerProperties.AllPlayerProperties
-        const proto = cards.Cards.prototype;
+        const proto = cards.Cards.prototype
 
         ctx.hooks.wrapMethod({
             target: proto,

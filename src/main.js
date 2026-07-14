@@ -66,6 +66,10 @@ export async function setup(ctx) {
 
     ctx.ui.toast("Settings initialized!", "success")
 
+    const worldKeyCount = ctx.engine.getSystemModule("chunks:///_virtual/WorldKeyCount.ts")
+    const playerProperties = ctx.engine.getSystemModule("chunks:///_virtual/PlayerProperties.ts")
+    const allPlayerProperties = playerProperties.AllPlayerProperties
+
     ctx.controls.definePanel({
         title: 'Luxis Lib',
         groups: [
@@ -75,9 +79,11 @@ export async function setup(ctx) {
                     {
                         type: 'action',
                         key: 'nothing',
-                        label: 'Nothing here yet',
+                        label: '+1 World Key',
                         async onClick() {
-                            ctx.ui.toast(ctx.scenes.getName(), "info")
+                            allPlayerProperties.currentPlayer.worldkey += 1
+                            allPlayerProperties.savePP()
+                            worldKeyCount.WorldKeyCount.start()
                         }
                     },
                     {

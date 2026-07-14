@@ -28,7 +28,7 @@ export function init(ctx) {
                     }
 
                     if (cc.director.gameSpeed === 1.5)
-                        cc.director.gameSpeed = libProperties.FastForwardSpeed ?? 1.5
+                        cc.director.gameSpeed = libProperties?.FastForwardSpeed ?? 1.5
                 }
             }
         })

@@ -32,8 +32,8 @@ export function init(ctx) {
         ctx.hooks.wrapMethod({
             target: proto,
             methodName: "shouldMaterial",
-            handler: ({ thisArg, callOriginal }) => {
-                callOriginal()
+            handler: ({ args, thisArg, callOriginal }) => {
+                callOriginal(...args)
 
                 const addColor = new cc.Color(0, 0, 0, 255);
 
@@ -53,7 +53,8 @@ export function init(ctx) {
                 let holo = 1
 
                 if (thisArg.owner?.potionInvisible) {
-                    holo = libProperties.ZombieInvisibilityPotionOpacity ?? 0.5
+                    holo =
+                        libProperties?.ZombieInvisibilityPotionOpacity ?? 0.5
                 }
 
                 const offset1 = thisArg.owner?.objdata.ColorOffset
@@ -89,8 +90,8 @@ export function init(ctx) {
         ctx.hooks.wrapMethod({
             target: proto,
             methodName: "onEnable",
-            handler: ({ thisArg, callOriginal }) => {
-                callOriginal()
+            handler: ({ args, thisArg, callOriginal }) => {
+                callOriginal(...args)
 
                 if (thisArg.props.Scale) {
                     thisArg.node.scale = new thisArg.node.scale.constructor(

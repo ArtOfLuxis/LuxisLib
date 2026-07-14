@@ -29,6 +29,7 @@ export function init(ctx) {
             "ImmuneToHypno": false,
             "ImmuneToHypnoShroom": false,
             "TimeBeforeSelfExplode": null,
+            "ForceFlyingMode": null,
         }
 
         ctx.hooks.wrapProperty({
@@ -48,8 +49,8 @@ export function init(ctx) {
         ctx.hooks.wrapMethod({
             target: proto,
             methodName: "shouldMaterial",
-            handler: ({ thisArg, callOriginal }) => {
-                callOriginal()
+            handler: ({ args, thisArg, callOriginal }) => {
+                callOriginal(...args)
 
                 const offset = thisArg.objdata.ColorOffset;
 
@@ -93,7 +94,7 @@ export function init(ctx) {
                     }
 
                     if (thisArg.potionInvisible) {
-                        holo = libProperties.ZombieInvisibilityPotionOpacity ?? 0.5
+                        holo = libProperties?.ZombieInvisibilityPotionOpacity ?? 0.5
                         color.r += materials.materialRes.zombieInvisiblilityPotion.r
                         color.g += materials.materialRes.zombieInvisiblilityPotion.g
                         color.b += materials.materialRes.zombieInvisiblilityPotion.b
@@ -178,8 +179,8 @@ export function init(ctx) {
                     }
                     if (thisArg.darkmatter > 0) {
                         const ratio = thisArg.health / thisArg.toughness
-                        speed *= (1 - ratio * libProperties?.ZombieDarkmatterHealthRatioMultiplier ?? 0.75)
-                            * libProperties?.ZombieDarkmatterSpeedMultiplier ?? 1
+                        speed *= (1 - ratio * (libProperties?.ZombieDarkmatterHealthRatioMultiplier ?? 0.75))
+                            * (libProperties?.ZombieDarkmatterSpeedMultiplier ?? 1)
                     }
                     thisArg._speed_stacked.forEach(function (e) {
                         speed *= e.SpeedMult
@@ -188,18 +189,18 @@ export function init(ctx) {
                         speed *= e.SpeedScale
                     })
                     if (thisArg.scaredByTyranno) {
-                        speed *= libProperties?.ZombieScaredByTyrannoSpeedMultiplier
+                        speed *= libProperties?.ZombieScaredByTyrannoSpeedMultiplier ?? 4
                     }
                     if (thisArg.isWalking) {
                         switch (frontYard.FrontYard.getCurrentJam()) {
                             case frontYard.JamStyle.jam_punk:
-                                speed *= thisArg.objdataOwnOrg.JamPunkWalkSpeed
+                                speed *= thisArg.objdataOwnOrg.JamPunkWalkSpeed ?? 1
                                 break
                             case frontYard.JamStyle.jam_pop:
-                                speed *= thisArg.objdataOwnOrg.JamPopWalkSpeed
+                                speed *= thisArg.objdataOwnOrg.JamPopWalkSpeed ?? 1
                                 break
                             case frontYard.JamStyle.jam_metal:
-                                speed *= thisArg.objdataOwnOrg.JamMetalWalkSpeed
+                                speed *= thisArg.objdataOwnOrg.JamMetalWalkSpeed ?? 1
                         }
                     }
                     return speed
@@ -321,6 +322,9 @@ export function init(ctx) {
                         thisArg.defaultDealDamage(damageDetails)
                     }
                 }
+
+                if (typeof thisArg.objdata.ForceFlyingMode === "boolean")
+                    thisArg.flying = thisArg.objdata.ForceFlyingMode
 
                 const onUpdateActions = thisArg.objdata.OnUpdateActions
                 if (onUpdateActions && isGameRunning()) {

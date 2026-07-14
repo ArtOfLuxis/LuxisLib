@@ -7,6 +7,11 @@
         "sunflower"
       ],
       "objdata": {
+        "SunValue": 1000001,
+        "ProduceInterval": 2,
+        "ProduceIntervalAdditional": 0,
+        "ProduceCountdownStart": 2,
+        "ProduceCountdownStartAdditional": 0,
         "ColorOffset": { "r": 150, "g": 0, "b": 0, "holo": 0, "s": 0 },
         "CostOverride": {
           "CounterMode": "OnField",
@@ -18,10 +23,55 @@
     {
       "objclass": "PlantProperties",
       "aliases": [
+        "marigold"
+      ],
+      "objdata": {
+        "SunValue": 1000002,
+        "IsACoinProducer": false,
+        "ChanceToTurn": 0,
+        "ProduceInterval": 2,
+        "ProduceIntervalAdditional": 0,
+        "ProduceCountdownStart": 2,
+        "ProduceCountdownStartAdditional": 0,
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
         "squash"
       ],
       "objdata": {
         "SmashAOE": { "x": 3, "y": 3, "lanes": [-1, 0, 1]},
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "glaciershroom"
+      ],
+      "objdata": {
+        "IceAuraOverride": {
+          "DetectorOverride": { "x": 5, "y": 5, "lanes": [-2, 0, 2], "xOffset": 0, "yOffset": 0, "isCentered": true },
+          "AuraLanes": [-2, -1, 0, 1, 2],
+          "AuraChillDuration": 2,
+          "BoostArea": { "x": 1, "y": 1, "xOffset": 0, "yOffset": 1 }, // boosts 1 tile above
+          "BoostedFamilies": ["Peashooter"],
+          "BoostedPlants": ["peanut"],
+          "BoostSpeedMultiplier": 10, // default is 2
+          "NeedsPFToBoost": false
+        },
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "random_imitater"
+      ],
+      "objdata": {
+        "DoesntImitate": true,
+        "RandomPlantList": ["gatling", "megagatling"],
+        "SunCost": 500,
+        "Cooldown": 15
       }
     },
     {
@@ -253,18 +303,11 @@
         ],
         "OnUpdateActions": [ // this code changes iceburg's size from -0.5 to 1 and back over time
           {
-            "kind": "SetObjectProperty",
+            "kind": "IncrementObjectProperty",
             "property": "___existTime",
             "value": {
-              "kind": "+",
-              "left": {
-                "kind": "GetObjectProperty",
-                "property": "___existTime"
-              },
-              "right": {
-                "kind": "GetContextObject",
-                "name": "deltaTime"
-              }
+              "kind": "GetContextObject",
+              "name": "deltaTime"
             }
           },
           {
@@ -290,6 +333,87 @@
               }
             }
           }
+        ]
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "iceweed"
+      ],
+      "objdata": {
+        "SpeedScale": 1,
+        "Cooldown": 5,
+        "CooldownFrom": 0.01,
+        "SunCost": 50,
+        "Toughness": 1,
+        "DynamicPlantableCondition": {
+          "left": {
+            "left": {
+              "kind": "GetObjectProperty",
+              "property": "cIndex"
+            },
+            "kind": ">=",
+            "right": {
+              "kind": "GetObjectProperty",
+              "object": { "kind": "GetLevelPlayComponent" },
+              "property": "___IZombieColumns",
+              "default": 1
+            }
+          },
+          "kind": "&&",
+          "right": {
+            "kind": "InvokeObjectMethod",
+            "method": "plantable",
+            "args": [
+              {"kind": "GetContextObject", "name": "checkOverlap"},
+              {"kind": "GetContextObject", "name": "plantID"},
+              {"kind": "GetContextObject", "name": "terrainRestrictions"}
+            ]
+          }
+        },
+        "OnEnableActions": [
+          {
+            "kind": "SetObjectProperty",
+            "property": "eaterDetectable",
+            "value": false
+          },
+          {
+            "kind": "Sleep",
+            "time": 0,
+            "cloneContext": false,
+            "actions": [
+              {
+                "kind": "SpawnZombie",
+                "lnc": {
+                  "kind": "GetObjectProperty",
+                  "property": "inLnC"
+                },
+                "type": "tutorial",
+                "spawnStyle": "dirtspawn",
+                "playSound": true,
+                "columnOffset": 0,
+                "delay": 0,
+                "playRiseAnimation": true,
+                "reversed": false,
+                "hypnotized": false
+              },
+
+              {
+                "kind": "InvokeObjectMethod",
+                "method": "die",
+                "args": [false, false, false, false]
+              },
+              {
+                "kind": "InvokeObjectMethod",
+                "object": {
+                  "kind": "GetObjectProperty",
+                  "property": "node"
+                },
+                "method": "destroy"
+              }
+            ]
+          },
         ]
       }
     },
@@ -646,7 +770,7 @@
           "BlinkPeriod": 0.7,
           "BlinkMinAlpha": 100,
           "BlinkMaxAlpha": 255,
-        }
+        },
       }
     },
     {
@@ -735,6 +859,162 @@
     {
       "objclass": "PlantProperties",
       "aliases": [
+        "perfumeshroom"
+      ],
+      "objdata": {
+        "OnEnableActions": [
+          {
+            "kind": "InvokeObjectMethod",
+            "method": "anmControl.playAnimation",
+            "args": ["Idle", 1]
+          },
+          {
+            "kind": "SetObjectProperties",
+            "properties": {
+              "eaterDetectable": true,
+              "smasherDetectable": true,
+              "anmControl.RandomAnim": ["Rand1"], // makes it not use the second random idle animation
+              "invincible": false,
+              "___ShootCooldown": 5,
+              "___CurrentShootTimer": 3, // so the first projectile launches 2 seconds after you plant
+              "foodable": true,
+              "___NormalStallDuration": 15,
+              "___PFStallDuration": 45
+            },
+          }
+        ],
+        "OnEatenActions": [
+          {
+            "kind": "InvokeObjectMethod",
+            "method": "explode"
+          }
+        ],
+        "OnFoodActions": [
+          {
+            "kind": "InvokeObjectMethod",
+            "method": "foodEnd"
+          },
+          {
+            "kind": "SpawnLaneFire",
+            "lnc": {
+              "kind": "GetObjectProperty",
+              "property": "inLnC"
+            },
+            "damage": 0,
+            "armorProtection": true,
+            "duration": 4,
+            "length": 40,
+            "color": "yellow",
+            "spreadStyle": "split",
+            "fireLength": 18,
+            "fireWidth": 9,
+            "whitelist": [],
+            "hypnoIncluded": false,
+            "plantsIncluded": false,
+            "isDPS": false,
+            "burnsFlying": true,
+            "parent": {
+              "kind": "GetObjectProperty",
+              "property": "perfumeFire"
+            }
+          },
+          {
+            "kind": "For",
+            "iterable": {
+              "kind": "InvokeObjectMethod",
+              "method": "inLane.zombiePool"
+            },
+            "variable": "zombie",
+            "actions": [
+              {
+                "kind": "InvokeObjectMethod",
+                "object": { "kind": "GetContextObject", "name": "zombie" },
+                "method": "setPerfume",
+                "args": [{
+                  "kind": "GetObjectProperty",
+                  "property": "___PFStallDuration"
+                }]
+              }
+            ]
+          }
+        ],
+        "OnLeftClickActions": [
+          {
+            "kind": "SetObjectProperty",
+            "property": "___CurrentShootTimer",
+            "value": -100
+          },
+          {
+            "kind": "InvokeObjectMethod",
+            "method": "anmControl.playAnimation",
+            "args": ["Attack", 1]
+          }
+        ],
+        "OnUpdateActions": [
+          {
+            "kind": "IncrementObjectProperty",
+            "property": "___CurrentShootTimer",
+            "value": {
+              "left": { "kind": "GetContextObject", "name": "deltaTime" },
+              "kind": "*",
+              "right": {
+                "kind": "InvokeObjectMethod",
+                "method": "defaultShouldSpeedScale"
+              }
+            }
+          },
+          {
+            "kind": "If",
+            "condition": {
+              "left": {
+                "kind": "GetObjectProperty",
+                "property": "___CurrentShootTimer"
+              },
+              "kind": ">=",
+              "right": {
+                "kind": "GetObjectProperty",
+                "property": "___ShootCooldown"
+              }
+            },
+            "then": [
+              {
+                "kind": "SetObjectProperty",
+                "property": "___CurrentShootTimer",
+                "value": 0
+              },
+              {
+                "kind": "InvokeObjectMethod",
+                "method": "anmControl.playAnimation",
+                "args": ["Rand2", 1]
+              },
+              {
+                "kind": "SpawnProjectileSpread",
+                "scheduler": { "kind": "GetContextObject", "name": "source" },
+                "origin": { "kind": "GetObjectProperty", "property": "worldPosition" },
+                "layer": { "kind": "GetObjectProperty", "property": "inLane.prjLayer" },
+                "enemyType": "zombie",
+                "height": 35,
+                "spread": [
+                  {
+                    "ProjectileType": "sea_pea",
+                    "ProjectileAmount": 10,
+                    "ProjectileSpreadDegrees": [{ "min": -20, "max": 20 }],
+                    "FirstProjectileInterval": 0.5,
+                    "ProjectileInterval": 0.22,
+                    "ProjectilesPerInterval": 2,
+                    "InitialDegreeOffset": 0,
+                    "CenterOffset": { "x": 0.45, "y": 0 },
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
         "threepeater"
       ],
       "objdata": {
@@ -777,6 +1057,16 @@
       ],
       "objdata": {
         "BoostsPlants": false
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "armamint"
+      ],
+      "objdata": {
+        "BoostedFamilies": [],
+        "BoostedPlants": ["potatomine", "iceburg"]
       }
     },
     {
@@ -1049,12 +1339,7 @@
                     "kind": "GetObjectProperty",
                     "property": "baseColor"
                   },
-                  "args": [
-                    80,
-                    80,
-                    80,
-                    255
-                  ]
+                  "args": [80, 80, 80, 255]
                 }
               }
             ],
@@ -1068,12 +1353,7 @@
                     "kind": "GetObjectProperty",
                     "property": "baseColor"
                   },
-                  "args": [
-                    255,
-                    255,
-                    255,
-                    255
-                  ]
+                  "args": [255, 255, 255, 255]
                 }
               }
             ]
@@ -1149,8 +1429,6 @@
         "redstinger"
       ],
       "objdata": {
-        "SecondStageColumns": [],
-        "ThirdStageColumns": [],
         "PeaType": "redstinger",
         "PeaTypeWeak": "redstinger_weak",
         "ShootInterval": 1.5,

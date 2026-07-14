@@ -15,7 +15,7 @@ export function init(ctx) {
         ctx.hooks.wrapMethod({
             target: proto,
             methodName: "onEnable",
-            handler: ({ thisArg, callOriginal }) => {
+            handler: ({ args, thisArg, callOriginal }) => {
                 if (!thisArg.__LuxisLibLevelsAdded && libProperties?.ArcadeCustomLevels) {
                     const firstCategory = thisArg.fanMadeLevelName0.node.parent.parent
                     const categories = firstCategory.parent.children
@@ -26,7 +26,7 @@ export function init(ctx) {
                         ctx.log.error("Unable to load levels for Arcade: no custom levels loaded (CustomLevelDefinition in PropertySheets)")
                         ctx.ui.toast("Unable to load levels for Arcade", "error")
 
-                        return callOriginal()
+                        return callOriginal(...args)
                     }
 
                     for (const [categoryName, customLevelObject] of Object.entries(libProperties.ArcadeCustomLevels)) {
@@ -91,7 +91,7 @@ export function init(ctx) {
                     }
                 }
 
-                return callOriginal()
+                return callOriginal(...args)
             }
         })
 

@@ -13,9 +13,9 @@ export function init(ctx) {
         ctx.hooks.wrapMethod({
             target: proto,
             methodName: "specialPlantUpdateForce",
-            handler: ({thisArg, callOriginal}) => {
+            handler: ({args, thisArg, callOriginal}) => {
                 if (thisArg.objdataOwn.DoesntShadowBoost !== true) {
-                    callOriginal()
+                    callOriginal(...args)
                 }
             }
         })
