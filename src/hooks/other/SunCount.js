@@ -2,14 +2,14 @@ import { libProperties } from "./JSONs";
 
 export function init(ctx) {
     ctx.events.on("engine:ready", () => {
-        const sunCount = ctx.engine.getSystemModule("chunks:///_virtual/SunCount.ts")
-        const levelController = ctx.engine.getSystemModule("chunks:///_virtual/levelController.ts")
+        const sunCount = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/SunCount.ts")
+        const levelController = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/levelController.ts")
         const proto = sunCount.SunCount.prototype
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "SunAdd",
-            handler: ({ args, thisArg, callOriginal }) => {
+            handler: ({ args, thisArg, callNext }) => {
                 let [amount = 0, updateTarget = true] = args
 
                 const maxSun =

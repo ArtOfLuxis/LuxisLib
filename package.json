@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "vite build"
+    "build": "vite build && copy dist\\bundle.js \"C:\\Users\\User\\AppData\\Roaming\\com.pvzge.game\\gp-next\\packs\\Luxis Lib\" && robocopy jsons\\lib_test \"C:\\Users\\User\\AppData\\Roaming\\com.pvzge.game\\gp-next\\packs\\Luxis Lib Test\\jsons\" /E & robocopy jsons\\lib \"C:\\Users\\User\\AppData\\Roaming\\com.pvzge.game\\gp-next\\packs\\Luxis Lib\\jsons\" /E"
   },
   "private": true,
   "devDependencies": {

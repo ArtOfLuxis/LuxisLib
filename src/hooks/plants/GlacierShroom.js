@@ -3,25 +3,25 @@ import {createDetector} from "./extra/DetectorManager";
 
 export function init(ctx) {
     ctx.events.on("engine:ready", () => {
-        const glacierShroom = ctx.engine.getSystemModule("chunks:///_virtual/GlacierShroom.ts")
-        const nodePools = ctx.engine.getSystemModule("chunks:///_virtual/NodePools.ts")
-        const square = ctx.engine.getSystemModule("chunks:///_virtual/Square.ts")
-        const character = ctx.engine.getSystemModule("chunks:///_virtual/Character.ts")
+        const glacierShroom = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/GlacierShroom.ts")
+        const nodePools = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/NodePools.ts")
+        const square = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Square.ts")
+        const character = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Character.ts")
         const proto = glacierShroom.GlacierShroomPlant.prototype
 
-        const cc = ctx.engine.getCc()
+        const cc = ctx.unsafe.engine.getCc()
 
         wrapObjDataOwnPlant(ctx, proto, {
             "IceAuraOverride": null,
         })
 
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "specialPlantOnSquareChange",
-            handler: ({args, thisArg, callOriginal}) => {
+            handler: ({args, thisArg, callNext}) => {
                 const iceAuraOverride = thisArg.objdataOwn.IceAuraOverride
-                if (!iceAuraOverride) return callOriginal(...args)
+                if (!iceAuraOverride) return callNext(...args)
 
                 const newSquare = args[1]
 
@@ -69,14 +69,14 @@ export function init(ctx) {
             }
         })
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "detectInRangeEnemies",
-            handler: ({ args, thisArg, callOriginal }) => {
+            handler: ({ args, thisArg, callNext }) => {
                 const override = thisArg.objdataOwn.IceAuraOverride
                 const detector = override?.DetectorOverride
 
-                if (!detector) return callOriginal(...args)
+                if (!detector) return callNext(...args)
 
                 const zombies = new Set()
 
@@ -102,12 +102,12 @@ export function init(ctx) {
 
 
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "specialPlantUpdate",
-            handler: ({ args, thisArg, callOriginal }) => {
+            handler: ({ args, thisArg, callNext }) => {
                 const override = thisArg.objdataOwn.IceAuraOverride
-                if (!override) return callOriginal(...args)
+                if (!override) return callNext(...args)
 
                 const deltaTime = args[0]
 

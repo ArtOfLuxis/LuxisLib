@@ -8,7 +8,13 @@
         "gravestone_egypt"
       ],
       "objdata": {
-        "ForceHypnotized": true
+        "OnEnableActions": [
+          {
+            "kind": "SetObjectProperty",
+            "property": "hypnotized",
+            "value": true
+          }
+        ]
       }
     },
     {
@@ -17,7 +23,13 @@
         "surfboard"
       ],
       "objdata": {
-        "ForceHypnotized": true
+        "OnEnableActions": [
+          {
+            "kind": "SetObjectProperty",
+            "property": "hypnotized",
+            "value": true
+          }
+        ]
       }
     },
     {
@@ -26,7 +38,13 @@
         "tent"
       ],
       "objdata": {
-        "ForceHypnotized": true
+        "OnEnableActions": [
+          {
+            "kind": "SetObjectProperty",
+            "property": "hypnotized",
+            "value": true
+          }
+        ]
       }
     }
   ]

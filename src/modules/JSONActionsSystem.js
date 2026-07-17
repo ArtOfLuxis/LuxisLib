@@ -7,19 +7,19 @@ export let evaluate
 
 export function init(ctx) {
     ctx.events.on("engine:ready", () => {
-        const projectiles = ctx.engine.getSystemModule("chunks:///_virtual/Projectiles.ts")
-        const character = ctx.engine.getSystemModule("chunks:///_virtual/Character.ts")
-        const frontYard = ctx.engine.getSystemModule("chunks:///_virtual/FrontYard.ts")
-        const square = ctx.engine.getSystemModule("chunks:///_virtual/Square.ts")
-        const LnC = ctx.engine.getSystemModule("chunks:///_virtual/LnC.ts")
-        const characterManager = ctx.engine.getSystemModule("chunks:///_virtual/CharacterManager.ts")
-        const levelController = ctx.engine.getSystemModule("chunks:///_virtual/levelController.ts")
-        const sunCount = ctx.engine.getSystemModule("chunks:///_virtual/SunCount.ts")
-        const jalapeno = ctx.engine.getSystemModule("chunks:///_virtual/Jalapeno.ts")
-        const groundFire = ctx.engine.getSystemModule("chunks:///_virtual/GroundFire.ts")
-        const soundResources = ctx.engine.getSystemModule("chunks:///_virtual/SoundRescourses.ts")
+        const projectiles = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Projectiles.ts")
+        const character = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Character.ts")
+        const frontYard = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/FrontYard.ts")
+        const square = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Square.ts")
+        const LnC = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/LnC.ts")
+        const characterManager = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/CharacterManager.ts")
+        const levelController = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/levelController.ts")
+        const sunCount = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/SunCount.ts")
+        const jalapeno = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Jalapeno.ts")
+        const groundFire = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/GroundFire.ts")
+        const soundResources = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/SoundRescourses.ts")
 
-        const cc = ctx.engine.getCc()
+        const cc = ctx.unsafe.engine.getCc()
 
         executeActions = function (actions, context) {
             for (const action of actions) {
@@ -306,7 +306,7 @@ export function init(ctx) {
                     return object ?? evaluate(expr.default, context)
                 }
                 case "GetSystemModule": {
-                    return ctx.engine.getSystemModule(`chunks:///_virtual/${evaluate(expr.name, context)}.ts`)
+                    return ctx.unsafe.engine.getSystemModule(`chunks:///_virtual/${evaluate(expr.name, context)}.ts`)
                 }
                 case "GetMath":
                     return Math
@@ -558,14 +558,14 @@ export function init(ctx) {
                 const className = evaluate(hook.className, context)
                 const method = evaluate(hook.method, context)
 
-                ctx.hooks.wrapMethod({
+                ctx.unsafe.hooks.wrapMethod({
                     className: className,
                     methodName: method,
-                    handler: ({ args, thisArg, callOriginal }) => {
+                    handler: ({ args, thisArg, callNext }) => {
                         const hookContext = {
                             target: thisArg,
                             [evaluate(hook.thisVariable, context) ?? "this"]: thisArg,
-                            [evaluate(hook.originalCallVariable, context) ?? "callOriginal"]: callOriginal,
+                            [evaluate(hook.originalCallVariable, context) ?? "callOriginal"]: callNext,
                             [evaluate(hook.argsVariable, context) ?? "args"]: args,
                         }
 

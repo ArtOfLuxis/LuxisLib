@@ -2,10 +2,10 @@ import {wrapObjDataOwnPlant} from "./Plant";
 
 export function init(ctx) {
     ctx.events.on("engine:ready", () => {
-        const imitater = ctx.engine.getSystemModule("chunks:///_virtual/Imitater.ts")
-        const plants = ctx.engine.getSystemModule("chunks:///_virtual/Plants.ts")
-        const levelController = ctx.engine.getSystemModule("chunks:///_virtual/levelController.ts")
-        const arrayGet = ctx.engine.getSystemModule("chunks:///_virtual/ArrayGet.ts")
+        const imitater = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Imitater.ts")
+        const plants = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Plants.ts")
+        const levelController = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/levelController.ts")
+        const arrayGet = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/ArrayGet.ts")
         const proto = imitater.ImitaterPlant.prototype
 
         wrapObjDataOwnPlant(ctx, proto, {
@@ -13,7 +13,7 @@ export function init(ctx) {
             "RandomPlantList": null
         })
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "getRandomPlantID",
             handler: ({ thisArg }) => {

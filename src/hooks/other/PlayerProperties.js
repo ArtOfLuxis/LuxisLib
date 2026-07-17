@@ -2,7 +2,7 @@ import {libProperties} from "./JSONs";
 
 export function init(ctx) {
     ctx.events.on("luxislib:properties", () => {
-        const playerProperties = ctx.engine.getSystemModule("chunks:///_virtual/PlayerProperties.ts")
+        const playerProperties = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/PlayerProperties.ts")
         const allPlayerProperties = playerProperties.AllPlayerProperties
 
         if (libProperties?.StartingWorlds)
@@ -14,11 +14,11 @@ export function init(ctx) {
             "tutorial1", "tutorial2", "tutorial3", "tutorial4"
         ]
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: allPlayerProperties,
             methodName: "getForceLevel",
-            handler: ({args, thisArg, callOriginal}) => {
-                if (!libProperties?.ForceSkipTutorial) return callOriginal(...args)
+            handler: ({args, thisArg, callNext}) => {
+                if (!libProperties?.ForceSkipTutorial) return callNext(...args)
 
                 if (!thisArg.currentPlayer.forceLevel || tutorialLevels.includes(thisArg.currentPlayer.forceLevel)) {
                     thisArg.currentPlayer.forceLevel = ""

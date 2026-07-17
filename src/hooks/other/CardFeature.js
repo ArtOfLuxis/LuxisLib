@@ -1,11 +1,11 @@
 
 export function init(ctx) {
     ctx.events.on("engine:ready", () => {
-        const cardFeature = ctx.engine.getSystemModule("chunks:///_virtual/CardFeature.ts");
-        const square = ctx.engine.getSystemModule("chunks:///_virtual/Square.ts");
-        const proto = cardFeature.CardFeature.prototype;
+        const cardFeature = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/CardFeature.ts")
+        const square = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Square.ts")
+        const proto = cardFeature.CardFeature.prototype
 
-        ctx.hooks.wrapProperty({
+        ctx.unsafe.hooks.wrapProperty({
             target: proto,
             key: "SUNCOST",
             get: ({thisArg, value}) => {

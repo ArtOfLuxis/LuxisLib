@@ -2,19 +2,19 @@ import {wrapObjDataOwnPlant} from "./Plant";
 
 export function init(ctx) {
     ctx.events.on("engine:ready", () => {
-        const gloomShroom = ctx.engine.getSystemModule("chunks:///_virtual/GloomShroom.ts");
+        const gloomShroom = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/GloomShroom.ts");
         const proto = gloomShroom.GloomShroomPlant.prototype;
 
         wrapObjDataOwnPlant(ctx, proto, {
             "DoesntShadowBoost": null,
         })
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "specialPlantUpdateForce",
-            handler: ({ thisArg, args, callOriginal }) => {
+            handler: ({ thisArg, args, callNext }) => {
                 if (thisArg.objdataOwn.DoesntShadowBoost !== true) {
-                    return callOriginal(...args)
+                    return callNext(...args)
                 }
 
                 const e = args[0];

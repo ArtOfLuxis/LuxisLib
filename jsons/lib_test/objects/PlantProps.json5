@@ -7,7 +7,7 @@
         "sunflower"
       ],
       "objdata": {
-        "SunValue": 1000001,
+        "SunValue": 100001,
         "ProduceInterval": 2,
         "ProduceIntervalAdditional": 0,
         "ProduceCountdownStart": 2,
@@ -26,7 +26,7 @@
         "marigold"
       ],
       "objdata": {
-        "SunValue": 1000002,
+        "SunValue": 100002,
         "IsACoinProducer": false,
         "ChanceToTurn": 0,
         "ProduceInterval": 2,
@@ -125,6 +125,47 @@
     {
       "objclass": "PlantProperties",
       "aliases": [
+        "peanut"
+      ],
+      "objdata": {
+        "PeaTypeSemi": "pea_flame_yellow",
+        "HitRectOverride": {
+          // when true multiplies original plant's size
+          // when false scales off of square size (width 1 is exactly 1 square)
+          "ModifyOriginal": true,
+          "Size": { "width": 3, "height": 1, "xOffset": 0, "yOffset": 0 }
+        }
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "holonut"
+      ],
+      "objdata": {
+        "HitRectOverride": {
+          "ModifyOriginal": false,
+          "Size": { "width": 5.05, "height": 1, "xOffset": 0, "yOffset": 0 }
+        }
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "melonpult"
+      ],
+      "objdata": {
+        "DetectorOverride": {
+          "x": 99, "y": 10,
+          "lanes": [-4,-3,-2,-1,0,1,2,3,4],
+          "xOffset": 0, "yOffset": 0,
+          "isCentered": true
+        },
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
         "pvine"
       ],
       "objdata": {
@@ -138,6 +179,24 @@
       ],
       "objdata": {
         "BuffsSunProduction": true
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "dandelion"
+      ],
+      "objdata": {
+        "AlwaysShoots": true // didnt work in vanilla
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "anthurium"
+      ],
+      "objdata": {
+        "AlwaysShoots": true // didnt work in vanilla
       }
     },
     {
@@ -160,6 +219,14 @@
         "endurian"
       ],
       "objdata": {
+        "SmashDamageInsteadOfDeath": {
+          // prioritized no matter what
+          "ForcedDamage": null,
+          // priority over vanilla SmashDamage but not over SpecificPlantSmashDamage and PlantSmashDamage
+          "PriorityDamage": 500,
+          // least priority, defaults to 1500
+          "DefaultDamage": null
+        },
         "UsableInStages": { "blacklist": true, "stages": ["Egypt"] },
         "OnEnableActions": [
           {
@@ -167,7 +234,7 @@
             "property": "PlantfoodOnGameStart",
             "value": true
           }
-        ]
+        ],
       }
     },
     {
@@ -1169,15 +1236,6 @@
       ],
       "objdata": {
         "BackPeaType": "pea_snow"
-      }
-    },
-    {
-      "objclass": "PlantProperties",
-      "aliases": [
-        "dandelion"
-      ],
-      "objdata": {
-        "AlwaysShoots": true // didnt work in vanilla
       }
     },
     {

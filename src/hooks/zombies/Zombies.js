@@ -2,7 +2,7 @@ import {libProperties} from "../other/JSONs";
 
 export function init(ctx) {
     ctx.events.on("luxislib:properties", () => {
-        const zombies = ctx.engine.getSystemModule("chunks:///_virtual/Zombies.ts")
+        const zombies = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Zombies.ts")
 
         let id = zombies.ZombieEnum.zombieAmount
 
@@ -22,12 +22,12 @@ export function init(ctx) {
 
         ctx.events.emit("luxislib:zombie_enum")
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: zombies.zombies,
             methodName: "SpawnRandomZombies",
-            handler: async ({ args, thisArg, callOriginal }) => {
+            handler: async ({ args, thisArg, callNext }) => {
                 const ids = libProperties.SandboxZombiesIDs
-                if (!ids?.length) return callOriginal(...args)
+                if (!ids?.length) return callNext(...args)
 
                 for (let lane = 0; lane < 5; lane++) {
                     for (let i = 0; i < 3; i++) {

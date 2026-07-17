@@ -2,8 +2,8 @@ import {libProperties} from "./JSONs";
 
 export function init(ctx) {
     ctx.events.on("luxislib:zombie_enum", () => {
-        const sandBoxZombieCards = ctx.engine.getSystemModule("chunks:///_virtual/SandBoxZombieCards.ts")
-        const zombies = ctx.engine.getSystemModule("chunks:///_virtual/Zombies.ts")
+        const sandBoxZombieCards = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/SandBoxZombieCards.ts")
+        const zombies = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Zombies.ts")
         const proto = sandBoxZombieCards.SandBoxZombieCards.prototype
 
         libProperties.SandboxZombiesIDs = []
@@ -12,14 +12,14 @@ export function init(ctx) {
             libProperties.SandboxZombiesIDs.push(zombieEnum)
         })
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "onMouseScroll",
-            handler: ({ args, thisArg, callOriginal }) => {
+            handler: ({ args, thisArg, callNext }) => {
                 const sandboxZombies = libProperties?.SandboxZombiesIDs
 
                 if (!sandboxZombies || sandboxZombies.length === 0) {
-                    return callOriginal(...args)
+                    return callNext(...args)
                 }
 
                 const len = sandboxZombies.length
@@ -28,7 +28,7 @@ export function init(ctx) {
                 if (thisArg.___sandboxIndex == null) {
                     const current = sandboxZombies.indexOf(thisArg.zombieCards[0].ID)
                     if (current === -1) {
-                        return callOriginal(...args)
+                        return callNext(...args)
                     }
 
                     thisArg.___sandboxIndex = current

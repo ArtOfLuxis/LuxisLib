@@ -3,26 +3,26 @@ import {libProperties} from "../other/JSONs";
 
 export function init(ctx) {
     ctx.events.on("luxislib:properties", () => {
-        const sunflower = ctx.engine.getSystemModule("chunks:///_virtual/Sunflower.ts")
-        const droppings = ctx.engine.getSystemModule("chunks:///_virtual/Droppings.ts")
-        const dropping = ctx.engine.getSystemModule("chunks:///_virtual/dropping.ts")
-        const nodePools = ctx.engine.getSystemModule("chunks:///_virtual/NodePools.ts")
-        const sun = ctx.engine.getSystemModule("chunks:///_virtual/sun.ts")
-        const ui = ctx.engine.getSystemModule("chunks:///_virtual/UI.ts")
-        const levelTask = ctx.engine.getSystemModule("chunks:///_virtual/LevelTaskCount.ts")
+        const sunflower = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Sunflower.ts")
+        const droppings = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Droppings.ts")
+        const dropping = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/dropping.ts")
+        const nodePools = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/NodePools.ts")
+        const sun = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/sun.ts")
+        const ui = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/UI.ts")
+        const levelTask = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/LevelTaskCount.ts")
         const proto = sunflower.SunflowerPlant.prototype
 
-        const cc = ctx.engine.getCc()
+        const cc = ctx.unsafe.engine.getCc()
 
         wrapObjDataOwnPlant(ctx, proto, {
             "IsACoinProducer": null,
         })
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "specialPlantOnEnable",
-            handler: ({args, thisArg, callOriginal}) => {
-                callOriginal(...args)
+            handler: ({args, thisArg, callNext}) => {
+                callNext(...args)
 
                 const isACoinProducer = thisArg.objdataOwn.IsACoinProducer
                 if (typeof isACoinProducer === "boolean")
@@ -30,12 +30,12 @@ export function init(ctx) {
             }
         })
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: sunflower.sunflower,
             methodName: "produceSun",
-            handler: ({ args, callOriginal }) => {
+            handler: ({ args, callNext }) => {
                 const sunDropsOverride = libProperties?.SunDropsOverride
-                if (!sunDropsOverride) return callOriginal(...args)
+                if (!sunDropsOverride) return callNext(...args)
 
                 let [
                     value, position, height,

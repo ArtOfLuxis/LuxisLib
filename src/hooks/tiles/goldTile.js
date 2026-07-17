@@ -2,10 +2,10 @@ import {wrapObjDataOwnTile} from "./Tile";
 
 export function init(ctx) {
     ctx.events.on("engine:ready", () => {
-        const goldTile = ctx.engine.getSystemModule("chunks:///_virtual/goldTile.ts")
-        const sunflower = ctx.engine.getSystemModule("chunks:///_virtual/Sunflower.ts")
-        const levelController = ctx.engine.getSystemModule("chunks:///_virtual/levelController.ts")
-        const arrayGet = ctx.engine.getSystemModule("chunks:///_virtual/ArrayGet.ts")
+        const goldTile = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/goldTile.ts")
+        const sunflower = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Sunflower.ts")
+        const levelController = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/levelController.ts")
+        const arrayGet = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/ArrayGet.ts")
         const proto = goldTile.goldTile.prototype
 
         wrapObjDataOwnTile(ctx, proto, {
@@ -14,16 +14,16 @@ export function init(ctx) {
             "PlantDetector": null,
         })
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "specialTileOnEnable",
-            handler: ({ thisArg, args, callOriginal }) => {
-                callOriginal(...args)
+            handler: ({ thisArg, args, callNext }) => {
+                callNext(...args)
                 thisArg.___LuxisLibIsFirstProduce = true
             }
         })
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "_produce",
             handler: ({ thisArg }) => {
@@ -43,7 +43,7 @@ export function init(ctx) {
             }
         })
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "specialTileUpdate",
             handler: ({ thisArg, args }) => {

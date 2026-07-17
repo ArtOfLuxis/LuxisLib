@@ -2,20 +2,20 @@ import {libProperties} from "./JSONs";
 
 export function init(ctx) {
     ctx.events.on("luxislib:properties", () => {
-        const fanMadeLevelWindow = ctx.engine.getSystemModule("chunks:///_virtual/fanMadeLevelWindow.ts")
-        const JSONs = ctx.engine.getSystemModule("chunks:///_virtual/JSONs.ts")
-        const levelController = ctx.engine.getSystemModule("chunks:///_virtual/levelController.ts")
-        const keyListener = ctx.engine.getSystemModule("chunks:///_virtual/KeyListener.ts")
+        const fanMadeLevelWindow = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/fanMadeLevelWindow.ts")
+        const JSONs = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/JSONs.ts")
+        const levelController = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/levelController.ts")
+        const keyListener = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/KeyListener.ts")
         const proto = fanMadeLevelWindow.fanmadeLevelsWindow.prototype
 
         const sheets = JSONs.PvZ2ObjectContainer.PropertySheets
 
-        const cc = ctx.engine.getCc()
+        const cc = ctx.unsafe.engine.getCc()
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "onEnable",
-            handler: ({ args, thisArg, callOriginal }) => {
+            handler: ({ args, thisArg, callNext }) => {
                 if (!thisArg.__LuxisLibLevelsAdded && libProperties?.ArcadeCustomLevels) {
                     const firstCategory = thisArg.fanMadeLevelName0.node.parent.parent
                     const categories = firstCategory.parent.children
@@ -26,7 +26,7 @@ export function init(ctx) {
                         ctx.log.error("Unable to load levels for Arcade: no custom levels loaded (CustomLevelDefinition in PropertySheets)")
                         ctx.ui.toast("Unable to load levels for Arcade", "error")
 
-                        return callOriginal(...args)
+                        return callNext(...args)
                     }
 
                     for (const [categoryName, customLevelObject] of Object.entries(libProperties.ArcadeCustomLevels)) {
@@ -91,7 +91,7 @@ export function init(ctx) {
                     }
                 }
 
-                return callOriginal(...args)
+                return callNext(...args)
             }
         })
 

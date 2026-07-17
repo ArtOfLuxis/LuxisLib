@@ -4,7 +4,7 @@ export let libProperties = undefined
 
 export function init(ctx) {
     ctx.events.on("engine:ready", async () => {
-        const JSONs = ctx.engine.getSystemModule("chunks:///_virtual/JSONs.ts")
+        const JSONs = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/JSONs.ts")
 
         const luxisLibAlias =
             (await ctx.settings.get("luxisLibAlias")) ?? "LuxisLibProps"

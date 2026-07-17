@@ -1,9 +1,9 @@
-import {normalSmashOverride, wrapObjDataOwnPlant} from "./Plant";
+import {normalSmashOverride} from "./Plant";
 
 export function init(ctx) {
     ctx.events.on("engine:ready", () => {
-        const primalWallnut = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/PrimalWallNut.ts")
-        const proto = primalWallnut.PrimalWallNutPlant.prototype
+        const endurian = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Endurian.ts")
+        const proto = endurian.EndurianPlant.prototype
 
         ctx.unsafe.hooks.wrapMethod({
             target: proto,

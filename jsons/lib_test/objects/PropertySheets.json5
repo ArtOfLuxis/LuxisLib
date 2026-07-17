@@ -23,14 +23,16 @@
           "50": ["SunMid"],
           "75": ["SunLarge"],
           "100": ["SunMid", "SunMid"],
-          "1000001": [
+          "100001": [
             {
               "Name": "PlantCardDropped",
               "PlantTypes": ["peashooter", "sunflower", "wallnut"]
             }
           ],
-          "1000002": ["plantFood", "SunBomb", "Gem", "Sprout", "CoinGold", "CoinSilver"]
+          "100002": ["plantFood", "SunBomb", "Gem", "Sprout", "CoinGold", "CoinSilver"]
         },
+        "PlantSunCostFontScale": 0.75,
+        "PlantSunCostHeightScale": 1,
 
 
         // plants
@@ -106,12 +108,14 @@
           // or you could just copy the almanac list from ZombieFeatures
           "tutorial",
           "tutorial_gargantuar",
+          "dark_gargantuar",
           "tutorial_armor1",
           "tutorial_armor2",
           "tutorial_armor3",
           "tutorial_armor4",
           "pirate_armor1",
           "pirate_armor2",
+          "explorer",
           "tutorial_flag",
           "tomb_raiser",
           "beach_surfer",

@@ -2,7 +2,7 @@ import {wrapObjDataOwnPlant} from "./Plant";
 
 export function init(ctx) {
     ctx.events.on("engine:ready", () => {
-        const peaPod = ctx.engine.getSystemModule("chunks:///_virtual/PeaPod.ts");
+        const peaPod = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/PeaPod.ts");
         const proto = peaPod.PeaPodPlant.prototype;
 
         wrapObjDataOwnPlant(ctx, proto, {
@@ -10,12 +10,12 @@ export function init(ctx) {
         })
 
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "replantable",
-            handler: ({args, thisArg, callOriginal}) => {
+            handler: ({args, thisArg, callNext}) => {
                 const maxPeaHeads = thisArg.objdataOwn.MaxPeaHeads
-                return callOriginal(...args) &&
+                return callNext(...args) &&
                     (typeof maxPeaHeads !== "number" || thisArg.headCount < maxPeaHeads)
             }
         })

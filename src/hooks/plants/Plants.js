@@ -1,16 +1,16 @@
 
 export function init(ctx) {
     ctx.events.on("engine:ready", () => {
-        const plants = ctx.engine.getSystemModule("chunks:///_virtual/Plants.ts");
+        const plants = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Plants.ts");
         const proto = plants.Plants.prototype
 
         plants.plants.SpecificPlantMintDuration = {}
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "update",
-            handler: ({ args, callOriginal }) => {
-                callOriginal(...args)
+            handler: ({ args, callNext }) => {
+                callNext(...args)
 
                 const deltaTime = args[0]
                 const durations = plants.plants.SpecificPlantMintDuration

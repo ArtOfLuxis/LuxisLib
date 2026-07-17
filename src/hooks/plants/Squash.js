@@ -2,24 +2,24 @@ import {wrapObjDataOwnPlant} from "./Plant";
 
 export function init(ctx) {
     ctx.events.on("engine:ready", () => {
-        const squash = ctx.engine.getSystemModule("chunks:///_virtual/Squash.ts")
-        const characterManager = ctx.engine.getSystemModule("chunks:///_virtual/CharacterManager.ts")
-        const square = ctx.engine.getSystemModule("chunks:///_virtual/Square.ts")
+        const squash = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Squash.ts")
+        const characterManager = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/CharacterManager.ts")
+        const square = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Square.ts")
         const proto = squash.SquashPlant.prototype
 
-        const cc = ctx.engine.getCc()
+        const cc = ctx.unsafe.engine.getCc()
 
         wrapObjDataOwnPlant(ctx, proto, {
             "SmashAOE": null,
         })
 
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "getZombiesInSmashingRange",
-            handler: ({args, thisArg, callOriginal}) => {
+            handler: ({args, thisArg, callNext}) => {
                 const aoe = thisArg.objdataOwn.SmashAOE
-                if (!aoe) return callOriginal(...args)
+                if (!aoe) return callNext(...args)
 
                 const center = args[0] ?? thisArg
 

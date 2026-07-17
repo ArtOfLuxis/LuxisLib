@@ -1,15 +1,15 @@
 
 export function init(ctx) {
     ctx.events.on("engine:ready", () => {
-        const cc = ctx.engine.getCc()
+        const cc = ctx.unsafe.engine.getCc()
 
-        const JSONs = ctx.engine.getSystemModule("chunks:///_virtual/JSONs.ts")
+        const JSONs = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/JSONs.ts")
         const sheets = JSONs.PvZ2ObjectContainer.PropertySheets
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: cc.resources,
             methodName: "load",
-            handler: async ({args, callOriginal}) => {
+            handler: async ({args, callNext}) => {
                 const [path, callback] = args;
 
                 if (path.startsWith("levels/")) {
@@ -29,7 +29,7 @@ export function init(ctx) {
                     }
                 }
 
-                return callOriginal(...args)
+                return callNext(...args)
             }
         })
     })

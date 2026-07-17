@@ -3,17 +3,58 @@ import {libProperties} from "../other/JSONs"
 import {executeActions} from "../../modules/JSONActionsSystem";
 import {isGameRunning} from "../other/levelController";
 
+const prototypeDefaults = new WeakMap()
+let wrapped = false
+
+export function wrapObjDataOwnZombie(ctx, proto, keys) {
+    let defaults = prototypeDefaults.get(proto)
+    if (!defaults) {
+        defaults = {}
+        prototypeDefaults.set(proto, defaults)
+    }
+
+    Object.assign(defaults, keys)
+
+    if (wrapped) return
+    wrapped = true
+
+    const zombie = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Zombie.ts")
+
+    ctx.unsafe.hooks.wrapProperty({ // i have no fucking idea why this works but it does so we dont touch it
+        target: zombie.Zombie.prototype,
+        key: "_objdata",
+        get: ({ thisArg, value }) => {
+            let current = Object.getPrototypeOf(thisArg)
+
+            while (current) {
+                const defaults = prototypeDefaults.get(current)
+                if (defaults) {
+                    for (const [key, value] of Object.entries(defaults)) {
+                        if (!(key in thisArg._objdataOwn)) {
+                            thisArg._objdataOwn[key] = value
+                        }
+                    }
+                }
+
+                current = Object.getPrototypeOf(current)
+            }
+
+            return value
+        }
+    })
+}
+
 export function init(ctx) {
     ctx.events.on("engine:ready", () => {
-        const zombie = ctx.engine.getSystemModule("chunks:///_virtual/Zombie.ts")
-        const materials = ctx.engine.getSystemModule("chunks:///_virtual/Materials.ts")
-        const frontYard = ctx.engine.getSystemModule("chunks:///_virtual/FrontYard.ts")
-        const characterManager = ctx.engine.getSystemModule("chunks:///_virtual/CharacterManager.ts")
+        const zombie = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Zombie.ts")
+        const materials = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Materials.ts")
+        const frontYard = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/FrontYard.ts")
+        const characterManager = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/CharacterManager.ts")
         const proto = zombie.Zombie.prototype
 
-        const cc = ctx.engine.getCc()
+        const cc = ctx.unsafe.engine.getCc()
 
-        const zombieKeys = {
+        wrapObjDataOwnZombie(ctx, proto, {
             "ColorOffset": null,
             "ColorMult": null,
             "OnEnableActions": null,
@@ -30,27 +71,26 @@ export function init(ctx) {
             "ImmuneToHypnoShroom": false,
             "TimeBeforeSelfExplode": null,
             "ForceFlyingMode": null,
-        }
+            "PlantSmashDamage": null,
+            "SpecificPlantSmashDamage": null,
 
-        ctx.hooks.wrapProperty({
-            target: proto,
-            key: "_objdata",
-            get: ({thisArg, value}) => {
-                if (value) {
-                    Object.entries(zombieKeys).forEach(([prop, defaultValue]) => {
-                        if (value[prop] === undefined) value[prop] = defaultValue
-                    })
-                }
-                return value
-            }
+            "GlitteringDurationMultiplier": null,
+            "PoisonDurationMultiplier": null,
+            "ChillDurationMultiplier": null,
+            "FreezeDurationMultiplier": null,
+            "ButterDurationMultiplier": null,
+            "StunDurationMultiplier": null,
+            "DarkMatterDurationMultiplier": null,
+            "PerfumeDurationMultiplier": null,
+            "SapflingDurationMultiplier": null,
         })
 
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "shouldMaterial",
-            handler: ({ args, thisArg, callOriginal }) => {
-                callOriginal(...args)
+            handler: ({ args, thisArg, callNext }) => {
+                callNext(...args)
 
                 const offset = thisArg.objdata.ColorOffset;
 
@@ -134,10 +174,10 @@ export function init(ctx) {
             }
         });
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "defaultShouldSpeedScale",
-            handler: ({thisArg, callOriginal}) => {
+            handler: ({thisArg, callNext}) => {
                 const defaultShouldSpeedScale = function () {
                     if (thisArg.leapHeightTween && !thisArg.isAlive()) {
                         return 0
@@ -215,22 +255,22 @@ export function init(ctx) {
             }
         })
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "chilibeanFart",
-            handler: ({args, thisArg, callOriginal}) => {
+            handler: ({args, thisArg, callNext}) => {
                 if (thisArg.objdata.ImmuneToChiliBean) return
 
-                callOriginal(...args)
+                callNext(...args)
             }
         })
 
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "characterOnEnable",
-            handler: ({args, thisArg, callOriginal}) => {
-                callOriginal(...args)
+            handler: ({args, thisArg, callNext}) => {
+                callNext(...args)
 
                 if (thisArg.objdata.TimeBeforeSelfExplode) {
                     thisArg.___LuxisLibSelfExploding = true
@@ -247,10 +287,10 @@ export function init(ctx) {
             }
         })
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "defaultDealDamage",
-            handler: ({args, thisArg, callOriginal}) => {
+            handler: ({args, thisArg, callNext}) => {
                 const damageDetails = args[0]
 
                 const beforeDamagedActions = thisArg.objdata.BeforeDamagedActions
@@ -262,7 +302,7 @@ export function init(ctx) {
                     })
                 }
 
-                callOriginal(...args)
+                callNext(...args)
 
                 const onDamagedActions = thisArg.objdata.OnDamagedActions
                 if (onDamagedActions && isGameRunning()) {
@@ -287,11 +327,11 @@ export function init(ctx) {
             }
         })
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "update",
-            handler: ({args, thisArg, callOriginal}) => {
-                callOriginal(...args)
+            handler: ({args, thisArg, callNext}) => {
+                callNext(...args)
 
                 const deltaTime = args[0]
 
@@ -337,10 +377,10 @@ export function init(ctx) {
             }
         })
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "defaultDealDamage",
-            handler: ({args, thisArg, callOriginal}) => {
+            handler: ({args, thisArg, callNext}) => {
                 const damageDetails = args[0]
 
                 const beforeDamageActions = thisArg.objdata.BeforeDamageActions
@@ -352,7 +392,7 @@ export function init(ctx) {
                     })
                 }
 
-                callOriginal(...args)
+                callNext(...args)
 
                 const onDamageActions = thisArg.objdata.OnDamageActions
                 if (onDamageActions && isGameRunning()) {
@@ -366,11 +406,11 @@ export function init(ctx) {
         })
 
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "eatByZombie",
-            handler: ({args, thisArg, callOriginal}) => {
-                const result = callOriginal(...args)
+            handler: ({args, thisArg, callNext}) => {
+                const result = callNext(...args)
 
                 const [damageDetails, zombie] = args
 
@@ -388,16 +428,47 @@ export function init(ctx) {
         })
 
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "defaultSetHypnoTized",
-            handler: ({args, thisArg, callOriginal}) => {
+            handler: ({args, thisArg, callNext}) => {
                 const immuneToHypno = zombie.objdata?.ImmuneToHypno
 
                 if (!immuneToHypno || typeof immuneToHypno !== "boolean") {
-                    return callOriginal(...args)
+                    return callNext(...args)
                 }
             }
+        })
+
+
+        const effectList = {
+            "Glittering": 0,
+            "Poison": 1,
+            "Chill": 0,
+            "Freeze": 0,
+            "Butter": 0,
+            "Stun": 0,
+            "DarkMatter": 0,
+            "Perfume": 0,
+            "Sapfling": 0
+        }
+
+        Object.entries(effectList).forEach(([effect, durationArg]) => {
+            ctx.unsafe.hooks.wrapMethod({
+                target: proto,
+                methodName: `set${effect}`,
+                handler: ({args, thisArg, callNext}) => {
+                    let duration = args[durationArg]
+
+                    const durationMultiplier = thisArg.objdata[`${effect}DurationMultiplier`]
+                    if (typeof durationMultiplier === "number")
+                        duration *= durationMultiplier
+
+                    args[durationArg] = duration
+
+                    return callNext(...args)
+                }
+            })
         })
 
 

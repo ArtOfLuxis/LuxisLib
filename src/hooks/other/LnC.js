@@ -2,31 +2,31 @@ import {evaluate} from "../../modules/JSONActionsSystem";
 
 export function init(ctx) {
     ctx.events.on("engine:ready", () => {
-        const LnC = ctx.engine.getSystemModule("chunks:///_virtual/LnC.ts")
-        const cards = ctx.engine.getSystemModule("chunks:///_virtual/Cards.ts")
-        const plants = ctx.engine.getSystemModule("chunks:///_virtual/Plants.ts")
-        const square = ctx.engine.getSystemModule("chunks:///_virtual/Square.ts")
+        const LnC = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/LnC.ts")
+        const cards = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Cards.ts")
+        const plants = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Plants.ts")
+        const square = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Square.ts")
         const proto = LnC.LnC.prototype
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "PlaceUIPlant",
-            handler: ({args, thisArg, callOriginal}) => {
+            handler: ({args, thisArg, callNext}) => {
                 const currentCF = thisArg.UIInGame.currentCF
                 if (!currentCF.TotalPlanted) {
                     currentCF.TotalPlanted = 0
                 }
                 currentCF.TotalPlanted++
 
-                return callOriginal(...args)
+                return callNext(...args)
             }
         })
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "removePlant",
-            handler: ({args, thisArg, callOriginal}) => {
-                const result = callOriginal(...args)
+            handler: ({args, thisArg, callNext}) => {
+                const result = callNext(...args)
 
                 cards.Cards.component.CFs.forEach((card) => {
                     card.SUNCOST += 0 // to update suncost on all cards
@@ -36,12 +36,12 @@ export function init(ctx) {
             }
         })
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "putPlantAvailable",
-            handler: ({args, thisArg, callOriginal}) => {
+            handler: ({args, thisArg, callNext}) => {
 
-                const result = callOriginal(...args)
+                const result = callNext(...args)
 
                 const plantID = args[1]
                 if (typeof plantID === "number" && !isNaN(plantID)) {

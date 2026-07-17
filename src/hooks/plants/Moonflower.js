@@ -2,7 +2,7 @@ import {wrapObjDataOwnPlant} from "./Plant";
 
 export function init(ctx) {
     ctx.events.on("engine:ready", () => {
-        const moonflower = ctx.engine.getSystemModule("chunks:///_virtual/Moonflower.ts")
+        const moonflower = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Moonflower.ts")
         const proto = moonflower.MoonflowerPlant.prototype
 
         wrapObjDataOwnPlant(ctx, proto, {
@@ -10,12 +10,12 @@ export function init(ctx) {
         })
 
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "specialPlantUpdateForce",
-            handler: ({args, thisArg, callOriginal}) => {
+            handler: ({args, thisArg, callNext}) => {
                 if (thisArg.objdataOwn.DoesntShadowBoost !== true) {
-                    callOriginal(...args)
+                    callNext(...args)
                 }
             }
         })

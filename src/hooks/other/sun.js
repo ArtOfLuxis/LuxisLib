@@ -2,20 +2,20 @@ import { libProperties } from "./JSONs";
 
 export function init(ctx) {
     ctx.events.on("luxislib:properties", () => {
-        const sun = ctx.engine.getSystemModule("chunks:///_virtual/sun.ts")
-        const droppings = ctx.engine.getSystemModule("chunks:///_virtual/Droppings.ts")
-        const sunCount = ctx.engine.getSystemModule("chunks:///_virtual/SunCount.ts")
-        const multiLanguage = ctx.engine.getSystemModule("chunks:///_virtual/MultiLanguage.ts")
-        const keyListener = ctx.engine.getSystemModule("chunks:///_virtual/KeyListener.ts")
-        const levelController = ctx.engine.getSystemModule("chunks:///_virtual/levelController.ts")
+        const sun = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/sun.ts")
+        const droppings = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Droppings.ts")
+        const sunCount = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/SunCount.ts")
+        const multiLanguage = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/MultiLanguage.ts")
+        const keyListener = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/KeyListener.ts")
+        const levelController = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/levelController.ts")
         const proto = sun.sun.prototype
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "specialGoToUI",
-            handler: ({ args, thisArg, callOriginal }) => {
+            handler: ({ args, thisArg, callNext }) => {
                 const sunOverrides = libProperties?.SunValueOverrides
-                if (!sunOverrides) return callOriginal(...args)
+                if (!sunOverrides) return callNext(...args)
 
                 droppings.droppings.deleteSun(thisArg)
 

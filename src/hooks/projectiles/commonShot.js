@@ -2,26 +2,28 @@ import {executeActions} from "../../modules/JSONActionsSystem";
 import {libProperties} from "../other/JSONs";
 
 export let createProjectileSpread
+export let createLobberProjectileSpread
 
 export function init(ctx) {
     ctx.events.on("engine:ready", () => {
-        const commonShot = ctx.engine.getSystemModule("chunks:///_virtual/commonShot.ts")
-        const projectiles = ctx.engine.getSystemModule("chunks:///_virtual/Projectiles.ts")
-        const character = ctx.engine.getSystemModule("chunks:///_virtual/Character.ts")
-        const zombie = ctx.engine.getSystemModule("chunks:///_virtual/Zombie.ts")
-        const characterManager = ctx.engine.getSystemModule("chunks:///_virtual/CharacterManager.ts")
-        const square = ctx.engine.getSystemModule("chunks:///_virtual/Square.ts")
-        const levelController = ctx.engine.getSystemModule("chunks:///_virtual/levelController.ts")
+        const commonShot = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/commonShot.ts")
+        const projectiles = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Projectiles.ts")
+        const character = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Character.ts")
+        const zombie = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Zombie.ts")
+        const characterManager = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/CharacterManager.ts")
+        const square = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Square.ts")
+        const levelController = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/levelController.ts")
         const projectileShootingFunctions = projectiles.ProjectileShootingFunctions
         const proto = commonShot.commonShot.prototype
 
-        const cc = ctx.engine.getCc()
+        const cc = ctx.unsafe.engine.getCc()
 
         const projectileKeys = {
             "Scale": null,
             "ColorOffset": null,
             "ColorMult": null,
             "ProjectileSpread": null,
+            "LobberProjectileSpread": null,
             "ZombieInvisibilityPotion": null,
             "ZombieToughnessPotion": null,
             "ZombieSpeedPotion": null,
@@ -33,7 +35,7 @@ export function init(ctx) {
             "PierceOverride": null,
         }
 
-        ctx.hooks.wrapProperty({
+        ctx.unsafe.hooks.wrapProperty({
             target: proto,
             key: "objdata",
             set: ({ nextValue, thisArg }) => {
@@ -47,11 +49,11 @@ export function init(ctx) {
             }
         })
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "defaultReadObjdata",
-            handler: ({ args, thisArg, callOriginal }) => {
-                callOriginal(...args)
+            handler: ({ args, thisArg, callNext }) => {
+                callNext(...args)
 
                 const objdata = args[0]
 
@@ -61,11 +63,17 @@ export function init(ctx) {
                     if (value === undefined || value === null) return
 
                     switch (key) {
+                        case "LobberProjectileSpread":
+                        case "ProjectileSpread": {
+                            thisArg[key] = value
+                            thisArg.speedScale = 0
+                            break
+                        }
                         case "Scale": {
                             thisArg.scale = value
                             break
                         }
-                        case "PierceOverride":
+                        case "PierceOverride": {
                             thisArg.___LuxisLibPiercePlayHitSound = value.PlayHitSound ?? true
                             thisArg.___LuxisLibPiercePlayHitParticle = value.PlayHitParticle ?? false
                             const min = value.Amount.min
@@ -74,6 +82,7 @@ export function init(ctx) {
                             thisArg.___LuxisLibDealtTargetAmount = 0
                             thisArg.___LuxisLibContactingEnemies = []
                             break
+                        }
                         default: {
                             thisArg[key] = value
                             break
@@ -83,11 +92,16 @@ export function init(ctx) {
             }
         })
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "characterOnEnable",
-            handler: ({ args, thisArg, callOriginal }) => {
-                callOriginal(...args)
+            handler: ({ args, thisArg, callNext }) => {
+                callNext(...args)
+
+                if (thisArg.ProjectileSpread || thisArg.LobberProjectileSpread) {
+                    thisArg.speedScale = 0
+                }
+
                 if (thisArg.OnEnableActions) {
                     executeActions(thisArg.OnEnableActions, {
                         target: thisArg,
@@ -97,11 +111,11 @@ export function init(ctx) {
             }
         })
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "shouldMaterial",
-            handler: ({ args, thisArg, callOriginal }) => {
-                callOriginal(...args)
+            handler: ({ args, thisArg, callNext }) => {
+                callNext(...args)
 
                 const color = new cc.Vec4(0, 0, 0, 1)
 
@@ -128,39 +142,58 @@ export function init(ctx) {
             }
         })
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "detectEnemy",
-            handler: ({args, thisArg, callOriginal}) => {
-                if (thisArg.ProjectileSpread) {
-                    if (thisArg._hasSpread) {
-                        return callOriginal(...args)
-                    }
-
-                    const originX = thisArg._worldPositionX
-                    const originY = thisArg._worldPositionY
-                    const height = thisArg.height
-                    const prjLayer = thisArg.inLane.prjLayer
-                    const speed = Math.hypot(
-                        thisArg.linearVelocity.x,
-                        thisArg.linearVelocity.y
-                    )
-                    const enemyType = thisArg.enemyType
-
-                    createProjectileSpread(thisArg.ProjectileSpread, thisArg.inLnC, originX, originY, height, speed, prjLayer, enemyType)
-                    thisArg.fade()
-                    return
+            handler: ({args, thisArg, callNext}) => {
+                if (thisArg.EnemyTypeOverride) {
+                    thisArg.enemyType = character.CharacterType[thisArg.EnemyTypeOverride]
                 }
 
-                callOriginal(...args)
+                if (thisArg._hasSpread || (!thisArg.ProjectileSpread && !thisArg.LobberProjectileSpread))
+                    return callNext(...args)
+
+                const originX = thisArg._worldPositionX
+                const originY = thisArg._worldPositionY
+                const height = thisArg.height
+                const prjLayer = thisArg.inLane.prjLayer
+                const speed = Math.hypot(
+                    thisArg.linearVelocity.x,
+                    thisArg.linearVelocity.y
+                )
+                const enemyType = thisArg.enemyType
+
+                if (thisArg.ProjectileSpread) {
+                    createProjectileSpread(
+                        thisArg.ProjectileSpread,
+                        thisArg.inLnC,
+                        originX, originY,
+                        height, speed,
+                        prjLayer, enemyType
+                    )
+                }
+                if (thisArg.LobberProjectileSpread) {
+                    createLobberProjectileSpread(
+                        thisArg.LobberProjectileSpread,
+                        thisArg.inLnC,
+                        originX, originY,
+                        height, thisArg.gravity,
+                        prjLayer,
+                        thisArg.inLnC,
+                        thisArg.linearVelocity.clone(),
+                        thisArg.bodyLinearVelocity,
+                        enemyType
+                    )
+                }
+                thisArg.fade()
             }
         })
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "dealDamageToZombie",
-            handler: ({args, thisArg, callOriginal}) => {
-                callOriginal(...args)
+            handler: ({args, thisArg, callNext}) => {
+                callNext(...args)
 
                 const zombie = args[0]
 
@@ -204,25 +237,21 @@ export function init(ctx) {
             }
         })
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "addPeaBuff",
-            handler: ({args, thisArg, callOriginal}) => {
+            handler: ({args, thisArg, callNext}) => {
                 if (thisArg.CanBePeaVineBuffed || thisArg.CanBePeaVineBuffed === undefined) {
-                    callOriginal(...args)
+                    callNext(...args)
                 }
             }
         })
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "update",
-            handler: ({args, thisArg, callOriginal}) => {
-                callOriginal(...args)
-
-                if (thisArg.EnemyTypeOverride) {
-                    thisArg.enemyType = character.CharacterType[thisArg.EnemyTypeOverride]
-                }
+            handler: ({args, thisArg, callNext}) => {
+                callNext(...args)
 
                 const onUpdateActions = thisArg.OnUpdateActions
                 if (onUpdateActions) {
@@ -236,15 +265,22 @@ export function init(ctx) {
         })
 
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "detectEnemyNormal",
-            handler: ({ args, thisArg }) => {
+            handler: ({ args, thisArg, callNext }) => {
+                const hasPierceProperties = typeof thisArg.___LuxisLibDealtTargetAmount === "number"
+                if (
+                    !hasPierceProperties &&
+                    ((libProperties?.PeaVineDamageBoost ?? 1.5) === 1.5 || !thisArg.havePeaBuff)
+                ) return callNext(...args)
+                // there's some issues with piercing projectiles i have no idea how to fix
+                // so always try to get vanilla behavior if possible
+
                 const someArgIDK = args[0]
 
-                if (!thisArg.inLane || !thisArg.detectEnemyOn) {
+                if (!thisArg.inLane || !thisArg.detectEnemyOn)
                     return
-                }
 
                 if (thisArg.targetLocked && thisArg.targetLocked instanceof zombie.Zombie) {
                     if (thisArg.targetLocked.potionInvisible || !thisArg.targetLocked.isAlive()) {
@@ -418,7 +454,12 @@ export function init(ctx) {
 
 
 
-        createProjectileSpread = function createProjectileSpread(spreadData, scheduler, originX, originY, height, speed, layer, enemyType) {
+        createProjectileSpread = function createProjectileSpread(
+            spreadData, scheduler,
+            originX, originY,
+            height, speed,
+            layer, enemyType
+        ) {
             spreadData.forEach((spreadPattern) => {
                 const projectilesPerInterval = Math.floor(spreadPattern.ProjectilesPerInterval)
                 const intervalTimes = spreadPattern.ProjectileAmount / projectilesPerInterval
@@ -426,7 +467,7 @@ export function init(ctx) {
                     ctx.ui.toast("ProjectileAmount is not a multiple of ProjectilesPerInterval", "error")
                     console.error("ProjectileAmount is not a multiple of ProjectilesPerInterval:", spreadPattern)
                 }
-                scheduler.schedule(function () {
+                scheduler.schedule(async function () {
                         for (let i = 0; i < projectilesPerInterval; i++) {
                             const spread = spreadPattern.ProjectileSpreadDegrees
 
@@ -450,9 +491,9 @@ export function init(ctx) {
                                 speed * Math.sin(radians),
                             ); // velocity based on degrees
 
-                            const centerOffset = spreadPattern.CenterOffset ?? { "x": 0, "y": 0 }
+                            const centerOffset = spreadPattern.CenterOffset ?? {"x": 0, "y": 0}
 
-                            const projectile = projectileShootingFunctions.shootOnePea(
+                            const projectile = await projectileShootingFunctions.shootOnePea(
                                 spreadPattern.ProjectileType,
                                 {
                                     x: originX + centerOffset.x * square.Square.SquareWidth,
@@ -469,6 +510,290 @@ export function init(ctx) {
                     spreadPattern.ProjectileInterval,
                     intervalTimes - 1,
                     spreadPattern.FirstProjectileInterval,
+                )
+            })
+        }
+
+        createLobberProjectileSpread = function createLobberProjectileSpread(
+            spreadData, scheduler,
+            originX, originY,
+            height, gravity,
+            layer,
+            originLnC,
+            linearVelocity,
+            bodyLinearVelocity,
+            enemyType,
+        ) {
+            spreadData.forEach((spreadPattern) => {
+                const projectilesPerInterval = Math.floor(spreadPattern.ProjectilesPerInterval)
+                const intervalTimes = spreadPattern.ProjectileAmount / projectilesPerInterval
+
+                if (intervalTimes !== Math.floor(intervalTimes)) {
+                    ctx.ui.toast("ProjectileAmount is not a multiple of ProjectilesPerInterval", "error")
+                    console.error("ProjectileAmount is not a multiple of ProjectilesPerInterval:", spreadPattern)
+                }
+
+                const laneRanges = spreadPattern.ProjectileLaneOffsets ?? [{ min: 0, max: 0 }]
+                let laneOffset
+
+                const lockMode = spreadPattern.TargetLockMode ?? {}
+
+                const getTarget = (minColumn, targetPool) => {
+                    let closestX = Infinity
+                    let best = null
+
+                    for (const target of targetPool) {
+                        if (!target.isAlive()) continue
+
+                        if (target.inLnC.cIndex < minColumn) continue
+
+                        if (target.worldPosition.x < closestX) {
+                            closestX = target.worldPosition.x
+                            best = target
+                        }
+                    }
+
+                    return best
+                }
+
+                const findTarget = (lane) => {
+                    if (!lockMode.LockOnFirstEnemy) return null
+
+                    const minColumn = (
+                        lockMode.IgnoreOriginColumn
+                            ? -Infinity
+                            : originLnC.cIndex
+                    ) + lockMode.OriginColumnOffset ?? 0
+
+                    const targetPool = lane.zombiePool().concat(
+                        lockMode.PrioritizeTombs ? lane.tombPool() : []
+                    )
+
+                    let best = getTarget(minColumn, targetPool)
+
+                    if (best === null && !lockMode.PrioritizeTombs && !lockMode.IgnoreTombs) {
+                        best = getTarget(minColumn, lane.tombPool())
+                    }
+
+                    if (typeof best?.lobberTarget === "function") {
+                        return best?.lobberTarget() ?? best
+                    } else {
+                        return best
+                    }
+                }
+
+                const rollLaneOffset = () => {
+                    const laneRange = laneRanges[Math.floor(Math.random() * laneRanges.length)]
+
+                    let offset = laneRange.min + Math.random() * (laneRange.max - laneRange.min)
+
+                    if (!spreadPattern.DecimalLaneOffsets) {
+                        offset = Math.round(offset)
+                    }
+
+                    return offset
+                }
+
+                const findLaneAndTarget = () => {
+                    let laneOffset = rollLaneOffset()
+                    let laneIndex
+                    let lane
+                    let target
+
+                    let tries = 0
+
+                    while (true) {
+                        tries++
+
+                        laneIndex = originLnC.lIndex + Math.floor(laneOffset)
+                        lane = square.Square.getLane(laneIndex)
+
+                        target = lane ? findTarget(lane) : null
+
+                        if (
+                            target ||
+                            !lockMode.IgnoreEmptyLanesIfPossible ||
+                            tries >= 99
+                        ) {
+                            break
+                        }
+
+                        laneOffset = rollLaneOffset()
+                    }
+
+                    return {
+                        laneOffset,
+                        laneIndex,
+                        lane,
+                        target,
+                    }
+                }
+
+                let distributedTargets = null
+                if (spreadPattern.TargetLockMode?.EvenlyDistributeProjectiles) {
+                    const candidates = []
+
+                    for (const range of laneRanges) {
+                        for (let offset = Math.ceil(range.min); offset <= Math.floor(range.max); offset++) {
+                            const lane = square.Square.getLane(originLnC.lIndex + offset)
+                            if (!lane) continue
+
+                            const target = findTarget(lane)
+                            if (!target) continue
+
+                            candidates.push({
+                                laneOffset: offset,
+                                laneIndex: originLnC.lIndex + offset,
+                                lane,
+                                target,
+                            })
+                        }
+                    }
+
+                    candidates.sort((a, b) => a.target.worldPosition.x - b.target.worldPosition.x)
+
+                    if (typeof lockMode.MaxDistributionTargets === "number") {
+                        candidates.length = Math.min(
+                            candidates.length,
+                            lockMode.MaxDistributionTargets
+                        )
+                    }
+
+                    distributedTargets = []
+
+                    while (distributedTargets.length < spreadPattern.ProjectileAmount) {
+                        let added = false
+
+                        for (const target of candidates) {
+                            distributedTargets.push(target)
+                            added = true
+
+                            if (distributedTargets.length >= spreadPattern.ProjectileAmount) {
+                                break
+                            }
+                        }
+
+                        if (!added) break
+                    }
+                }
+
+                const centerOffset = spreadPattern.CenterOffset ?? { x: 0, y: 0 }
+
+                scheduler.schedule(async () => {
+                        for (let i = 0; i < projectilesPerInterval; i++) {
+                            let columnOffset = 0
+
+                            if (lockMode.TargetColumnOffsets?.length) {
+                                const columnRange =
+                                    lockMode.TargetColumnOffsets[
+                                        Math.floor(Math.random() * lockMode.TargetColumnOffsets.length)
+                                    ]
+
+                                columnOffset =
+                                    columnRange.min +
+                                    Math.random() * (columnRange.max - columnRange.min)
+
+                                if (!spreadPattern.DecimalColumnOffsets) {
+                                    columnOffset = Math.round(columnOffset)
+                                }
+                            }
+
+                            const projectile = await projectiles.projectileRes.getProjectile(
+                                spreadPattern.ProjectileType,
+                                layer
+                            )
+
+                            let target = null
+                            let laneIndex
+                            let lane
+
+                            if (distributedTargets) {
+                                const distributed = distributedTargets.shift()
+
+                                if (distributed) {
+                                    ({
+                                        laneOffset,
+                                        laneIndex,
+                                        lane,
+                                        target,
+                                    } = distributed)
+                                } else {
+                                    ({
+                                        laneOffset,
+                                        laneIndex,
+                                        lane,
+                                        target,
+                                    } = findLaneAndTarget())
+                                }
+                            } else {
+                                ({
+                                    laneOffset,
+                                    laneIndex,
+                                    lane,
+                                    target,
+                                } = findLaneAndTarget())
+                            }
+
+                            const flightTime = 60 * (spreadPattern.FlightTimeMultiplier ?? 1)
+
+                            const spawnX = originX + centerOffset.x * square.Square.SquareWidth
+                            const spawnY = originY + centerOffset.y * square.Square.SquareHeight
+
+                            const originalTargetPos = target
+                                ? target.lobberToPos(flightTime)
+                                : {
+                                    x: originX + linearVelocity.x * flightTime,
+                                    y: originY + linearVelocity.y * flightTime,
+                                }
+
+                            const targetPos = {
+                                x: originalTargetPos.x + columnOffset * square.Square.SquareWidth,
+                                y: target
+                                    ? originalTargetPos.y
+                                    : originalTargetPos.y + laneOffset * square.Square.SquareHeight,
+                            }
+
+                            if (lockMode.ForceSpecificColumnTarget) {
+                                const columnRanges = lockMode.ForceSpecificColumnTarget.Column
+                                const columnRange = columnRanges[Math.floor(Math.random() * columnRanges.length)]
+                                const column = columnRange.min + Math.random() * (columnRange.max - columnRange.min)
+
+                                const columnPosition =
+                                    (column + columnOffset) * square.Square.SquareWidth
+
+                                if (lockMode.ForceSpecificColumnTarget.IsOffsetFromOrigin) {
+                                    targetPos.x = originX + columnPosition
+                                } else {
+                                    targetPos.x = columnPosition + 5 * square.Square.SquareWidth
+                                }
+                            }
+
+                            projectile.linearVelocity = new cc.Vec2(
+                                (targetPos.x - spawnX) / flightTime,
+                                (targetPos.y - spawnY) / flightTime
+                            )
+
+                            projectile.bodyLinearVelocity =
+                                gravity * flightTime / 2 + (0 - height) / flightTime
+
+                            projectile.node.parent = layer
+                            projectile.height = height
+                            projectile.worldPosition = new cc.Vec2(spawnX, spawnY)
+
+                            projectile.gravity = gravity
+
+                            projectile.FliesHorizontallyWhenBV0 = false
+                            projectile.JudgesZombieBodyRecForShooter = false
+
+                            projectiles.projectile.registerProjectile(projectile, enemyType)
+                            projectile.rotate()
+
+                            projectile._hasSpread = true
+                        }
+                    },
+                    spreadPattern.ProjectileInterval,
+                    intervalTimes - 1,
+                    spreadPattern.FirstProjectileInterval
                 )
             })
         }

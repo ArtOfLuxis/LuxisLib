@@ -2,23 +2,23 @@ import {wrapObjDataOwnPlant} from "./Plant";
 
 export function init(ctx) {
     ctx.events.on("engine:ready", () => {
-        const loquat = ctx.engine.getSystemModule("chunks:///_virtual/Loquat.ts")
-        const characterManager = ctx.engine.getSystemModule("chunks:///_virtual/CharacterManager.ts")
-        const square = ctx.engine.getSystemModule("chunks:///_virtual/Square.ts")
+        const loquat = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Loquat.ts")
+        const characterManager = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/CharacterManager.ts")
+        const square = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Square.ts")
         const proto = loquat.LoquatPlant.prototype
 
-        const cc = ctx.engine.getCc()
+        const cc = ctx.unsafe.engine.getCc()
 
         wrapObjDataOwnPlant(ctx, proto, {
             "TornadoAOE": null,
             "TornadoDamage": null,
         })
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: loquat.LoquatPlant.prototype,
             methodName: "_ro",
-            handler: ({ args, thisArg, callOriginal }) => {
-                callOriginal(...args)
+            handler: ({ args, thisArg, callNext }) => {
+                callNext(...args)
 
                 if (thisArg.currentLT) {
                     thisArg.currentLT.___plant = thisArg
@@ -26,7 +26,7 @@ export function init(ctx) {
             }
         })
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: loquat.LoquatTornado.prototype,
             methodName: "update",
             handler: ({ args, thisArg }) => {

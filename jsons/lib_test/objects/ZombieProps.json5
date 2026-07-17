@@ -26,6 +26,27 @@
     {
       "objclass": "ZombieProperties",
       "aliases": [
+        "explorer"
+      ],
+      "objdata": {
+        "ChillDurationMultiplier": 0
+      }
+    },
+    {
+      "objclass": "ZombieProperties",
+      "aliases": [
+        "dark_gargantuar"
+      ],
+      "objdata": {
+        "PlantSmashDamage": 1000,
+        "SpecificPlantSmashDamage": {
+          "endurian": 5000
+        }
+      }
+    },
+    {
+      "objclass": "ZombieProperties",
+      "aliases": [
         "tutorial_armor2"
       ],
       "objdata": {

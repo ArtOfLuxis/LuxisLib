@@ -150,6 +150,16 @@
     {
       "objclass": "ProjectileProperties",
       "aliases": [
+        "redstinger"
+      ],
+      "objdata": {
+        "SpeedMult": 0.75,
+        "ColorOffset": { "r": -50, "g": 0, "b": 150 }
+      }
+    },
+    {
+      "objclass": "ProjectileProperties",
+      "aliases": [
         "coconut"
       ],
       "objdata": {
@@ -330,7 +340,7 @@
         "cabbage"
       ],
       "objdata": {
-        "Scale": 2
+        "Scale": 0.75
       }
     },
     {
@@ -339,15 +349,73 @@
         "melon"
       ],
       "objdata": {
-        "Scale": 0.25,
-        "OnUpdateActions": [
+        "LobberProjectileSpread": [
           {
-            "kind": "InvokeObjectMethod",
-            "method": "dealSplashDamage"
-          },
+            "ProjectileType": "cabbage",
+            "ProjectileAmount": 5,
+            "ProjectileLaneOffsets": [{ "min": -4, "max": 4 }],
+            "DecimalLaneOffsets": false,
+            "FlightTimeMultiplier": 0.5,
+            "TargetLockMode": {
+              // setting to true will make the projectiles lock onto the first target in the
+              // new lane instead of around the original target when possible
+              "LockOnFirstEnemy": true,
+              // setting to true will make LockOnFirstEnemy try to find zombies even behind the projectile's origin
+              "IgnoreOriginColumn": true,
+              "OriginColumnOffset": 0,
+              "IgnoreEmptyLanesIfPossible": true,
+              "PrioritizeTombs": true,
+              "IgnoreTombs": false,
+              "TargetColumnOffsets": [{ "min": 0, "max": 0 }],
+              "DecimalColumnOffsets": false,
+              "EvenlyDistributeProjectiles": true,
+              "MaxDistributionTargets": 5,
+              "ForceSpecificColumnTarget": null // look at snowdrop for this
+            },
+            "FirstProjectileInterval": 0,
+            "ProjectileInterval": 0.05,
+            "ProjectilesPerInterval": 1,
+            "CenterOffset": { "x": 0, "y": 0 },
+          }
+        ]
+      }
+    },
+    {
+      "objclass": "ProjectileProperties",
+      "aliases": [
+        "snowdrop"
+      ],
+      "objdata": {
+        "LobberProjectileSpread": [
           {
-            "kind": "InvokeObjectMethod",
-            "method": "fade"
+            "ProjectileType": "pea_snow",
+            "ProjectileAmount": 8,
+            "ProjectileLaneOffsets": [{ "min": -1, "max": 1 }],
+            "DecimalLaneOffsets": true,
+            "FlightTimeMultiplier": 2,
+            "TargetLockMode": {
+              // setting to true will make the projectiles lock onto the first target in the
+              // new lane instead of around the original target when possible
+              "LockOnFirstEnemy": false,
+              // setting to true will make LockOnFirstEnemy try to find zombies even behind the projectile's origin
+              "IgnoreOriginColumn": false,
+              "OriginColumnOffset": 0,
+              "IgnoreEmptyLanesIfPossible": false,
+              "PrioritizeTombs": false,
+              "IgnoreTombs": false,
+              "TargetColumnOffsets": [{ "min": -1, "max": 1 }],
+              "DecimalColumnOffsets": true,
+              "EvenlyDistributeProjectiles": false,
+              "MaxDistributionTargets": 5,
+              "ForceSpecificColumnTarget": {
+                "Column": [{ "min": 5, "max": 5 }],
+                "IsOffsetFromOrigin": false
+              }
+            },
+            "FirstProjectileInterval": 0,
+            "ProjectileInterval": 0.05,
+            "ProjectilesPerInterval": 2,
+            "CenterOffset": { "x": 0, "y": 0 },
           }
         ]
       }

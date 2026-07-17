@@ -1,26 +1,26 @@
 
 export function init(ctx) {
     ctx.events.on("engine:ready", () => {
-        const cards = ctx.engine.getSystemModule("chunks:///_virtual/Cards.ts")
-        const levelController = ctx.engine.getSystemModule("chunks:///_virtual/levelController.ts")
-        const playerProperties = ctx.engine.getSystemModule("chunks:///_virtual/PlayerProperties.ts")
-        const frontyard = ctx.engine.getSystemModule("chunks:///_virtual/FrontYard.ts")
+        const cards = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Cards.ts")
+        const levelController = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/levelController.ts")
+        const playerProperties = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/PlayerProperties.ts")
+        const frontyard = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/FrontYard.ts")
         const levelPlay = levelController.LevelPlay
         const allPlayerProperties = playerProperties.AllPlayerProperties
         const proto = cards.Cards.prototype
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "GameStartable",
-            handler: ({thisArg, callOriginal}) => {
+            handler: ({thisArg, callNext}) => {
                 return thisArg.HaveMatchedChallengeDecks() || thisArg.CFs.length > 0;
             }
         })
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "judgeCardCanbeChosen",
-            handler: ({args, thisArg, callOriginal}) => {
+            handler: ({args, thisArg, callNext}) => {
                 const [CF, forceProgressUnlocked] = args
 
                 let lawnCheck = true

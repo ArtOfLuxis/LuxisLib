@@ -2,7 +2,7 @@ import {wrapObjDataOwnPlant} from "./Plant";
 
 export function init(ctx) {
     ctx.events.on("engine:ready", () => {
-        const redStinger = ctx.engine.getSystemModule("chunks:///_virtual/RedStinger.ts");
+        const redStinger = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/RedStinger.ts");
         const proto = redStinger.RedStingerPlant.prototype;
 
         wrapObjDataOwnPlant(ctx, proto, {
@@ -10,11 +10,11 @@ export function init(ctx) {
             "ThirdStageColumns": [7, 8, 9],
         })
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "specialPlantOnSquareChange",
-            handler: ({args, thisArg, callOriginal}) => {
-                callOriginal(...args)
+            handler: ({args, thisArg, callNext}) => {
+                callNext(...args)
 
                 const tile = args[1]
                 const column = tile.cIndex + 1;

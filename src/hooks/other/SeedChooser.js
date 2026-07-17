@@ -2,25 +2,27 @@ import {libProperties} from "./JSONs";
 
 export function init(ctx) {
     ctx.events.on("engine:ready", () => {
-        const seedChooser = ctx.engine.getSystemModule("chunks:///_virtual/SeedChooser.ts")
-        const playerProperties = ctx.engine.getSystemModule("chunks:///_virtual/PlayerProperties.ts")
-        const plants = ctx.engine.getSystemModule("chunks:///_virtual/Plants.ts")
-        const soundResources = ctx.engine.getSystemModule("chunks:///_virtual/SoundRescourses.ts")
-        const cardFeature = ctx.engine.getSystemModule("chunks:///_virtual/CardFeature.ts")
+        const seedChooser = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/SeedChooser.ts")
+        const playerProperties = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/PlayerProperties.ts")
+        const plants = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Plants.ts")
+        const soundResources = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/SoundRescourses.ts")
+        const cardFeature = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/CardFeature.ts")
         const proto = seedChooser.SeedChooser.prototype
 
-        const cc = ctx.engine.getCc()
+        const cc = ctx.unsafe.engine.getCc()
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "layCards",
-            handler: async ({callOriginal, thisArg, args}) => {
-                callOriginal(...args)
+            handler: async ({callNext, thisArg, args}) => {
+                callNext(...args)
 
                 const content = thisArg.ca0.node.parent
 
+                const isAdvanced = await ctx.settings.get("isAdvanced")
+
                 let scaleX, scaleY
-                if (await ctx.settings.get("isAdvanced")) {
+                if (isAdvanced) {
                     scaleX = await ctx.settings.get("seedPacketScaleX")
                     scaleY = await ctx.settings.get("seedPacketScaleY")
                 } else {
@@ -36,21 +38,29 @@ export function init(ctx) {
                     )
                 }
                 thisArg.CFs.forEach((cf, i) => {
+                    const fontScale = libProperties?.PlantSunCostFontScale ?? 1
+                    const fontSize = 66.1 * fontScale
+                    const heightScale = libProperties?.PlantSunCostHeightScale ?? 1
+                    const heightSize = 70 * heightScale
+
+                    cf.ca._priceDB.fontSize = fontSize
+                    cf.ca._priceDB.node.height = heightSize
+
                     if (cf.node.parent === thisArg.imitatorSlot) return
-                    cf.node.setScale(scaleX, scaleY, 1);
-                });
+                    cf.node.setScale(scaleX, scaleY, 1)
+                })
 
                 const layout = content.components[1]
 
                 layout._affectedByScale = true
                 layout._layoutDirty = true
                 layout._childrenDirty = true
-                layout._spacingX = 3
-                layout._spacingY = 4
+                layout._spacingX = isAdvanced ? await ctx.settings.get("seedPacketSpacingX") : 3
+                layout._spacingY = isAdvanced ? await ctx.settings.get("seedPacketSpacingY") : 3
             }
         })
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "addOneCard",
             handler: ({ args, thisArg }) => {
@@ -99,11 +109,11 @@ export function init(ctx) {
         })
 
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "judgeAllowed",
-            handler: ({ args, callOriginal }) => {
-                callOriginal(...args)
+            handler: ({ args, callNext }) => {
+                callNext(...args)
 
                 const [cf, ca] = args
 

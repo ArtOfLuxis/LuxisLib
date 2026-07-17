@@ -2,17 +2,17 @@ import {wrapObjDataOwnPlant} from "./Plant";
 
 export function init(ctx) {
     ctx.events.on("engine:ready", () => {
-        const peashooter = ctx.engine.getSystemModule("chunks:///_virtual/Peashooter.ts")
+        const peashooter = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Peashooter.ts")
         const proto = peashooter.PeashooterPlant.prototype
 
         wrapObjDataOwnPlant(ctx, proto, {
             "MaxShootAnimationCycles": null
         })
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "shotInitialize",
-            handler: ({args, thisArg, callOriginal}) => {
+            handler: ({args, thisArg, callNext}) => {
                 const proj = args[0]
                 const maxShootAnimationCycles = thisArg.objdataOwn.MaxShootAnimationCycles
                 if (thisArg._foodLeftPeaCount === 0 && typeof maxShootAnimationCycles === "number") {
@@ -22,17 +22,17 @@ export function init(ctx) {
                     }
                     thisArg.___LuxisLibShootAnimationCycles += 1
                 }
-                callOriginal(...args)
+                callNext(...args)
             }
         })
 
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "startShooting",
-            handler: ({args, thisArg, callOriginal}) => {
+            handler: ({args, thisArg, callNext}) => {
                 thisArg.___LuxisLibShootAnimationCycles = 0
-                callOriginal(...args)
+                callNext(...args)
             }
         })
     })

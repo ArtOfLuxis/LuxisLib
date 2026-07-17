@@ -2,7 +2,7 @@ import {wrapObjDataOwnPlant} from "./Plant";
 
 export function init(ctx) {
     ctx.events.on("engine:ready", () => {
-        const gloomVine = ctx.engine.getSystemModule("chunks:///_virtual/GloomVine.ts");
+        const gloomVine = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/GloomVine.ts");
         const proto = gloomVine.GloomVinePlant.prototype;
 
         wrapObjDataOwnPlant(ctx, proto, {
@@ -10,12 +10,12 @@ export function init(ctx) {
         })
 
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "specialPlantUpdateForce",
-            handler: ({args, thisArg, callOriginal}) => {
+            handler: ({args, thisArg, callNext}) => {
                 if (thisArg.objdataOwn.DoesntShadowBoost !== true) {
-                    callOriginal(...args)
+                    callNext(...args)
                 }
             }
         })

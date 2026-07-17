@@ -5,7 +5,7 @@ export let isGameRunning
 
 export function init(ctx) {
     ctx.events.on("engine:ready", () => {
-        const levelController = ctx.engine.getSystemModule("chunks:///_virtual/levelController.ts")
+        const levelController = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/levelController.ts")
         const levelPlay = levelController.LevelPlay
         const proto = levelController.levelController.prototype
 
@@ -13,10 +13,10 @@ export function init(ctx) {
             return levelPlay.component.gaming
         }
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "readObj",
-            handler: ({ args, thisArg, callOriginal }) => {
+            handler: ({ args, thisArg, callNext }) => {
                 const obj = args[0];
 
                 switch (obj?.objclass) {
@@ -29,7 +29,7 @@ export function init(ctx) {
                         return thisArg.module_SetOnStartActions(obj.objdata)
                 }
 
-                return callOriginal(...args)
+                return callNext(...args)
             }
         })
 
@@ -45,11 +45,11 @@ export function init(ctx) {
             this.OnUpdateActions = data.Actions
         }
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "gameStart",
-            handler: ({ args, thisArg, callOriginal }) => {
-                const result = callOriginal(...args)
+            handler: ({ args, thisArg, callNext }) => {
+                const result = callNext(...args)
 
                 if (thisArg.OnStartActions) {
                     executeActions(thisArg.OnStartActions, {
@@ -62,11 +62,11 @@ export function init(ctx) {
             }
         })
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "update",
-            handler: ({args, thisArg, callOriginal}) => {
-                callOriginal(...args)
+            handler: ({args, thisArg, callNext}) => {
+                callNext(...args)
 
                 const deltaTime = args[0]
 

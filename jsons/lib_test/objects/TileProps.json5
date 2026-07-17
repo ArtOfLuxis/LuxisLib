@@ -8,8 +8,6 @@
         "goldtile"
       ],
       "objdata": {
-        "PlantTypeIndicatesTo": "RTID(goldleaf@PlantTypes)",
-        "Rect": "RTID(TileDefaultRect@RectangleProps)",
         "ProduceInterval": {
           "Min": 2,
           "Max": 2

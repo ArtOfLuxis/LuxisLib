@@ -2,21 +2,21 @@ import {wrapObjDataOwnPlant} from "./Plant";
 
 export function init(ctx) {
     ctx.events.on("engine:ready", () => {
-        const appleMortar = ctx.engine.getSystemModule("chunks:///_virtual/AppleMortar.ts");
+        const appleMortar = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/AppleMortar.ts");
         const proto = appleMortar.AppleMortar.prototype;
 
         wrapObjDataOwnPlant(ctx, proto, {
             "ExtraSideApples": false,
         })
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "animationListener",
-            handler: ({ args, thisArg, callOriginal }) => {
+            handler: ({ args, thisArg, callNext }) => {
                 const animation = args[0]
 
                 if (!thisArg.objdataOwn.ExtraSideApples || animation.name !== "Shoot")
-                    return callOriginal(...args)
+                    return callNext(...args)
 
                 thisArg.soundRes.playLobSounds()
 

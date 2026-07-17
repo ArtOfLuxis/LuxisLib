@@ -3,11 +3,10 @@ import {executeActions} from "../../modules/JSONActionsSystem";
 
 export function init(ctx) {
     ctx.events.on("engine:ready", () => {
-        const tomb = ctx.engine.getSystemModule("chunks:///_virtual/Tomb.ts")
+        const tomb = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Tomb.ts")
         const proto = tomb.Tomb.prototype
 
         const tombKeys = {
-            "ForceHypnotized": null,
             "OnEnableActions": null,
             "OnUpdateActions": null,
             "OnDamageActions": null,
@@ -16,7 +15,7 @@ export function init(ctx) {
             "BeforeDeathActions": null,
         }
 
-        ctx.hooks.wrapProperty({
+        ctx.unsafe.hooks.wrapProperty({
             target: proto,
             key: "_objdataOwn",
             get: ({ thisArg, value }) => {
@@ -29,30 +28,21 @@ export function init(ctx) {
             }
         })
 
-        ctx.hooks.wrapProperty({
-            target: proto,
-            key: "scale",
-            get: ({ thisArg, value }) => {
-                if (thisArg.hypnotized) return -value
-                return value
-            }
-        })
+        // wrap property is really bugged and i have no idea how to do this otherwise
+        // ctx.unsafe.hooks.wrapProperty({
+        //     target: proto,
+        //     key: "scale",
+        //     get: ({ thisArg, value }) => {
+        //         if (thisArg.hypnotized) return -value
+        //         return value
+        //     }
+        // })
 
-
-        ctx.hooks.wrapProperty({
-            target: proto,
-            key: "hypnotized",
-            get: ({ thisArg, value }) => {
-                if (thisArg.objdataOwn.ForceHypnotized) return true
-                return value
-            }
-        })
-
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "update",
-            handler: ({ args, thisArg, callOriginal }) => {
-                callOriginal(...args)
+            handler: ({ args, thisArg, callNext }) => {
+                callNext(...args)
 
                 const deltaTime = args[0]
 
@@ -67,10 +57,10 @@ export function init(ctx) {
             }
         })
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "dealDamage",
-            handler: ({ args, thisArg, callOriginal }) => {
+            handler: ({ args, thisArg, callNext }) => {
                 const damageDetails = args[0]
 
                 const beforeDamageActions = thisArg.objdataOwn.BeforeDamageActions
@@ -82,7 +72,7 @@ export function init(ctx) {
                     })
                 }
 
-                const result = callOriginal(...args)
+                const result = callNext(...args)
 
                 const onDamageActions = thisArg.objdataOwn.OnDamageActions
                 if (onDamageActions && isGameRunning()) {
@@ -97,28 +87,30 @@ export function init(ctx) {
             }
         })
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "characterOnEnable",
-            handler: ({ args, thisArg, callOriginal }) => {
-                const result = callOriginal(...args)
+            handler: ({ args, thisArg, callNext }) => {
+                const result = callNext(...args)
 
-                const onEnableActions = thisArg.objdataOwn.OnEnableActions
-                if (onEnableActions && isGameRunning()) {
-                    executeActions(onEnableActions, {
-                        target: thisArg,
-                        source: thisArg
-                    })
-                }
+                thisArg.scheduleOnce(() => {
+                    const onEnableActions = thisArg.objdataOwn.OnEnableActions
+                    if(onEnableActions && isGameRunning()) {
+                        executeActions(onEnableActions, {
+                            target: thisArg,
+                            source: thisArg
+                        })
+                    }
+                }, 0)
 
                 return result
             }
         })
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "die",
-            handler: ({ args, thisArg, callOriginal }) => {
+            handler: ({ args, thisArg, callNext }) => {
 
                 const beforeDeathActions = thisArg.objdataOwn.BeforeDeathActions
                 if (beforeDeathActions && isGameRunning()) {
@@ -128,7 +120,7 @@ export function init(ctx) {
                     })
                 }
 
-                const result = callOriginal(...args)
+                const result = callNext(...args)
 
                 const onDeathActions = thisArg.objdataOwn.OnDeathActions
                 if (onDeathActions && isGameRunning()) {
@@ -142,11 +134,11 @@ export function init(ctx) {
             }
         })
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "characterOnEnable",
-            handler: ({ args, thisArg, callOriginal }) => {
-                const result = callOriginal(...args)
+            handler: ({ args, thisArg, callNext }) => {
+                const result = callNext(...args)
 
                 const actions = thisArg.objdataOwn.OnEnableActions
                 if (actions && isGameRunning()) {

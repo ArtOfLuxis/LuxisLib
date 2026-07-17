@@ -3,7 +3,7 @@ import {libProperties} from "./JSONs";
 
 export function init(ctx) {
     ctx.events.on("luxislib:properties", () => {
-        const chooser = ctx.engine.getSystemModule("chunks:///_virtual/WorldMapChooser.ts")
+        const chooser = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/WorldMapChooser.ts")
 
         const proto = chooser.WorldMapChooser.prototype
 
@@ -13,10 +13,16 @@ export function init(ctx) {
             worldOrder.map((name, i) => [name, i])
         )
 
-        ctx.hooks.wrapMethod({
+        // ctx.worlds.mutateWorlds(worlds => {
+        //     console.log(worlds)
+        //     const index = worlds.findIndex(w => w.node._name === "Egypt")
+        //     if (index !== -1) worlds.splice(index, 1)
+        // })
+
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "onLoad",
-            handler: ({ args, thisArg, callOriginal }) => {
+            handler: ({ args, thisArg, callNext }) => {
                 thisArg.icons.sort((a, b) =>
                     (order[a.node._name] ?? Infinity) -
                     (order[b.node._name] ?? Infinity)
@@ -32,7 +38,7 @@ export function init(ctx) {
                     )
                 })
 
-                return callOriginal(...args)
+                return callNext(...args)
             }
         })
     })

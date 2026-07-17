@@ -17,12 +17,12 @@ export function wrapObjDataOwnPlant(ctx, proto, keys) {
     if (wrapped) return
     wrapped = true
 
-    const plant = ctx.engine.getSystemModule("chunks:///_virtual/Plant.ts")
+    const plant = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Plant.ts")
 
-    ctx.hooks.wrapMethod({
+    ctx.unsafe.hooks.wrapMethod({
         target: plant.Plant.prototype,
         methodName: "modObjdataOwn",
-        handler: ({ thisArg, args, callOriginal }) => {
+        handler: ({ thisArg, args, callNext }) => {
             let current = Object.getPrototypeOf(thisArg);
 
             while (current) {
@@ -38,34 +38,55 @@ export function wrapObjDataOwnPlant(ctx, proto, keys) {
                 current = Object.getPrototypeOf(current)
             }
 
-            return callOriginal(...args)
+            return callNext(...args)
         }
     })
 }
 
+export function normalSmashOverride(args, thisArg, callNext) {
+    if (!thisArg.smasherDetectable || thisArg.fooding || thisArg.invincible) return
+
+    const slamDamageInsteadOfDeath = thisArg.objdataOwn.SmashDamageInsteadOfDeath
+    if (!slamDamageInsteadOfDeath)
+        return callNext(...args)
+
+    const zombie = args[0]
+    const damage =
+        slamDamageInsteadOfDeath.ForcedDamage ??
+        zombie.objdata.SpecificPlantSmashDamage?.[thisArg.Plant_Type] ??
+        zombie.objdata.PlantSmashDamage ??
+        slamDamageInsteadOfDeath.PriorityDamage ??
+        zombie.objdataOwn.SmashDamage ??
+        slamDamageInsteadOfDeath.DefaultDamage ??
+        1500
+
+    if (thisArg.armorHealth && thisArg.armorHealth > 0) {
+        thisArg.armorHealth -= damage
+        if (thisArg.armorHealth <= 0) {
+            thisArg.foodable = true
+            thisArg.setArmor()
+        }
+    } else {
+        thisArg.dealDamage(damage)
+    }
+
+}
+
 export function init(ctx) {
     ctx.events.on("engine:ready", () => {
-        const plant = ctx.engine.getSystemModule("chunks:///_virtual/Plant.ts")
-        const plants = ctx.engine.getSystemModule("chunks:///_virtual/Plants.ts")
-        const particles = ctx.engine.getSystemModule("chunks:///_virtual/Particles.ts")
-        const nodePools = ctx.engine.getSystemModule("chunks:///_virtual/NodePools.ts")
-        const cards = ctx.engine.getSystemModule("chunks:///_virtual/Cards.ts")
-        const square = ctx.engine.getSystemModule("chunks:///_virtual/Square.ts")
-        const character = ctx.engine.getSystemModule("chunks:///_virtual/Character.ts")
+        const plant = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Plant.ts")
+        const plants = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Plants.ts")
+        const particles = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Particles.ts")
+        const nodePools = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/NodePools.ts")
+        const cards = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Cards.ts")
+        const square = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Square.ts")
+        const character = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Character.ts")
+        const characterManager = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/CharacterManager.ts")
         const proto = plant.Plant.prototype
 
-        const cc = ctx.engine.getCc()
+        const cc = ctx.unsafe.engine.getCc()
 
         wrapObjDataOwnPlant(ctx, proto, {
-            "OnEnableActions": null,
-            "BeforeEnableActions": null,
-            "OnFoodActions": null,
-            "OnEatActions": null,
-            "OnEatenActions": null,
-            "OnUpdateActions": null,
-            "OnLeftClickActions": null,
-            "OnRightClickActions": null,
-            "DynamicPlantableCondition": null,
             "ColorOffset": null,
             "ColorMult": null,
             "CostOverride": null,
@@ -79,14 +100,23 @@ export function init(ctx) {
             "TimeBeforeSelfExplode": null,
             "AlwaysMintBoosted": false,
             "DetectorOverride": null,
-            "Hooks": null,
+            "HitRectOverride": null,
+            "OnEnableActions": null,
+            "BeforeEnableActions": null,
+            "OnFoodActions": null,
+            "OnEatActions": null,
+            "OnEatenActions": null,
+            "OnUpdateActions": null,
+            "OnLeftClickActions": null,
+            "OnRightClickActions": null,
+            "DynamicPlantableCondition": null,
         })
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "shouldMaterial",
-            handler: ({ args, thisArg, callOriginal }) => {
-                callOriginal(...args)
+            handler: ({ args, thisArg, callNext }) => {
+                callNext(...args)
 
                 let addColor = new cc.Vec4(0, 0, 0, 1)
                 let saturation = 0
@@ -141,11 +171,11 @@ export function init(ctx) {
             }
         })
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "_getShouldColor",
-            handler: ({args, thisArg, callOriginal}) => {
-                const color = callOriginal(...args).clone()
+            handler: ({args, thisArg, callNext}) => {
+                const color = callNext(...args).clone()
 
                 const colorOffset = thisArg.objdataOwn.ColorOffset
                 if (colorOffset && colorOffset.a) {
@@ -156,11 +186,11 @@ export function init(ctx) {
             }
         })
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "die",
-            handler: ({args, thisArg, callOriginal}) => {
-                const result = callOriginal(...args)
+            handler: ({args, thisArg, callNext}) => {
+                const result = callNext(...args)
 
                 cards.Cards.component.CFs.forEach((card) => {
                     card.SUNCOST += 0 // to update suncost on all cards
@@ -170,11 +200,11 @@ export function init(ctx) {
             }
         })
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "eat",
-            handler: ({args, thisArg, callOriginal}) => {
-                const result = callOriginal(...args)
+            handler: ({args, thisArg, callNext}) => {
+                const result = callNext(...args)
 
                 const [damageDetails, zombie] = args
 
@@ -211,11 +241,11 @@ export function init(ctx) {
             }
         })
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "defaultShouldSpeedScale",
-            handler: ({args, thisArg, callOriginal}) => {
-                let speed = callOriginal(...args)
+            handler: ({args, thisArg, callNext}) => {
+                let speed = callNext(...args)
 
                 const speedScale = thisArg.objdataOwn.SpeedScale
                 if (speedScale) speed *= speedScale
@@ -224,10 +254,10 @@ export function init(ctx) {
             }
         })
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "characterOnEnable",
-            handler: ({args, thisArg, callOriginal}) => {
+            handler: ({args, thisArg, callNext}) => {
                 const beforeEnableActions = thisArg.objdataOwn.BeforeEnableActions
                 if (beforeEnableActions) {
                     executeActions(beforeEnableActions, {
@@ -236,7 +266,7 @@ export function init(ctx) {
                     })
                 }
 
-                callOriginal(...args)
+                callNext(...args)
 
                 const onEnableActions = thisArg.objdataOwn.OnEnableActions
                 if (onEnableActions) {
@@ -254,11 +284,50 @@ export function init(ctx) {
             }
         })
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
+            target: proto,
+            methodName: "characterOnSquareChange",
+            handler: ({args, thisArg, callNext}) => {
+                callNext(...args)
+
+                const hitRectOverride = thisArg.objdataOwn.HitRectOverride
+                if (!hitRectOverride) return
+
+                const sizeOverride = hitRectOverride.Size
+
+                const center = thisArg.plantPoint?.worldPosition ?? thisArg.worldPosition
+
+                const scaleOffset = Math.abs(thisArg.scale) * (thisArg.isAirRaidPlant ? 0.5 : 1)
+                const realOffset =
+                    thisArg.isAirRaidPlant ?
+                        0 :
+                        thisArg.bodySize.height / 2 * scaleOffset
+
+                let width, height
+                if (hitRectOverride.ModifyOriginal) {
+                    width = thisArg.bodySize.width * scaleOffset
+                    height = thisArg.bodySize.height * scaleOffset
+                } else {
+                    width = square.Square.SquareWidth
+                    height = square.Square.SquareHeight
+                }
+
+                thisArg._bodyRec = characterManager.Rectangle.createRectangleCenter(
+                    center.clone().add2f(
+                        sizeOverride.xOffset * square.Square.SquareWidth,
+                        realOffset + sizeOverride.yOffset * square.Square.SquareHeight
+                    ),
+                    width * sizeOverride.width,
+                    height * sizeOverride.height
+                )
+            }
+        })
+
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "update",
-            handler: ({args, thisArg, callOriginal}) => {
-                callOriginal(...args)
+            handler: ({args, thisArg, callNext}) => {
+                callNext(...args)
 
                 const deltaTime = args[0]
 
@@ -313,11 +382,11 @@ export function init(ctx) {
             }
         })
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "_onRealPosChange",
-            handler: ({ args, thisArg, callOriginal }) => {
-                callOriginal(...args)
+            handler: ({ args, thisArg, callNext }) => {
+                callNext(...args)
 
                 const offset = thisArg.objdataOwn.WorldPositionOffset
                 if (!offset) return
@@ -330,12 +399,12 @@ export function init(ctx) {
             }
         })
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "food",
-            handler: ({args, thisArg, callOriginal}) => {
+            handler: ({args, thisArg, callNext}) => {
                 let originalHP = thisArg.health
-                const result = callOriginal(...args)
+                const result = callNext(...args)
 
                 if (thisArg.objdataOwn.HealAfterPF === false) {
                     thisArg.health = originalHP
@@ -365,20 +434,20 @@ export function init(ctx) {
         })
 
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "judgeShadowPlantMode",
-            handler: ({args, thisArg, callOriginal}) => {
+            handler: ({args, thisArg, callNext}) => {
                 if (thisArg.haveDarkMode && thisArg.objdataOwn.NoShadowBoost !== true) {
-                    callOriginal(...args)
+                    callNext(...args)
                 }
             }
         })
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "dealMint",
-            handler: ({thisArg, callOriginal}) => {
+            handler: ({thisArg, callNext}) => {
                 const boostTime = Math.max(
                     plants.plants.MintDuration[thisArg.family_str] ?? 0,
                     plants.plants.SpecificPlantMintDuration[thisArg.Plant_Type] ?? 0
@@ -403,43 +472,30 @@ export function init(ctx) {
             }
         })
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "shovelable",
-            handler: ({args, thisArg, callOriginal}) => {
+            handler: ({args, thisArg, callNext}) => {
                 const forceShovelableMode = thisArg.objdataOwn.ForceShovelableMode
                 if (typeof forceShovelableMode === "boolean") return forceShovelableMode
 
-                return callOriginal(...args)
+                return callNext(...args)
             }
         })
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "normalSmash",
-            handler: ({args, thisArg, callOriginal}) => {
-                if (!thisArg.smasherDetectable || thisArg.fooding || thisArg.invincible) return
-
-                const zombie = args[0]
-                const slamDamageInsteadOfDeath = thisArg.objdataOwn.SmashDamageInsteadOfDeath
-                if (slamDamageInsteadOfDeath) {
-                    const damage =
-                        slamDamageInsteadOfDeath.forcedDamage ??
-                        zombie.objdataOwn.SmashDamage ??
-                        1500
-
-                    thisArg.dealDamage(damage)
-                }
-
-                return callOriginal(...args)
+            handler: ({args, thisArg, callNext}) => {
+                normalSmashOverride(args, thisArg, callNext)
             }
         })
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "onMouseDown",
-            handler: ({args, thisArg, callOriginal}) => {
-                let result = callOriginal(...args)
+            handler: ({args, thisArg, callNext}) => {
+                let result = callNext(...args)
 
                 let actions
 
@@ -462,7 +518,7 @@ export function init(ctx) {
             }
         })
 
-        ctx.hooks.wrapProperty({
+        ctx.unsafe.hooks.wrapProperty({
             target: proto,
             key: "MintBoosted",
             get: ({thisArg, value}) => {

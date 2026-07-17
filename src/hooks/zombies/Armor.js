@@ -2,21 +2,21 @@ import {libProperties} from "../other/JSONs";
 
 export function init(ctx) {
     ctx.events.on("engine:ready", () => {
-        const armor = ctx.engine.getSystemModule("chunks:///_virtual/Armor.ts")
+        const armor = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Armor.ts")
         const proto = armor.Armor.prototype
 
-        const cc = ctx.engine.getCc()
+        const cc = ctx.unsafe.engine.getCc()
 
         const armorKeys = [
             "ColorOffset",
             "Scale",
         ]
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "setProps",
-            handler: ({ args, thisArg, callOriginal }) => {
-                callOriginal(...args)
+            handler: ({ args, thisArg, callNext }) => {
+                callNext(...args)
 
                 const newProps = args[0]
 
@@ -29,11 +29,11 @@ export function init(ctx) {
         })
 
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "shouldMaterial",
-            handler: ({ args, thisArg, callOriginal }) => {
-                callOriginal(...args)
+            handler: ({ args, thisArg, callNext }) => {
+                callNext(...args)
 
                 const addColor = new cc.Color(0, 0, 0, 255);
 
@@ -87,11 +87,11 @@ export function init(ctx) {
             }
         })
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "onEnable",
-            handler: ({ args, thisArg, callOriginal }) => {
-                callOriginal(...args)
+            handler: ({ args, thisArg, callNext }) => {
+                callNext(...args)
 
                 if (thisArg.props.Scale) {
                     thisArg.node.scale = new thisArg.node.scale.constructor(

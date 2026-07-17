@@ -2,6 +2,7 @@
 const modules = import.meta.glob('./**/*.js', {eager: true});
 
 export async function setup(ctx) {
+    console.log(ctx)
     ctx.ui.toast("Initialized >w<", "success")
     for (const initModule of Object.values(modules)) {
         try {
@@ -21,22 +22,44 @@ export async function setup(ctx) {
             default: "LuxisLibProps"
         },
         {
+            key: "seedPacketSettings",
+            label: "SeedPacket Settings",
+            type: "readonly"
+        },
+        {
             key: "seedPacketScaleX",
-            label: "SeedPacket ScaleX",
+            label: "Scale X",
             type: "number",
             default: 0.75
         },
         {
             key: "seedPacketScaleY",
-            label: "SeedPacket ScaleY",
+            label: "Scale Y",
             type: "number",
             default: 0.75
+        },
+        {
+            key: "seedPacketSpacingX",
+            label: "Spacing X",
+            type: "number",
+            default: 3
+        },
+        {
+            key: "seedPacketSpacingY",
+            label: "Spacing Y",
+            type: "number",
+            default: 3
         },
     ]
     const normalFields = [
         {
+            key: "seedPacketSettings",
+            label: "SeedPacket Settings",
+            type: "readonly"
+        },
+        {
             key: "seedPacketCount",
-            label: "SeedPacket Count",
+            label: "Count",
             type: "slider",
             min: 2,
             max: 16,
@@ -53,7 +76,22 @@ export async function setup(ctx) {
             label: "Advanced Settings (requires reload)",
             type: "toggle",
             default: false
-        }
+        },
+        {
+            key: "overridectx.unsafe.engine",
+            label: "Override FastForward Speed",
+            type: "toggle",
+            default: false
+        },
+        {
+            key: "ctx.unsafe.engine",
+            label: "FastForward Speed",
+            type: "slider",
+            min: 0.5,
+            max: 10,
+            step: 0.1,
+            default: 1.5
+        },
     ]
 
     await ctx.settings.defineSchema({
@@ -64,10 +102,8 @@ export async function setup(ctx) {
         ]
     })
 
-    ctx.ui.toast("Settings initialized!", "success")
-
-    const worldKeyCount = ctx.engine.getSystemModule("chunks:///_virtual/WorldKeyCount.ts")
-    const playerProperties = ctx.engine.getSystemModule("chunks:///_virtual/PlayerProperties.ts")
+    const worldKeyCount = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/WorldKeyCount.ts")
+    const playerProperties = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/PlayerProperties.ts")
     const allPlayerProperties = playerProperties.AllPlayerProperties
 
     ctx.controls.definePanel({
@@ -97,6 +133,6 @@ export async function setup(ctx) {
         ]
     })
 
-    ctx.ui.toast("Runtime controls initialized!", "success")
+    ctx.ui.toast("Settings and runtime controls initialized!", "success")
 
 }

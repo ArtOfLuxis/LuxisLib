@@ -2,10 +2,10 @@ import {wrapObjDataOwnPlant} from "./Plant";
 
 export function init(ctx) {
     ctx.events.on("engine:ready", () => {
-        const mint = ctx.engine.getSystemModule("chunks:///_virtual/Mint.ts");
-        const characterManager = ctx.engine.getSystemModule("chunks:///_virtual/CharacterManager.ts")
-        const plants = ctx.engine.getSystemModule("chunks:///_virtual/Plants.ts")
-        const plant = ctx.engine.getSystemModule("chunks:///_virtual/Plant.ts")
+        const mint = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Mint.ts");
+        const characterManager = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/CharacterManager.ts")
+        const plants = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Plants.ts")
+        const plant = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Plant.ts")
         const proto = mint.MintPlant.prototype;
 
         wrapObjDataOwnPlant(ctx, proto, {
@@ -16,10 +16,10 @@ export function init(ctx) {
 
         plants.plants.SpecificPlantMintDuration = {}
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "animationListener",
-            handler: ({args, thisArg, callOriginal}) => {
+            handler: ({args, thisArg, callNext}) => {
                 const animation = args[0]
                 if (animation.name === "boost_begin") {
                     thisArg.minting = true
@@ -55,20 +55,20 @@ export function init(ctx) {
 
                     thisArg.specialMintAnimationListener(animation)
                 } else {
-                    callOriginal(animation)
+                    callNext(animation)
                 }
             }
         })
 
 
-        ctx.hooks.wrapMethod({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "shovelable",
-            handler: ({args, thisArg, callOriginal}) => {
+            handler: ({args, thisArg, callNext}) => {
                 const forceShovelableMode = thisArg.objdataOwn.ForceShovelableMode
                 if (typeof forceShovelableMode === "boolean") return forceShovelableMode
 
-                return callOriginal(...args)
+                return callNext(...args)
             }
         })
 
