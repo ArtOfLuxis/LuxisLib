@@ -2,7 +2,6 @@
 const modules = import.meta.glob('./**/*.js', {eager: true});
 
 export async function setup(ctx) {
-    console.log(ctx)
     ctx.ui.toast("Initialized >w<", "success")
     for (const initModule of Object.values(modules)) {
         try {
@@ -114,7 +113,7 @@ export async function setup(ctx) {
                 items: [
                     {
                         type: 'action',
-                        key: 'nothing',
+                        key: 'worldKey',
                         label: '+1 World Key',
                         async onClick() {
                             allPlayerProperties.currentPlayer.worldkey += 1
@@ -132,7 +131,4 @@ export async function setup(ctx) {
             }
         ]
     })
-
-    ctx.ui.toast("Settings and runtime controls initialized!", "success")
-
 }

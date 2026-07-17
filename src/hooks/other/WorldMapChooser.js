@@ -13,12 +13,6 @@ export function init(ctx) {
             worldOrder.map((name, i) => [name, i])
         )
 
-        // ctx.worlds.mutateWorlds(worlds => {
-        //     console.log(worlds)
-        //     const index = worlds.findIndex(w => w.node._name === "Egypt")
-        //     if (index !== -1) worlds.splice(index, 1)
-        // })
-
         ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "onLoad",
