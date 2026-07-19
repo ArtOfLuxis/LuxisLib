@@ -7,6 +7,8 @@ export function init(ctx) {
 
         wrapObjDataOwnPlant(ctx, proto, {
             "BackPeaType": null,
+            "AlwaysShootsBack": null,
+            "AlwaysShootsFront": null
         })
 
 
@@ -20,6 +22,20 @@ export function init(ctx) {
                     args[2] = backPeaType
                 }
                 callNext(...args)
+            }
+        })
+
+
+        ctx.unsafe.hooks.wrapMethod({
+            target: proto,
+            methodName: "detectEnemySplit",
+            handler: ({args, thisArg, callNext}) => {
+                const result = callNext(...args)
+
+                if (result === 1 && thisArg.objdataOwn.AlwaysShootsBack) return 3
+                if (result === 2 && thisArg.objdataOwn.AlwaysShootsFront) return 3
+
+                return result
             }
         })
 

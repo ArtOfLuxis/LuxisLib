@@ -92,7 +92,7 @@ export function init(ctx) {
             handler: ({ args, thisArg, callNext }) => {
                 callNext(...args)
 
-                const offset = thisArg.objdata.ColorOffset;
+                const offset = thisArg.objdata.ColorOffset
 
                 let color = new cc.Color(0, 0, 0, 255)
                 let saturation = 0
@@ -155,24 +155,27 @@ export function init(ctx) {
                     saturation += offset.s ?? 0
                 }
 
-                const colorMult = thisArg.objdataOwn.ColorMult
+                const colorMult = thisArg.objdataOwn.ColorMult ?
+                    new cc.Vec4(
+                        colorMult.r ?? 1,
+                        colorMult.g ?? 1,
+                        colorMult.b ?? 1,
+                        1
+                    ) :
+                    null
 
                 const pass = thisArg.material.passes[0]
 
                 pass.setUniform(pass.getHandle("addColor"), color)
-                if (colorMult) pass.setUniform(pass.getHandle("multColor"), new cc.Vec4(
-                    colorMult.r ?? 1,
-                    colorMult.g ?? 1,
-                    colorMult.b ?? 1,
-                    1
-                ))
-                pass.setUniform(pass.getHandle("addColor"), color)
+                if (colorMult) pass.setUniform(pass.getHandle("multColor"), colorMult)
                 pass.setUniform(pass.getHandle("saturation"), saturation)
                 pass.setUniform(pass.getHandle("holo"), holo)
 
-                thisArg.body.db.customMaterial = thisArg.material;
+                thisArg.body.db.customMaterial = thisArg.material
+
+                return { color, colorMult, saturation, holo }
             }
-        });
+        })
 
         ctx.unsafe.hooks.wrapMethod({
             target: proto,
@@ -345,7 +348,7 @@ export function init(ctx) {
                         const damageDetails =
                             new characterManager.ZombieDamageDetails(Infinity)
 
-                        const customDamageDetails = selfExploding.DeathDamageDetails
+                        const customDamageDetails = selfExploding?.DeathDamageDetails
                         if (customDamageDetails) {
                             if (customDamageDetails.Damage)
                                 damageDetails._damage = customDamageDetails.Damage

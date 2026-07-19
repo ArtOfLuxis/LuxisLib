@@ -131,4 +131,6 @@ export async function setup(ctx) {
             }
         ]
     })
+
+    ctx.log.info("Full initialization done")
 }

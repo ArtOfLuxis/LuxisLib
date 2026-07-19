@@ -40,6 +40,10 @@
         "PeaVineDamageBoost": 10, // default is 1.5
 
 
+        // projectiles
+        "ProjectileEnumAdd": [],
+
+
         // worlds and levels
         "ForceSkipTutorial": true,
         "StartingWorlds": ["pirate", "future"],

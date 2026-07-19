@@ -173,7 +173,7 @@ export function init(ctx) {
             "StarFruit", "ShootingStarfruit",
             "BowlingBulb", "CabbagePult",
             "Cactus", "Dandelion",
-            "Anthurium"
+            "Anthurium", "SplitPea"
         ]
 
         detectorPlants.forEach((plantID) => {

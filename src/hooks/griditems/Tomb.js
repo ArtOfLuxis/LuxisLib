@@ -15,16 +15,18 @@ export function init(ctx) {
             "BeforeDeathActions": null,
         }
 
-        ctx.unsafe.hooks.wrapProperty({
+
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
-            key: "_objdataOwn",
-            get: ({ thisArg, value }) => {
-                if (value) {
-                    Object.entries(tombKeys).forEach(([prop, propValue]) => {
-                        if (value[prop] === undefined) value[prop] = propValue
-                    })
+            methodName: "modObjdataOwn",
+            handler: ({ thisArg, args, callNext }) => {
+                for (const [key, value] of Object.entries(tombKeys)) {
+                    if (!(key in thisArg._objdataOwn)) {
+                        thisArg._objdataOwn[key] = value
+                    }
                 }
-                return value
+
+                return callNext(...args)
             }
         })
 

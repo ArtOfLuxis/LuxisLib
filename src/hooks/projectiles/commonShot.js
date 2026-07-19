@@ -13,6 +13,7 @@ export function init(ctx) {
         const characterManager = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/CharacterManager.ts")
         const square = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Square.ts")
         const levelController = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/levelController.ts")
+        const materials = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Materials.ts")
         const projectileShootingFunctions = projectiles.ProjectileShootingFunctions
         const proto = commonShot.commonShot.prototype
 
@@ -33,19 +34,21 @@ export function init(ctx) {
             "EnemyTypeOverride": null,
             "CanBePeaVineBuffed": null,
             "PierceOverride": null,
+            "SpeedScalePerSecond": null,
+            "InvertDirectionOnTheLeft": null,
         }
 
-        ctx.unsafe.hooks.wrapProperty({
+        ctx.unsafe.hooks.wrapMethod({
             target: proto,
-            key: "objdata",
-            set: ({ nextValue, thisArg }) => {
+            methodName: "onEnable",
+            handler: ({ args, thisArg, callNext }) => {
                 Object.entries(projectileKeys).forEach(([key, value]) => {
                     if (thisArg._objdata[key] === undefined) {
                         thisArg._objdata[key] = value
                     }
                 })
 
-                return nextValue
+                return callNext(...args)
             }
         })
 
@@ -54,6 +57,12 @@ export function init(ctx) {
             methodName: "defaultReadObjdata",
             handler: ({ args, thisArg, callNext }) => {
                 callNext(...args)
+
+                thisArg.AlreadyInverted = false
+
+                for (const key of Object.keys(projectileKeys)) {
+                    thisArg[key] = undefined
+                }
 
                 const objdata = args[0]
 
@@ -249,16 +258,78 @@ export function init(ctx) {
 
         ctx.unsafe.hooks.wrapMethod({
             target: proto,
+            methodName: "hitBorderOrGround",
+            handler: ({args, thisArg, callNext}) => {
+                const effectiveX = thisArg.linearVelocity.x * thisArg.speedScale
+                const effectiveY = thisArg.linearVelocity.y * thisArg.speedScale
+
+                if (
+                    thisArg.worldPositionX <= -50 && effectiveX <= 0 ||
+                    thisArg.worldPositionX >= 1200 && effectiveX >= 0 ||
+                    thisArg.worldPositionY <= -100 &&
+                    (thisArg.worldPositionY + thisArg.height_depth <= -100 ||
+                        thisArg.worldPositionY + thisArg.height_depth >= 700) &&
+                    effectiveY <= 0 ||
+                    thisArg.worldPositionY >= 700 && effectiveY >= 0
+                ) {
+                    thisArg.fade()
+                }
+
+                return callNext(...args)
+            }
+        })
+
+        ctx.unsafe.hooks.wrapMethod({
+            target: proto,
             methodName: "update",
             handler: ({args, thisArg, callNext}) => {
                 callNext(...args)
+
+                const deltaTime = args[0]
+
+                const speedScalePerSecond = thisArg.SpeedScalePerSecond
+                if (speedScalePerSecond) thisArg.speedScale += speedScalePerSecond * deltaTime
+
+                if (
+                    !thisArg.AlreadyInverted &&
+                    thisArg.InvertDirectionOnTheLeft &&
+                    thisArg.worldPosition.x <= (thisArg.InvertDirectionOnTheLeft.LeftX ?? 100)
+                ) {
+                    thisArg.AlreadyInverted = true
+
+                    if (typeof thisArg.InvertDirectionOnTheLeft.SmoothInvertDuration === "number") {
+                        thisArg.Inverting = true
+                        thisArg.InvertProgress = 0
+                        thisArg.InvertStartSpeed = thisArg.speedScale
+                    } else {
+                        thisArg.speedScale *= -1
+                    }
+                }
+
+                if (thisArg.Inverting) {
+                    const duration =
+                        thisArg.InvertDirectionOnTheLeft.SmoothInvertDuration ?? 0.5
+
+                    thisArg.InvertProgress += deltaTime / duration
+
+                    const t = Math.min(thisArg.InvertProgress, 1)
+
+                    thisArg.speedScale = thisArg.InvertStartSpeed * (1 - 2 * t)
+
+                    if (t >= 1) {
+                        thisArg.speedScale = -thisArg.InvertStartSpeed
+                        thisArg.Inverting = false
+                        thisArg.InvertProgress = 0
+                        thisArg.InvertStartSpeed = null
+                    }
+                }
 
                 const onUpdateActions = thisArg.OnUpdateActions
                 if (onUpdateActions) {
                     executeActions(onUpdateActions, {
                         target: thisArg,
                         source: thisArg,
-                        deltaTime: args[0]
+                        deltaTime: deltaTime
                     })
                 }
             }
@@ -740,7 +811,9 @@ export function init(ctx) {
                             const spawnY = originY + centerOffset.y * square.Square.SquareHeight
 
                             const originalTargetPos = target
-                                ? target.lobberToPos(flightTime)
+                                ? typeof target.lobberToPos === "function" ?
+                                    target.lobberToPos(flightTime) :
+                                    target.worldPosition
                                 : {
                                     x: originX + linearVelocity.x * flightTime,
                                     y: originY + linearVelocity.y * flightTime,

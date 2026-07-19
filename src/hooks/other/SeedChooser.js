@@ -105,6 +105,8 @@ export function init(ctx) {
                     thisArg.switchPlant(index, ca.disallowed)
                     soundResources.sounds.playCardChosen()
                 })
+
+                return cf
             }
         })
 

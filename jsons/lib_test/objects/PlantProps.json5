@@ -65,6 +65,18 @@
     {
       "objclass": "PlantProperties",
       "aliases": [
+        "imitater"
+      ],
+      "objdata": {
+        "DoesntImitate": true,
+        "MakesPlantSeedPacket": true,
+        "SunCost": 250,
+        "Cooldown": 25
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
         "random_imitater"
       ],
       "objdata": {
@@ -857,21 +869,27 @@
       "objdata": {
         "SpeedScale": 0.5,
         "Toughness": 500,
+        "ExplosionOverride": {
+          "width": 1.5, "height": 1,
+          "lanes": [0],
+          "xOffset": 0, "yOffset": 0,
+          "showExplosionText": false,
+          "scale": { "x": 0.5, "y": 0.5, "z": 0.5 },
+          "color": { "r": 120, "g": 120, "b": 350, "a": 255 },
+          "armorProtection": true,
+          "armorKnockSound": true,
+          "bodyKnockSound": true,
+          "damageType": "ray",
+          "screenShakeDuration": 0.5,
+        },
         "OnEnableActions": [
           {
-            "kind": "SetObjectProperty",
-            "property": "eaterDetectable",
-            "value": true
-          },
-          {
-            "kind": "SetObjectProperty",
-            "property": "smasherDetectable",
-            "value": true
-          },
-          {
-            "kind": "SetObjectProperty",
-            "property": "invincible",
-            "value": false
+            "kind": "SetObjectProperties",
+            "properties": {
+              "eaterDetectable": true,
+              "smasherDetectable": true,
+              "invincible": false
+            }
           }
         ],
         "CostOverride": {
