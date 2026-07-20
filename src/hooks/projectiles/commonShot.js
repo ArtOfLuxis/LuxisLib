@@ -576,13 +576,12 @@ export function init(ctx) {
             target: proto,
             methodName: "detectEnemyNormal",
             handler: ({ args, thisArg, callNext }) => {
-                const hasPierceProperties = typeof thisArg.___LuxisLibDealtTargetAmount === "number"
-                if (
-                    !hasPierceProperties &&
-                    ((libProperties?.PeaVineDamageBoost ?? 1.5) === 1.5 || !thisArg.havePeaBuff)
-                ) return callNext(...args)
-                // there's some issues with piercing projectiles i have no idea how to fix
-                // so always try to get vanilla behavior if possible
+                // const hasPierceProperties = typeof thisArg.___LuxisLibDealtTargetAmount === "number"
+                // if (
+                //     !hasPierceProperties &&
+                //     ((libProperties?.PeaVineDamageBoost ?? 1.5) === 1.5 || !thisArg.havePeaBuff)
+                // ) return callNext(...args)
+                // i think i fixed the targetting problems? so far everything seems okay
 
                 const someArgIDK = args[0]
 
@@ -610,10 +609,15 @@ export function init(ctx) {
                 ]
 
                 thisArg.___LuxisLibContactingEnemies =
-                    thisArg.___LuxisLibContactingEnemies.filter(enemy =>
-                        pool.includes(enemy) &&
-                        enemy.bodyRec?.judgeCrossRec(body)
-                    )
+                    thisArg.___LuxisLibContactingEnemies.filter(enemy => {
+                        const bodyRec = thisArg.JudgesZombieBodyRecForShooter
+                            ? enemy.bodyRecForShooter
+                            : enemy.bodyRec
+
+                        return pool.includes(enemy) &&
+                            bodyRec.judgeCrossRec(body)
+                    }
+                )
 
                 if (
                     thisArg.enemyType === character.CharacterType.zombie ||
@@ -642,14 +646,14 @@ export function init(ctx) {
                         if (thisArg.targetLocked && zombie === thisArg.targetLocked)
                             return
 
+                        if (thisArg.targetLocked && candidate !== thisArg.targetLocked)
+                            return
+
                         const bodyRec = thisArg.JudgesZombieBodyRecForShooter
                             ? candidate.bodyRecForShooter
                             : candidate.bodyRec
 
                         if (!bodyRec || !bodyRec.judgeCrossRec(body))
-                            return
-
-                        if (thisArg.targetLocked && candidate !== thisArg.targetLocked)
                             return
 
                         const pos = bodyRec.prjX()
@@ -659,6 +663,7 @@ export function init(ctx) {
                             (thisArg.linearVelocity.x >= 0 && pos.x < minX) ||
                             (thisArg.linearVelocity.x < 0 && pos.y > maxY)
                         ) {
+                            console.log("AAAAAAAAAA NEW CANDIDATE")
                             zombie = candidate
                             minX = pos.x
                             maxY = pos.y
@@ -674,7 +679,7 @@ export function init(ctx) {
                         thisArg.armorProtection,
                         thisArg.armorKnockSound,
                         thisArg.bodyKnockSound,
-                        thisArg,
+                        null,
                         thisArg.damageType,
                         true,
                         true
