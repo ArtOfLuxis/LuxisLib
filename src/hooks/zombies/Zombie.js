@@ -275,7 +275,7 @@ export function init(ctx) {
             handler: ({args, thisArg, callNext}) => {
                 callNext(...args)
 
-                if (thisArg.objdata.TimeBeforeSelfExplode) {
+                if (thisArg.objdata.TimeBeforeSelfExplode && isGameRunning()) {
                     thisArg.___LuxisLibSelfExploding = true
                     thisArg.___LuxisLibTimeBeforeSelfExplode = thisArg.objdata.TimeBeforeSelfExplode.Time
                 }
@@ -338,7 +338,7 @@ export function init(ctx) {
 
                 const deltaTime = args[0]
 
-                if (thisArg.___LuxisLibSelfExploding && thisArg.isAlive) {
+                if (thisArg.___LuxisLibSelfExploding && thisArg.isAlive() && isGameRunning()) {
                     const selfExploding = thisArg.objdata.TimeBeforeSelfExplode
                     thisArg.___LuxisLibTimeBeforeSelfExplode -= deltaTime
 
@@ -363,6 +363,9 @@ export function init(ctx) {
                         )
 
                         thisArg.defaultDealDamage(damageDetails)
+
+                        thisArg.___LuxisLibTimeBeforeSelfExplode =
+                            (selfExploding.RestartTime ?? Infinity)
                     }
                 }
 

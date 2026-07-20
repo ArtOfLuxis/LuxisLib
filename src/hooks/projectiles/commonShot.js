@@ -1,4 +1,4 @@
-import {executeActions} from "../../modules/JSONActionsSystem";
+import {evaluate, executeActions} from "../../modules/JSONActionsSystem";
 import {libProperties} from "../other/JSONs";
 
 export let createProjectileSpread
@@ -13,7 +13,6 @@ export function init(ctx) {
         const characterManager = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/CharacterManager.ts")
         const square = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Square.ts")
         const levelController = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/levelController.ts")
-        const materials = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Materials.ts")
         const projectileShootingFunctions = projectiles.ProjectileShootingFunctions
         const proto = commonShot.commonShot.prototype
 
@@ -30,12 +29,16 @@ export function init(ctx) {
             "ZombieSpeedPotion": null,
             "OnEnableActions": null,
             "OnHitActions": null,
+            "OnTombHitActions": null,
             "OnUpdateActions": null,
             "EnemyTypeOverride": null,
             "CanBePeaVineBuffed": null,
             "PierceOverride": null,
             "SpeedScalePerSecond": null,
             "InvertDirectionOnTheLeft": null,
+            "EffectDamageMultiplier": null,
+            "DamageMultiplierAfterHit": null,
+            "SpeedScaleAfterHit": null,
         }
 
         ctx.unsafe.hooks.wrapMethod({
@@ -59,6 +62,12 @@ export function init(ctx) {
                 callNext(...args)
 
                 thisArg.AlreadyInverted = false
+                thisArg.Inverting = false
+                thisArg.___LuxisLibPiercePlayHitSound = null
+                thisArg.___LuxisLibPiercePlayHitParticle = null
+                thisArg.___LuxisLibMaxPierceAmount = null
+                thisArg.___LuxisLibDealtTargetAmount = null
+                thisArg.___LuxisLibContactingEnemies = null
 
                 for (const key of Object.keys(projectileKeys)) {
                     thisArg[key] = undefined
@@ -200,54 +209,6 @@ export function init(ctx) {
 
         ctx.unsafe.hooks.wrapMethod({
             target: proto,
-            methodName: "dealDamageToZombie",
-            handler: ({args, thisArg, callNext}) => {
-                callNext(...args)
-
-                const zombie = args[0]
-
-                const invisibilityPotion = thisArg.ZombieInvisibilityPotion
-                if (
-                    invisibilityPotion !== undefined &&
-                    (
-                        invisibilityPotion.value ||
-                        (zombie.potionInvisible && invisibilityPotion.forced)
-                    )
-                ) {
-                    zombie.potionInvisible = invisibilityPotion
-                }
-
-                const clamp = (v, min, max) => Math.min(max, Math.max(min, v))
-
-                const toughnessPotion = thisArg.ZombieToughnessPotion
-                if (toughnessPotion !== undefined) {
-                    zombie.potionToughnessLevel = clamp(
-                        zombie.potionToughnessLevel + toughnessPotion.value,
-                        toughnessPotion.min,
-                        toughnessPotion.max
-                    )
-                }
-                const speedPotion = thisArg.ZombieSpeedPotion
-                if (speedPotion !== undefined)
-                    zombie.potionSpeedLevel = clamp(
-                        zombie.potionSpeedLevel + speedPotion.value,
-                        speedPotion.min,
-                        speedPotion.max
-                    )
-
-
-                const onHitActions = thisArg.OnHitActions
-                if (onHitActions) {
-                    executeActions(onHitActions, {
-                        target: zombie,
-                        source: thisArg
-                    })
-                }
-            }
-        })
-
-        ctx.unsafe.hooks.wrapMethod({
-            target: proto,
             methodName: "addPeaBuff",
             handler: ({args, thisArg, callNext}) => {
                 if (thisArg.CanBePeaVineBuffed || thisArg.CanBePeaVineBuffed === undefined) {
@@ -335,6 +296,281 @@ export function init(ctx) {
             }
         })
 
+        ctx.unsafe.hooks.wrapMethod({
+            target: proto,
+            methodName: "dealDamageToZombie",
+            priority: -100,
+            handler: ({args, thisArg}) => {
+                let [
+                    zombieVictim,
+                    dealSplash = true,
+                    damageData = null,
+                    createHitVelocity = true
+                ] = args
+
+                let totalDamageMult = 1
+                const multipliers = thisArg.EffectDamageMultiplier
+                if (multipliers) {
+                    for (const entry of multipliers) {
+                        const minDuration = entry.MinDuration ?? 0
+
+                        const shouldMultiply = entry.RequireAllEffects
+                            ? entry.Effects.every(effect => zombieVictim[effect] > minDuration)
+                            : entry.Effects.some(effect => zombieVictim[effect] > minDuration)
+
+                        if (shouldMultiply) {
+                            totalDamageMult *= (entry.DamageMultiplier ?? 1)
+                        }
+                    }
+                }
+
+                let hitVelocity = null
+
+                if (createHitVelocity) {
+                    if (thisArg.particleAtFoot && thisArg.damage >= 40) {
+                        hitVelocity = new cc.Vec2(
+                            zombieVictim._worldPositionX - thisArg._worldPositionX,
+                            zombieVictim.zombieHeight
+                        ).normalize().multiplyScalar(23 + Math.random() * 6)
+
+                    } else if (thisArg.gravity > 0 && thisArg.damage >= 40) {
+                        hitVelocity = new cc.Vec2(
+                            thisArg.linearVelocity.x,
+                            thisArg.bodyLinearVelocity
+                        )
+                    }
+                }
+
+                damageData ??= new commonShot.SplashDamage(
+                    thisArg.damage,
+                    new cc.Size(),
+                    thisArg.chill,
+                    thisArg.freeze,
+                    thisArg.butter,
+                    thisArg.poison,
+                    thisArg.stun,
+                    thisArg.knockbackDistance,
+                    thisArg.hypnotizing,
+                    thisArg.icebloomblock,
+                    thisArg.poisonStacked,
+                    thisArg.speedStacked,
+                    thisArg.darkmatter
+                )
+
+                if (dealSplash) {
+                    thisArg.dealSplashDamage(zombieVictim)
+                }
+
+                if (zombieVictim.knockBackable && damageData.knockbackDistance) {
+                    if (zombieVictim.objdataOwnOrg.CannotBeKnockedBackByProjectiles) {
+                        zombieVictim.setStun(0.5)
+                    } else if (
+                        thisArg.knockbackInterrupting ||
+                        !zombieVictim.knockBackTween?.running
+                    ) {
+                        zombieVictim.knockBackBy(
+                            new cc.Vec2(
+                                damageData.knockbackDistance *
+                                (thisArg.linearVelocity.x >= 0 ? 1 : -1),
+                                0
+                            ),
+                            thisArg.knockbackFly,
+                            0.2,
+                            false,
+                            false
+                        )
+                    }
+                }
+
+                if (damageData.stunDuration) {
+                    zombieVictim.setStun(damageData.stunDuration)
+                }
+
+                if (damageData.butterDuration > 0) {
+                    zombieVictim.setButter(damageData.butterDuration)
+                }
+
+                if (thisArg.carriedSporeShroom && !zombieVictim.ImmuneToSporeShroom) {
+                    zombieVictim.CarriedSporeShroom = true
+                }
+
+                if (damageData.poison?.isValid()) {
+                    zombieVictim.setPoison(
+                        damageData.poison.DPS,
+                        damageData.poison.duration
+                    )
+                }
+
+                if (damageData.poisonStacked?.isValid()) {
+                    zombieVictim.pushPoisonStacked(damageData.poisonStacked)
+                }
+
+                if (damageData.speedStacked) {
+                    zombieVictim.pushSpeedStacked({
+                        SpeedMult: damageData.speedStacked.SpeedMult,
+                        Duration: damageData.speedStacked.Duration
+                    })
+                }
+
+                if (damageData.darkmatterDuration > 0) {
+                    zombieVictim.setDarkMatter(damageData.darkmatterDuration)
+                }
+
+                if (damageData.chillDuration > 0) {
+                    zombieVictim.setChill(damageData.chillDuration)
+                }
+
+                if (damageData.freezeDuration > 0) {
+                    zombieVictim.setFreeze(damageData.freezeDuration)
+                }
+
+                const damageBuff = thisArg.havePeaBuff ?
+                    (libProperties?.PeaVineDamageBoost ?? 1.5) :
+                    1
+                if (damageData.splashDamage > 0) {
+                    const damage = new characterManager.ZombieDamageDetails(
+                        damageData.splashDamage * thisArg.damageScale * damageBuff * totalDamageMult,
+                        thisArg.armorProtection,
+                        thisArg.armorKnockSound,
+                        thisArg.bodyKnockSound,
+                        hitVelocity,
+                        thisArg.damageType,
+                        true,
+                        true
+                    )
+
+                    if (thisArg.HighRed > 0) {
+                        damage.shockRGB = 1
+                    } else if (thisArg.TotalRGB > 0) {
+                        damage.shockRGB = thisArg.TotalRGB
+                    }
+
+                    if (thisArg.balloonKiller) {
+                        damage.balloonKiller = true
+                    }
+
+                    if (thisArg.damageBowlingLevel > 0) {
+                        zombieVictim.dealDamageAccordingToBowlingLevel(
+                            thisArg.damageBowlingLevel,
+                            damage
+                        )
+
+                        if (!zombieVictim.isAlive()) {
+                            thisArg.killedZombiesOneHit.push(zombieVictim)
+                        }
+                    } else {
+                        zombieVictim.dealDamage(damage)
+
+                        if (!zombieVictim.isAlive()) {
+                            thisArg.killedZombiesOneHit.push(zombieVictim)
+                        }
+                    }
+                }
+
+                if (
+                    damageData.hypnotizing &&
+                    zombieVictim.ZombieSort !== zombie.ZombieSort.Zomboss &&
+                    !zombieVictim.objdataOwn?.CannotBeHypnotizedByProjectiles
+                ) {
+                    zombieVictim.hypnotized = true
+                }
+
+                if (
+                    damageData.icebloomblock &&
+                    zombieVictim.ZombieSort !== zombie.ZombieSort.Zomboss &&
+                    !zombieVictim.objdataOwn?.CannotBeHypnotizedByProjectiles
+                ) {
+                    zombieVictim.icebloom()
+                }
+
+                thisArg.onDamageOnZombie(zombieVictim, dealSplash)
+            }
+        })
+
+        ctx.unsafe.hooks.wrapMethod({
+            target: proto,
+            methodName: "dealDamageToZombie",
+            prioritiy: 100,
+            handler: ({args, thisArg, callNext}) => {
+                callNext(...args)
+
+                const zombie = args[0]
+
+                const invisibilityPotion = thisArg.ZombieInvisibilityPotion
+                if (
+                    invisibilityPotion !== undefined &&
+                    (
+                        invisibilityPotion.value ||
+                        (zombie.potionInvisible && invisibilityPotion.forced)
+                    )
+                ) {
+                    zombie.potionInvisible = invisibilityPotion
+                }
+
+                const clamp = (v, min, max) => Math.min(max, Math.max(min, v))
+
+                const toughnessPotion = thisArg.ZombieToughnessPotion
+                if (toughnessPotion !== undefined) {
+                    zombie.potionToughnessLevel = clamp(
+                        zombie.potionToughnessLevel + toughnessPotion.value,
+                        toughnessPotion.min,
+                        toughnessPotion.max
+                    )
+                }
+                const speedPotion = thisArg.ZombieSpeedPotion
+                if (speedPotion !== undefined)
+                    zombie.potionSpeedLevel = clamp(
+                        zombie.potionSpeedLevel + speedPotion.value,
+                        speedPotion.min,
+                        speedPotion.max
+                    )
+
+
+                if (typeof thisArg.DamageMultiplierAfterHit === "number") {
+                    thisArg.damage *= thisArg.DamageMultiplierAfterHit
+                }
+                if (typeof thisArg.SpeedScaleAfterHit === "number") {
+                    thisArg.speedScale += thisArg.SpeedScaleAfterHit
+                }
+
+
+                const onHitActions = thisArg.OnHitActions
+                if (onHitActions) {
+                    executeActions(onHitActions, {
+                        target: zombie,
+                        source: thisArg
+                    })
+                }
+            }
+        })
+
+        ctx.unsafe.hooks.wrapMethod({
+            target: proto,
+            methodName: "onTombHit",
+            prioritiy: -100,
+            handler: ({args, thisArg, callNext}) => {
+                callNext(...args)
+
+                const tomb = args[0]
+
+                if (typeof thisArg.DamageMultiplierAfterHit === "number") {
+                    thisArg.damage *= thisArg.DamageMultiplierAfterHit
+                }
+                if (typeof thisArg.SpeedScaleAfterHit === "number") {
+                    thisArg.speedScale += thisArg.SpeedScaleAfterHit
+                }
+
+
+                const onHitActions = thisArg.OnTombHitActions
+                if (onHitActions) {
+                    executeActions(onHitActions, {
+                        target: tomb,
+                        source: thisArg
+                    })
+                }
+            }
+        })
+
 
         ctx.unsafe.hooks.wrapMethod({
             target: proto,
@@ -364,6 +600,7 @@ export function init(ctx) {
                 thisArg.___LuxisLibContactingEnemies ??= []
                 thisArg.___LuxisLibDealtTargetAmount ??= 0
                 thisArg.___LuxisLibMaxPierceAmount ??= 1
+                thisArg.___LuxisLibDamageMultiplierAfterPierce ??= 1
 
 
                 const pool = [
@@ -473,8 +710,10 @@ export function init(ctx) {
                                     return
                                 }
 
-                                if (thisArg.___LuxisLibPiercePlayHitSound === true) thisArg.playPopSound()
-                                if (thisArg.___LuxisLibPiercePlayHitParticle === true) thisArg.playParticle()
+                                if (thisArg.___LuxisLibPiercePlayHitSound === true)
+                                    thisArg.playPopSound()
+                                if (thisArg.___LuxisLibPiercePlayHitParticle === true)
+                                    thisArg.playParticle()
                             }
                         }
 
@@ -507,8 +746,10 @@ export function init(ctx) {
                                     return
                                 }
 
-                                thisArg.playPopSound()
-                                thisArg.playParticle()
+                                if (thisArg.___LuxisLibPiercePlayHitSound === true)
+                                    thisArg.playPopSound()
+                                if (thisArg.___LuxisLibPiercePlayHitParticle === true)
+                                    thisArg.playParticle()
                             }
 
                             return

@@ -97,16 +97,22 @@
       "objdata": {
         "OnEnableActions": [
           {
-            "kind": "SetObjectProperty",
-            "property": "reversed",
-            "value": true
-          },
-          {
-            "kind": "SetObjectProperty",
-            "property": "glittering",
-            "value": 3
+            "kind": "SetObjectProperties",
+            "properties": {
+              "reversed": true,
+              "glittering": 3
+            },
           }
-        ]
+        ],
+        "TimeBeforeSelfExplode": {
+          "Time": 3,
+          "RestartTime": 1,
+          "DeathDamageDetails": {
+            "Damage": 50,
+            "DamageType": "fire",
+            "DamageDirection": { "x": 5, "y": 20 },
+          }
+        }
       }
     },
     {
@@ -172,10 +178,11 @@
       "objdata": {
         "TimeBeforeSelfExplode": {
           "Time": 99999,
+          "RestartTime": 10,
           "DeathDamageDetails": {
             "Damage": Infinity,
             "DamageType": "fire",
-            "DamageDirection": { "x": 5, "y": 20 }
+            "DamageDirection": { "x": 5, "y": 20 },
           }
         },
         "OnBiteActions": [

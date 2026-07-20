@@ -8,11 +8,40 @@
         "redstinger"
       ],
       "objdata": {
+        "DamageMultiplierAfterHit": 3,
         "PierceOverride": {
-          "Amount": { "min": 3, "max": 3 },
+          "Amount": { "min": 4, "max": 4 },
           "PlayHitSound": true,
-          "PlayHitParticle": true
-        }
+          "PlayHitParticle": true,
+        },
+        "EffectDamageMultiplier": [
+          {
+            "Effects": ["chill", "freeze"],
+            "RequireAllEffects": false,
+            "MinDuration": 0,
+            "DamageMultiplier": 2.5
+          }
+        ]
+      }
+    },
+    {
+      "objclass": "ProjectileProperties",
+      "aliases": [
+        "akee"
+      ],
+      "objdata": {
+        "SpeedMult": 1,
+        "DamageMultiplierAfterHit": 5,
+        "SpeedScaleAfterHit": -0.3
+      }
+    },
+    {
+      "objclass": "ProjectileProperties",
+      "aliases": [
+        "pea_snow"
+      ],
+      "objdata": {
+        "Damage": 0
       }
     },
     {
