@@ -209,6 +209,10 @@ export function init(ctx) {
                         evaluateExpression(action, context)
                         break
                     }
+                    case "InvokeJavaScript": {
+                        evaluateExpression(action, context)
+                        break
+                    }
 
 
                     default:
@@ -220,6 +224,30 @@ export function init(ctx) {
 
         evaluateExpression = function (expr, context) {
             switch (expr.kind) {
+                case "InvokeJavaScript": {
+                    const code = evaluate(expr.code, context)
+                    const vars = {}
+
+                    const variables = evaluate(expr.variables, context) ?? {}
+                    const defaultVariables = {
+                        "Eval": {evaluate, evaluateExpression, executeActions}
+                    }
+
+                    for (const [name, value] of Object.entries(defaultVariables)) {
+                        vars[name] = value
+                    }
+
+                    for (const [name, value] of Object.entries(variables)) {
+                        vars[name] = value
+                    }
+
+                    const fn = new Function(
+                        ...Object.keys(vars),
+                        code
+                    )
+
+                    return fn(...Object.values(vars))
+                }
                 case "InvokeObjectMethod": {
                     let object = expr.object
                         ? evaluate(expr.object, context)

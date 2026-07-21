@@ -11,6 +11,11 @@
         "MaxSunAmount": 999999, // default value is 9900
         "FastForwardSpeed": 3, // default value is 1.5
         "ImitaterSlotPlant": "wallnut",  // default value is "imitater"
+
+        "YetiResetTimesPerDay": 86400,
+        "DecodeResetTimesPerDay": 86400,
+        "ClearDecodeGemTextOnRefresh": false,
+
         "SunValueOverrides": {
           "5": 5,
           "25": 25,
@@ -33,6 +38,59 @@
         },
         "PlantSunCostFontScale": 0.75,
         "PlantSunCostHeightScale": 1,
+
+
+        // decoding minigame
+        "DecodeGemFormula": "\
+          Math.round(\
+              BASE_PLANTS * CODE_PLANTS * \
+              Math.exp(-Math.pow(GUESSES / 8, 2))\
+          ) + 9999\
+        ", // use \ for new lines
+        // this is the vanilla formula but adds 9999 to it
+        "DecodeRecordScale": { "x": 0.7, "y": 0.7 },
+        "DecodeRecordPadding": 15,
+        "DecodeRecordSpacingX": 0,
+        "DecodeRecordSpacingY": 10,
+        "DecodeMergePlantCardsScale": { "x": 0.9, "y": 0.9 },
+        "DecodeMergePlantCardsScaleDecrementPerPlant": 0.013,
+        "DecodeBasePlantCardsScale": { "x": 0.6, "y": 0.6 },
+        "DecodeBasePlantCardsSpacingX": 2,
+        "DecodeBasePlantCardsSpacingY": 2,
+        "DecodeBasePlantsAmountRange": [1, 30],
+        "DecodeBasePlantsReplace": false,
+        "DecodeBasePlants": [
+          "pokra", "repeater", "lilypad", "lilypad", "peashooter", "lilypad", "lilypad"
+        ],
+        "DecodeCodePlantsAmountRange": [1, 60],
+        "DecodeCodePlantsReplace": false,
+        "DecodeCodePlants": [
+          {
+            "PlantA": "pokra",
+            "PlantB": "wallnut",
+            "Target": "lilypad"
+          },
+          {
+            "PlantA": "cabbagepult",
+            "PlantB": "wallnut",
+            "Target": "tumbleweed"
+          },
+          {
+            "PlantA": "repeater",
+            "PlantB": "peashooter",
+            "Target": "threepeater"
+          },
+          {
+            "PlantA": "threepeater",
+            "PlantB": "peashooter",
+            "Target": "gatlingpea"
+          },
+          {
+            "PlantA": "gatling",
+            "PlantB": "peashooter",
+            "Target": "megagatlingpea"
+          }
+        ],
 
 
         // plants
@@ -141,7 +199,7 @@
         ],
 
 
-        // json hooks
+        // JSON hooks
         "JSONActionHooks": [
           {
             "className": "PerfumeShroomPlant",
@@ -442,16 +500,6 @@
                   ]
                 }
               ]
-            }
-          },
-          {
-            "aliases": [
-              "SeedBank"
-            ],
-            "objclass": "SeedBankProperties",
-            "objdata": {
-              "SuppressObjectiveTip": true,
-              "SelectionMethod": "chooser"
             }
           },
           {

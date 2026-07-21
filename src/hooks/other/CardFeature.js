@@ -5,6 +5,7 @@ export function init(ctx) {
         const square = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Square.ts")
         const proto = cardFeature.CardFeature.prototype
 
+        proto.Prop = { Cooldown: 0, SunCost: 0, BeghouledCost: 0 }
         ctx.unsafe.hooks.wrapProperty({
             target: proto,
             key: "SUNCOST",

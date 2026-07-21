@@ -128,9 +128,21 @@
     {
       "objclass": "PlantProperties",
       "aliases": [
+        "firepeashooter"
+      ],
+      "objdata": {
+        "ColorOffset": { "r": -20, "g": -20, "b": -20, "holo": 0, "a": 0, "s": 0.2},
+        "PeaType": "pea2_snap_flame_yellow",
+        "DetectorOverride": { "x": 9, "y": 3, "lanes": [-1, 0, 1], "xOffset": 0, "yOffset": 0 },
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
         "bowlingbulb"
       ],
       "objdata": {
+        "ShootAnimationSpeed": 3,
         "DetectorOverride": { "x": 0.5, "y": 1, "lanes": [0], "xOffset": 2, "yOffset": 0 },
       }
     },
@@ -1033,6 +1045,20 @@
             "kind": "InvokeObjectMethod",
             "method": "anmControl.playAnimation",
             "args": ["Attack", 1]
+          },
+          {
+            "kind": "InvokeJavaScript",
+            "variables": {
+              "context": {"kind": "GetContext"},
+              "Math": {"kind": "GetMath"}
+            },
+            "code": '\
+              console.log("hiii", context.source);\
+              if (Math.random() < 0.5) {\
+                  console.log("haiii 50% chance",);\
+              }\
+              return 5;\
+            ',
           }
         ],
         "OnUpdateActions": [

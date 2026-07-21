@@ -28,5 +28,60 @@ export function init(ctx) {
             }
         })
 
+        ctx.unsafe.hooks.wrapMethod({
+            target: allPlayerProperties,
+            methodName: "getToday",
+            handler: ({ thisArg, callNext, args }) => {
+                const [shouldReturnChangedState = false] = args
+                const prev = thisArg.currentPlayer.date ?? {}
+
+                const previousDate = new Date(
+                    prev.year ?? 1970,
+                    (prev.month ?? 1) - 1,
+                    prev.date ?? 1,
+                    prev.hour ?? 0,
+                    prev.minute ?? 0,
+                    prev.second ?? 0
+                )
+
+                const currentDate = new Date()
+
+                function getPeriod(date, resetsPerDay) {
+                    resetsPerDay = Math.max(0.00001, resetsPerDay)
+
+                    return Math.floor(
+                        date.getTime() / (86400000 / resetsPerDay)
+                    )
+                }
+
+                const yetiChanged =
+                    getPeriod(previousDate, libProperties?.YetiResetTimesPerDay ?? 1) !==
+                    getPeriod(currentDate, libProperties?.YetiResetTimesPerDay ?? 1)
+
+                const decodeChanged =
+                    getPeriod(previousDate, libProperties?.DecodeResetTimesPerDay ?? 1) !==
+                    getPeriod(currentDate, libProperties?.DecodeResetTimesPerDay ?? 1)
+
+                const result = callNext()
+
+                if (yetiChanged) {
+                    thisArg.currentPlayer.yeti_spawned_today = false
+                }
+
+                if (decodeChanged) {
+                    thisArg.currentPlayer.arcade_plant_decoding.played_today = false
+                    thisArg.currentPlayer.arcade_plant_decoding.gem_today = 0
+                }
+
+                if (yetiChanged || decodeChanged) {
+                    thisArg.savePP()
+                    if (shouldReturnChangedState)
+                        return { yetiChanged, decodeChanged }
+                }
+
+                return result
+            }
+        })
+
     })
 }

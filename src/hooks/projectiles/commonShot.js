@@ -4,6 +4,71 @@ import {libProperties} from "../other/JSONs";
 export let createProjectileSpread
 export let createLobberProjectileSpread
 
+
+export const handleGenericZombieProjectileHit = function (projectile) {
+    console.log(projectile.DamageAfterHitList, Array.isArray(projectile.DamageAfterHitList))
+    if (Array.isArray(projectile.DamageAfterHitList)) {
+        const index = Math.min(
+            projectile.___LuxisLibDamageAfterHitIndex,
+            projectile.DamageAfterHitList.length - 1
+        )
+        console.log(index)
+        projectile.damage = projectile.DamageAfterHitList[index] ?? projectile.damage
+
+        projectile.___LuxisLibDamageAfterHitIndex++
+    }
+    if (typeof projectile.DamageMultiplierAfterHit === "number") {
+        projectile.damage *= projectile.DamageMultiplierAfterHit
+    }
+    if (typeof projectile.SpeedScaleAfterHit === "number") {
+        projectile.speedScale += projectile.SpeedScaleAfterHit
+    }
+}
+
+export const projectileWrapHits = function (ctx, proto) {
+    ctx.unsafe.hooks.wrapMethod({
+        target: proto,
+        methodName: "onTombHit",
+        prioritiy: -100,
+        handler: ({args, thisArg, callNext}) => {
+            callNext(...args)
+
+            handleGenericZombieProjectileHit(thisArg)
+
+            const tomb = args[0]
+
+            const onHitActions = thisArg.OnTombHitActions
+            if (onHitActions) {
+                executeActions(onHitActions, {
+                    target: tomb,
+                    source: thisArg
+                })
+            }
+        }
+    })
+
+    ctx.unsafe.hooks.wrapMethod({
+        target: proto,
+        methodName: "onZombieHit",
+        prioritiy: -100,
+        handler: ({args, thisArg, callNext}) => {
+            callNext(...args)
+
+            handleGenericZombieProjectileHit(thisArg)
+
+            const zombie = args[0]
+
+            const onHitActions = thisArg.OnHitActions
+            if (onHitActions) {
+                executeActions(onHitActions, {
+                    target: zombie,
+                    source: thisArg
+                })
+            }
+        }
+    })
+}
+
 export function init(ctx) {
     ctx.events.on("engine:ready", () => {
         const commonShot = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/commonShot.ts")
@@ -28,6 +93,7 @@ export function init(ctx) {
             "ZombieToughnessPotion": null,
             "ZombieSpeedPotion": null,
             "OnEnableActions": null,
+            "OnZombieDamageActions": null,
             "OnHitActions": null,
             "OnTombHitActions": null,
             "OnUpdateActions": null,
@@ -39,6 +105,7 @@ export function init(ctx) {
             "EffectDamageMultiplier": null,
             "DamageMultiplierAfterHit": null,
             "SpeedScaleAfterHit": null,
+            "DamageAfterHitList": null,
         }
 
         ctx.unsafe.hooks.wrapMethod({
@@ -81,6 +148,12 @@ export function init(ctx) {
                     if (value === undefined || value === null) return
 
                     switch (key) {
+                        case "DamageAfterHitList": {
+                            thisArg[key] = value
+                            thisArg.___LuxisLibDamageAfterHitIndex = 1 // so it starts from second one
+                            thisArg.damage = value[0]
+                            break
+                        }
                         case "LobberProjectileSpread":
                         case "ProjectileSpread": {
                             thisArg[key] = value
@@ -525,18 +598,9 @@ export function init(ctx) {
                         speedPotion.max
                     )
 
-
-                if (typeof thisArg.DamageMultiplierAfterHit === "number") {
-                    thisArg.damage *= thisArg.DamageMultiplierAfterHit
-                }
-                if (typeof thisArg.SpeedScaleAfterHit === "number") {
-                    thisArg.speedScale += thisArg.SpeedScaleAfterHit
-                }
-
-
-                const onHitActions = thisArg.OnHitActions
-                if (onHitActions) {
-                    executeActions(onHitActions, {
+                const onZombieDamageActions = thisArg.OnZombieDamageActions
+                if (onZombieDamageActions) {
+                    executeActions(onZombieDamageActions, {
                         target: zombie,
                         source: thisArg
                     })
@@ -544,33 +608,7 @@ export function init(ctx) {
             }
         })
 
-        ctx.unsafe.hooks.wrapMethod({
-            target: proto,
-            methodName: "onTombHit",
-            prioritiy: -100,
-            handler: ({args, thisArg, callNext}) => {
-                callNext(...args)
-
-                const tomb = args[0]
-
-                if (typeof thisArg.DamageMultiplierAfterHit === "number") {
-                    thisArg.damage *= thisArg.DamageMultiplierAfterHit
-                }
-                if (typeof thisArg.SpeedScaleAfterHit === "number") {
-                    thisArg.speedScale += thisArg.SpeedScaleAfterHit
-                }
-
-
-                const onHitActions = thisArg.OnTombHitActions
-                if (onHitActions) {
-                    executeActions(onHitActions, {
-                        target: tomb,
-                        source: thisArg
-                    })
-                }
-            }
-        })
-
+        projectileWrapHits(ctx, proto)
 
         ctx.unsafe.hooks.wrapMethod({
             target: proto,
@@ -611,7 +649,7 @@ export function init(ctx) {
                 thisArg.___LuxisLibContactingEnemies =
                     thisArg.___LuxisLibContactingEnemies.filter(enemy => {
                         const bodyRec = thisArg.JudgesZombieBodyRecForShooter
-                            ? enemy.bodyRecForShooter
+                            ? (enemy.bodyRecForShooter ?? enemy.bodyRec)
                             : enemy.bodyRec
 
                         return pool.includes(enemy) &&
@@ -663,7 +701,6 @@ export function init(ctx) {
                             (thisArg.linearVelocity.x >= 0 && pos.x < minX) ||
                             (thisArg.linearVelocity.x < 0 && pos.y > maxY)
                         ) {
-                            console.log("AAAAAAAAAA NEW CANDIDATE")
                             zombie = candidate
                             minX = pos.x
                             maxY = pos.y
@@ -728,14 +765,16 @@ export function init(ctx) {
                     if (!thisArg.objdataOwn.IgnoreTombstones) {
                         let tomb = null
 
-                        thisArg.inLane?.tombPool(thisArg.enemyType === character.CharacterType.plant ? 1 : 0).forEach(candidate => {
+                        const tombPool = thisArg.inLane?.tombPool(thisArg.enemyType === character.CharacterType.plant ? 1 : 0)
+                        for (const candidate of tombPool) {
                             if (
-                                candidate.bodyRec.judgeCrossRec(body) &&
+                                body.judgeCrossRec(candidate.bodyRec) &&
                                 (!thisArg.targetLocked || candidate === thisArg.targetLocked)
                             ) {
                                 tomb = candidate
+                                break
                             }
-                        })
+                        }
 
                         if (tomb) {
                             if (!thisArg.___LuxisLibContactingEnemies.includes(tomb)) {
@@ -856,17 +895,41 @@ export function init(ctx) {
                 const lockMode = spreadPattern.TargetLockMode ?? {}
 
                 const getTarget = (minColumn, targetPool) => {
-                    let closestX = Infinity
-                    let best = null
+                    const candidates = []
+                    const disallowTargetsOutsideLawn = lockMode.AllowTargetsOutsideLawn !== true
 
                     for (const target of targetPool) {
                         if (!target.isAlive()) continue
-
                         if (target.inLnC.cIndex < minColumn) continue
+                        if (
+                            disallowTargetsOutsideLawn &&
+                            !target.inLnC.isInLawn()
+                        ) continue
 
-                        if (target.worldPosition.x < closestX) {
-                            closestX = target.worldPosition.x
-                            best = target
+                        candidates.push(target)
+                    }
+
+                    if (candidates.length === 0) {
+                        return null
+                    }
+
+                    if (lockMode.RandomizeTargetsInsteadOfDistancePriority) {
+                        return candidates[Math.floor(Math.random() * candidates.length)]
+                    }
+
+                    let best = candidates[0]
+
+                    for (let i = 1; i < candidates.length; i++) {
+                        const candidate = candidates[i]
+
+                        if (lockMode.InvertDistancePriority) {
+                            if (candidate.worldPosition.x > best.worldPosition.x) {
+                                best = candidate
+                            }
+                        } else {
+                            if (candidate.worldPosition.x < best.worldPosition.x) {
+                                best = candidate
+                            }
                         }
                     }
 
@@ -948,7 +1011,7 @@ export function init(ctx) {
 
                 let distributedTargets = null
                 if (spreadPattern.TargetLockMode?.EvenlyDistributeProjectiles) {
-                    const candidates = []
+                    let candidates = []
 
                     for (const range of laneRanges) {
                         for (let offset = Math.ceil(range.min); offset <= Math.floor(range.max); offset++) {
@@ -967,7 +1030,11 @@ export function init(ctx) {
                         }
                     }
 
-                    candidates.sort((a, b) => a.target.worldPosition.x - b.target.worldPosition.x)
+                    candidates.sort((a, b) =>
+                        lockMode.InvertDistancePriority
+                            ? b.target.worldPosition.x - a.target.worldPosition.x
+                            : a.target.worldPosition.x - b.target.worldPosition.x
+                    )
 
                     if (typeof lockMode.MaxDistributionTargets === "number") {
                         candidates.length = Math.min(
@@ -1087,17 +1154,28 @@ export function init(ctx) {
                                 }
                             }
 
-                            projectile.linearVelocity = new cc.Vec2(
-                                (targetPos.x - spawnX) / flightTime,
-                                (targetPos.y - spawnY) / flightTime
-                            )
+                            if (lockMode.InstantlyHitTarget) {
+                                projectile.linearVelocity = new cc.Vec2(0.01, 0)
 
-                            projectile.bodyLinearVelocity =
-                                gravity * flightTime / 2 + (0 - height) / flightTime
+                                projectile.bodyLinearVelocity = 0.01
+
+                                projectile.worldPosition = new cc.Vec2(targetPos.x, targetPos.y)
+
+                                projectile.SelfExplodeCD = 0.1
+                            } else {
+                                projectile.linearVelocity = new cc.Vec2(
+                                    (targetPos.x - spawnX) / flightTime,
+                                    (targetPos.y - spawnY) / flightTime
+                                )
+
+                                projectile.bodyLinearVelocity =
+                                    gravity * flightTime / 2 + (0 - height) / flightTime
+
+                                projectile.worldPosition = new cc.Vec2(spawnX, spawnY)
+                            }
 
                             projectile.node.parent = layer
                             projectile.height = height
-                            projectile.worldPosition = new cc.Vec2(spawnX, spawnY)
 
                             projectile.gravity = gravity
 
