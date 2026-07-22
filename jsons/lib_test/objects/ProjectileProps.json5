@@ -30,9 +30,16 @@
         "akee"
       ],
       "objdata": {
-        "SpeedMult": 1,
-        "DamageAfterHitList": [0, 2000, 0, 2000],
-        "SpeedScaleAfterHit": -0.3
+        "SpeedMult": 1.2,
+        "MaxHitCount": {
+          "Min": 8,
+          "Max": 8
+        },
+        "DamageAfterHitList": {
+          "List": [0, 2000, 100],
+          "Loop": true
+        },
+        "SpeedScaleAfterHit": -0.2
       }
     },
     {

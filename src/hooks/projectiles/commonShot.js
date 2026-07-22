@@ -6,22 +6,26 @@ export let createLobberProjectileSpread
 
 
 export const handleGenericZombieProjectileHit = function (projectile) {
-    console.log(projectile.DamageAfterHitList, Array.isArray(projectile.DamageAfterHitList))
-    if (Array.isArray(projectile.DamageAfterHitList)) {
-        const index = Math.min(
-            projectile.___LuxisLibDamageAfterHitIndex,
-            projectile.DamageAfterHitList.length - 1
-        )
-        console.log(index)
-        projectile.damage = projectile.DamageAfterHitList[index] ?? projectile.damage
-
-        projectile.___LuxisLibDamageAfterHitIndex++
-    }
     if (typeof projectile.DamageMultiplierAfterHit === "number") {
         projectile.damage *= projectile.DamageMultiplierAfterHit
     }
     if (typeof projectile.SpeedScaleAfterHit === "number") {
         projectile.speedScale += projectile.SpeedScaleAfterHit
+    }
+
+    const damageAfterHit = projectile.DamageAfterHitList
+
+    if (damageAfterHit?.List?.length) {
+        const list = damageAfterHit.List
+        const index = damageAfterHit.Loop
+            ? projectile.___LuxisLibDamageAfterHitIndex % list.length
+            : projectile.___LuxisLibDamageAfterHitIndex
+
+        if (index < list.length) {
+            projectile.damage = list[index]
+        }
+
+        projectile.___LuxisLibDamageAfterHitIndex++
     }
 }
 
@@ -151,7 +155,7 @@ export function init(ctx) {
                         case "DamageAfterHitList": {
                             thisArg[key] = value
                             thisArg.___LuxisLibDamageAfterHitIndex = 1 // so it starts from second one
-                            thisArg.damage = value[0]
+                            thisArg.damage = value.List[0]
                             break
                         }
                         case "LobberProjectileSpread":

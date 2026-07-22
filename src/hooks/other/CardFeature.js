@@ -23,7 +23,7 @@ export function init(ctx) {
                             })
                         })
                     } else if (costOverride.CounterMode === "TotalPlanted") {
-                        count = thisArg.TotalPlanted || 0
+                        count = thisArg.TotalPlanted ?? 0
                     } else {
                         ctx.ui.toast("Unknown CounterMode", "error");
                         ctx.log.error("Unknown CounterMode: " + costOverride.CounterMode)
@@ -33,7 +33,8 @@ export function init(ctx) {
                     if (listSunCost.length > 0) {
                         sun = listSunCost[Math.min(count, listSunCost.length - 1)]
                     }
-                    sun += costOverride.IncrementSunCost * count
+                    if (typeof sun === "number")
+                        sun += (costOverride.IncrementSunCost ?? 0) * count
                 }
 
                 return sun

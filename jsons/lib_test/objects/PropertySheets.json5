@@ -12,6 +12,9 @@
         "FastForwardSpeed": 3, // default value is 1.5
         "ImitaterSlotPlant": "wallnut",  // default value is "imitater"
 
+        "SeedChooserLevelingSwitchButtonText": "LVLaaaaaa current/max",
+        "SeedChooserLevelingSwitchButtonOffset": 65,
+
         "YetiResetTimesPerDay": 86400,
         "DecodeResetTimesPerDay": 86400,
         "ClearDecodeGemTextOnRefresh": false,
@@ -127,7 +130,8 @@
         "ArcadeCustomLevels": {
           // only adds levels the first time you open arcade after you open the main menu
           "DEBUG": {
-            "custom_level_test": "Level 1"
+            "custom_level_test": "Level 1",
+            "custom_level_test3": "Test 3"
           },
           "Rhythm": {
             "custom_level_test": "Level 2"
@@ -190,6 +194,7 @@
           "lostcity_crystalskull",
           "kongfu_bomb",
           "dino_armor2",
+          "zombossmech_egypt",
           "lawn",
           "lawn_armor1"
         ],
@@ -538,6 +543,188 @@
                 ],
                 [
                   "RTID(Wave3@CurrentLevel)"
+                ]
+              ]
+            }
+          },
+          {
+            "aliases": [
+              "Wave1"
+            ],
+            "objclass": "SpawnZombiesJitteredWaveActionProps",
+            "objdata": {
+              "Zombies": [
+                {
+                  "Row": 1,
+                  "Type": "RTID(tutorial@ZombieTypes)"
+                },
+                {
+                  "Row": 2,
+                  "Type": "RTID(tutorial@ZombieTypes)"
+                },
+                {
+                  "Row": 3,
+                  "Type": "RTID(tutorial@ZombieTypes)"
+                },
+                {
+                  "Row": 4,
+                  "Type": "RTID(tutorial@ZombieTypes)"
+                },
+                {
+                  "Row": 5,
+                  "Type": "RTID(tutorial@ZombieTypes)"
+                }
+              ]
+            }
+          },
+          {
+            "aliases": [
+              "Wave2"
+            ],
+            "objclass": "SpawnZombiesJitteredWaveActionProps",
+            "objdata": {
+              "Zombies": [
+                {
+                  "Row": 1,
+                  "Type": "RTID(tutorial@ZombieTypes)"
+                },
+                {
+                  "Row": 2,
+                  "Type": "RTID(tutorial@ZombieTypes)"
+                },
+                {
+                  "Row": 3,
+                  "Type": "RTID(tutorial@ZombieTypes)"
+                },
+                {
+                  "Row": 4,
+                  "Type": "RTID(tutorial@ZombieTypes)"
+                },
+                {
+                  "Row": 5,
+                  "Type": "RTID(tutorial@ZombieTypes)"
+                }
+              ]
+            }
+          },
+          {
+            "aliases": [
+              "Wave3"
+            ],
+            "objclass": "SpawnZombiesJitteredWaveActionProps",
+            "objdata": {
+              "Zombies": [
+                {
+                  "Row": 1,
+                  "Type": "RTID(tutorial@ZombieTypes)"
+                },
+                {
+                  "Row": 2,
+                  "Type": "RTID(tutorial@ZombieTypes)"
+                },
+                {
+                  "Row": 3,
+                  "Type": "RTID(tutorial@ZombieTypes)"
+                },
+                {
+                  "Row": 4,
+                  "Type": "RTID(tutorial@ZombieTypes)"
+                },
+                {
+                  "Row": 5,
+                  "Type": "RTID(tutorial@ZombieTypes)"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "objclass": "CustomLevelDefinition",
+      "aliases": [
+        "custom_level_test3"
+      ],
+      "objdata": {
+        "LevelModules": [
+          {
+            "objclass": "LevelDefinition",
+            "objdata": {
+              "Description": "[PLAYERS_HOUSE]",
+              "LevelNumber": 4,
+              "Loot": "RTID(NoLoot@LevelModules)",
+              "Modules": [
+                "RTID(StandardIntro@LevelModules)",
+                "RTID(DefaultSunDropper@LevelModules)",
+                "RTID(ZombiesDeadWinCon@LevelModules)",
+                "RTID(FrontLawnMowers@LevelModules)",
+                "RTID(SeedBank@CurrentLevel)",
+                "RTID(DefaultZombieWinCondition@LevelModules)",
+                "RTID(NewWaves@CurrentLevel)"
+              ],
+              "Name": "[TUTORIAL_LEVEL_NAME]",
+              "StageModule": "RTID(TutorialStage@LevelModules)",
+            }
+          },
+          {
+            "aliases": [
+              "ZombieSpeedEvent"
+            ],
+            "objclass": "LLExecuteActions",
+            "objdata": {
+              "Actions": [{
+                "kind": "InvokeJavaScript",
+                "variables": {
+                  "zombiePool": { "kind": "GetZombiePoolArray" },
+                  "Math": { "kind": "GetMath" }
+                },
+                "code": '\
+                  zombiePool.forEach(zombie => {\
+                    zombie.potionSpeedLevel = Math.max(3, zombie.potionSpeedLevel + 1) \
+                  })\
+                ',
+              }]
+            }
+          },
+          {
+            "aliases": [
+              "SeedBank"
+            ],
+            "objclass": "SeedBankProperties",
+            "objdata": {
+              "SuppressObjectiveTip": true,
+              "SelectionMethod": "chooser"
+            }
+          },
+          {
+            "aliases": [
+              "NewWaves"
+            ],
+            "objclass": "WaveManagerModuleProperties",
+            "objdata": {
+              "WaveManagerProps": "RTID(WaveManagerProps@CurrentLevel)"
+            }
+          },
+          {
+            "aliases": [
+              "WaveManagerProps"
+            ],
+            "objclass": "WaveManagerProperties",
+            "objdata": {
+              "FlagWaveInterval": 3,
+              "WaveCount": 3,
+              "Waves": [
+                [
+                  "RTID(Wave1@CurrentLevel)",
+                  "RTID(ZombieSpeedEvent@CurrentLevel)"
+                ],
+                [
+                  "RTID(Wave2@CurrentLevel)",
+                  "RTID(ZombieSpeedEvent@CurrentLevel)"
+                ],
+                [
+                  "RTID(Wave3@CurrentLevel)",
+                  "RTID(ZombieSpeedEvent@CurrentLevel)"
                 ]
               ]
             }

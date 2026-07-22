@@ -50,6 +50,7 @@ export function init(ctx) {
         const materials = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Materials.ts")
         const frontYard = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/FrontYard.ts")
         const characterManager = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/CharacterManager.ts")
+        const nodePools = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/NodePools.ts")
         const proto = zombie.Zombie.prototype
 
         const cc = ctx.unsafe.engine.getCc()
@@ -73,6 +74,8 @@ export function init(ctx) {
             "ForceFlyingMode": null,
             "PlantSmashDamage": null,
             "SpecificPlantSmashDamage": null,
+            "MagnetCanTakeHead": null,
+            "MagnetPFCanTakeHead": null,
 
             "GlitteringDurationMultiplier": null,
             "PoisonDurationMultiplier": null,
@@ -438,7 +441,7 @@ export function init(ctx) {
             target: proto,
             methodName: "defaultSetHypnoTized",
             handler: ({args, thisArg, callNext}) => {
-                const immuneToHypno = zombie.objdata?.ImmuneToHypno
+                const immuneToHypno = thisArg.objdata.ImmuneToHypno
 
                 if (!immuneToHypno || typeof immuneToHypno !== "boolean") {
                     return callNext(...args)
@@ -475,6 +478,44 @@ export function init(ctx) {
                     return callNext(...args)
                 }
             })
+        })
+
+        const getHead = function(zombie) {
+            const head = zombie.dropHead(null)
+            zombie.playDie()
+            if (head) {
+                head.MagnetShroomConsumingSpeed = 5 * (zombie.objdata.MagnetHeadAbsorptionSpeed ?? 1)
+                head.linearVelocity &&= new cc.Vec2(0, 0)
+                head.bodyLinearVelocity &&= 0
+            }
+            return head
+        }
+
+        ctx.unsafe.hooks.wrapMethod({
+            target: proto,
+            methodName: "getMagnetedObject",
+            handler: ({args, thisArg, callNext}) => {
+                const takeHead = thisArg.objdata.MagnetCanTakeHead
+                if (takeHead && thisArg.isAlive()) {
+                    return getHead(thisArg)
+                } else {
+                    return callNext(...args)
+                }
+            }
+        })
+
+
+        ctx.unsafe.hooks.wrapMethod({
+            target: proto,
+            methodName: "getFoodMagnetedObject",
+            handler: ({args, thisArg, callNext}) => {
+                const takeHead = thisArg.objdata.MagnetPFCanTakeHead
+                if (takeHead && thisArg.isAlive()) {
+                    return getHead(thisArg)
+                } else {
+                    return callNext(...args)
+                }
+            }
         })
 
 

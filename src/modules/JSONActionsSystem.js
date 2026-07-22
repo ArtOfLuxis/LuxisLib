@@ -18,6 +18,7 @@ export function init(ctx) {
         const jalapeno = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Jalapeno.ts")
         const groundFire = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/GroundFire.ts")
         const soundResources = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/SoundRescourses.ts")
+        const sunflower = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Sunflower.ts")
 
         const cc = ctx.unsafe.engine.getCc()
 
@@ -214,10 +215,21 @@ export function init(ctx) {
                         break
                     }
 
+                    case "DropSun": {
+                        return sunflower.sunflower.produceSun(
+                            evaluate(action.value, context),
+                            evaluate(action.position, context),
+                            evaluate(action.height, context),
+                            evaluate(action.addsToLevelTask, context),
+                            evaluate(action.singleBurst, context),
+                            evaluate(action.shineVineBoosted, context),
+                        )
+                    }
+
 
                     default:
                         ctx.ui.toast("Unknown action kind", "error")
-                        ctx.log.error(`Unknown action kind: ${JSON.stringify(action)}`)
+                        ctx.log.error(`Unknown action kind: '${action.kind}' (${JSON.stringify(action)})`)
                 }
             }
         }
@@ -552,7 +564,7 @@ export function init(ctx) {
 
                 default:
                     ctx.ui.toast("Unknown expression kind", "error")
-                    ctx.log.error(`Unknown expression kind: ${JSON.stringify(expr)}`)
+                    ctx.log.error(`Unknown expression kind: '${expr.kind}' (${JSON.stringify(expr)})`)
             }
         }
 

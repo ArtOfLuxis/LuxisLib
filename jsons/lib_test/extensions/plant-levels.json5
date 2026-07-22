@@ -1,0 +1,22 @@
+{
+  "plants": {
+    "peashooter": {
+      "levels": {
+        "1": {
+          "cloneCodename": "peashooter",
+          "icon": "wood",
+          "displayName": "LVL 1"
+        },
+        "2": {
+          "cloneCodename": "repeater",
+          "icon": "star",
+          "displayName": "LVL 2"
+        },
+      },
+      "ui": {
+        "showInAlmanac": true,
+        "showLevelBadge": true
+      }
+    }
+  }
+}

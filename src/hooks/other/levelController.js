@@ -47,6 +47,28 @@ export function init(ctx) {
 
         ctx.unsafe.hooks.wrapMethod({
             target: proto,
+            methodName: "readWave",
+            handler: ({ args, thisArg, callNext }) => {
+                const obj = args[0];
+
+                switch (obj?.objclass) {
+                    case "LLExecuteActions":
+                        return thisArg.readWave_ExecuteActions(obj.objdata)
+                }
+
+                return callNext(...args)
+            }
+        })
+
+        proto.readWave_ExecuteActions = function (data) {
+            executeActions(data.Actions, {
+                target: this,
+                source: this
+            })
+        }
+
+        ctx.unsafe.hooks.wrapMethod({
+            target: proto,
             methodName: "gameStart",
             handler: ({ args, thisArg, callNext }) => {
                 const result = callNext(...args)
