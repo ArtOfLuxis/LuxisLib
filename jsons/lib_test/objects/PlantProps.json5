@@ -41,7 +41,7 @@
         "squash"
       ],
       "objdata": {
-        "SmashAOE": { "x": 3, "y": 3, "lanes": [-1, 0, 1]},
+        "SmashAOE": { "x": 3, "y": 3, "lanes": [-1, 0, 1] }
       }
     },
     {
@@ -50,6 +50,7 @@
         "glaciershroom"
       ],
       "objdata": {
+        "ActsLikeTorchwood": ["FrozenType"], // check ArbitraryProjectileProperties in PropertySheets
         "IceAuraOverride": {
           "DetectorOverride": { "x": 5, "y": 5, "lanes": [-2, 0, 2], "xOffset": 0, "yOffset": 0, "isCentered": true },
           "AuraLanes": [-2, -1, 0, 1, 2],
@@ -508,7 +509,7 @@
         ]
       }
     },
-    { // hexar's sun statue
+    { // hexar's sun statue, dont take without permission
       "objclass": "PlantProperties",
       "aliases": [
         "primalsunflower"
@@ -1318,17 +1319,35 @@
       "objdata": {
         "OnEatenActions": [ // this code makes spring bean explode on being killed
           {
-            "kind": "InvokeObjectMethod",
-            "object": {
-              "kind": "GetObjectProperty",
-              "object": {
-                "kind": "GetContextObject",
-                "name": "target"
-              },
-              "property": "inLnC"
+            "kind": "ExplodeCherryBomb",
+            "lnc": {
+              "kind": "GetContextObject",
+              "name": "target.inLnC"
             },
-            "method": "explodeCherry3x3",
-            "args": [1800, true]
+            "damage": 1800,
+            "showExplosionText": false,
+            "color": null,
+            "scale": {
+              "x": 0.7,
+              "y": 0.7,
+              "z": 0.7
+            },
+            "explosionWidth": 3,
+            "explosionHeight": 3,
+            "explosionLanes": [
+              -1,
+              0,
+              1
+            ],
+            "xOffset": 0,
+            "yOffset": 0,
+            "armorProtection": false,
+            "armorKnockSound": false,
+            "bodyKnockSound": false,
+            "damageType": "fire",
+            "screenShakeDuration": 0.2,
+            "positionOverride": null,
+            "playSound": false
           }
         ]
       }
@@ -1379,7 +1398,7 @@
         }
       }
     },
-    { // hexar's manual jackolantern
+    { // hexar's manual jackolantern, dont take without permission
       "aliases": [
         "jackolantern"
       ],
@@ -1601,7 +1620,7 @@
         }
       }
     },
-    { // hexar's sunpod
+    { // hexar's sunpod, dont take without permission
       "objclass": "PlantProperties",
       "aliases": [
         "peapod"

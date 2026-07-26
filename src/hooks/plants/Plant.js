@@ -82,6 +82,7 @@ export function init(ctx) {
         const square = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Square.ts")
         const character = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Character.ts")
         const characterManager = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/CharacterManager.ts")
+        const projectiles = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Projectiles.ts")
         const proto = plant.Plant.prototype
 
         const cc = ctx.unsafe.engine.getCc()
@@ -101,6 +102,7 @@ export function init(ctx) {
             "AlwaysMintBoosted": false,
             "DetectorOverride": null,
             "HitRectOverride": null,
+            "ActsLikeTorchwood": null,
             "OnEnableActions": null,
             "BeforeEnableActions": null,
             "OnFoodActions": null,
@@ -266,6 +268,10 @@ export function init(ctx) {
                     })
                 }
 
+                if (thisArg.objdataOwn.ActsLikeTorchwood) {
+                    thisArg.ignitedCSs = []
+                }
+
                 callNext(...args)
 
                 const onEnableActions = thisArg.objdataOwn.OnEnableActions
@@ -367,6 +373,36 @@ export function init(ctx) {
                             thisArg.baseColor = new cc.Color(color.r, color.g, color.b, alpha)
                         }
                     }
+                }
+
+                if (thisArg.objdataOwn.ActsLikeTorchwood) {
+                    thisArg.inLane.prjPool().concat().forEach(async projectile => {
+                        if (
+                            projectile.torchwoodWaiting ||
+                            projectile.inLnC !== thisArg.inLnC ||
+                            thisArg.ignitedCSs.includes(projectile)
+                        ) {
+                            return
+                        }
+
+                        console.log(projectile.FrozenType)
+
+                        const newProjectile = await thisArg.ignite(projectile, thisArg.fooded)
+                        console.log(newProjectile)
+
+                        if (newProjectile) {
+                            newProjectile.inLnC = thisArg.inLnC
+                        }
+                    })
+
+                    thisArg.ignitedCSs.concat().forEach(projectile => {
+                        if (projectile.dead || projectile.inLnC !== thisArg.inLnC) {
+                            thisArg.ignitedCSs.splice(
+                                thisArg.ignitedCSs.indexOf(projectile),
+                                1
+                            )
+                        }
+                    })
                 }
 
 
@@ -529,5 +565,57 @@ export function init(ctx) {
         })
 
 
+        proto.ignite = async function(projectile, blueTorchwood = false) {
+            let ignited = false
+
+            const peaVineBuffed = this.inLnC?.peaVineBuffed
+            let newProjectile = null
+
+            const actsLikeTorchwood = this.objdataOwn.ActsLikeTorchwood
+            if (!actsLikeTorchwood) return null
+
+            for (const projectileProperty of actsLikeTorchwood) {
+                if (projectile[projectileProperty]) {
+                    projectile.torchwoodWaiting = true
+
+                    newProjectile = await projectiles.ProjectileShootingFunctions.shootOnePea(
+                        projectile[projectileProperty],
+                        projectile.worldPosition,
+                        projectile.height,
+                        projectile.node.parent,
+                        projectile.linearVelocity,
+                        character.CharacterType.zombie
+                    )
+
+                    newProjectile.copy(
+                        projectile,
+                        false,
+                        false,
+                        false,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true
+                    )
+
+                    ignited = true
+                    projectile.fade()
+
+                    this.ignitedCSs.push(newProjectile)
+                }
+            }
+
+            if (ignited) {
+                this.soundRes.playIgniteSound()
+            }
+
+            if (peaVineBuffed) {
+                newProjectile?.addPeaBuff()
+            }
+
+            return newProjectile
+        }
     })
 }

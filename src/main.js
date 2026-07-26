@@ -77,13 +77,13 @@ export async function setup(ctx) {
             default: false
         },
         {
-            key: "overridectx.unsafe.engine",
+            key: "overrideFastForwardSpeed",
             label: "Override FastForward Speed",
             type: "toggle",
             default: false
         },
         {
-            key: "ctx.unsafe.engine",
+            key: "fastForwardSpeed",
             label: "FastForward Speed",
             type: "slider",
             min: 0.5,
@@ -118,14 +118,8 @@ export async function setup(ctx) {
                         async onClick() {
                             allPlayerProperties.currentPlayer.worldkey += 1
                             allPlayerProperties.savePP()
-                            worldKeyCount.WorldKeyCount.start()
+                            worldKeyCount.WorldKeyCount.component?.start()
                         }
-                    },
-                    {
-                        type: 'readonly',
-                        key: 'apiVersion',
-                        label: 'Platform API',
-                        value: `v${ctx.compat.getApiVersion()}`
                     }
                 ]
             }

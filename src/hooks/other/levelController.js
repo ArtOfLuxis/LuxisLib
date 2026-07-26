@@ -10,7 +10,7 @@ export function init(ctx) {
         const proto = levelController.levelController.prototype
 
         isGameRunning = function () {
-            return levelPlay.component.gaming
+            return (levelPlay.component?.gaming === true)
         }
 
         ctx.unsafe.hooks.wrapMethod({

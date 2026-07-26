@@ -50,6 +50,35 @@
         "Disabled": "Imitater",
         "Plant": "Imitater"
       }
+    },
+
+
+
+
+
+    {
+      "ID": 165,
+      "_CARDSPRITENAME": "tutorialbasic",
+      "CODENAME": "iceweed",
+      "COSTUME": 1,
+      "OBTAINWORLD": "market",
+      "BOOST": 2,
+      "ALMANAC": "RTID(iceweed@PlantAlmanac)",
+      "PROPS": "RTID(iceweed@PlantProps)",
+      "NAME": {
+        "en": "Iceweed",
+        "zh": "冰地刺"
+      },
+      "TYPE": [
+        "spikeweed"
+      ],
+      "ZENGARDEN": {
+        "PlantPlace": "dirt"
+      },
+      "RES": {
+        "Disabled": "Iceweed",
+        "Plant": "Iceweed"
+      }
     }
   ],
   "SEEDCHOOSERDEFAULTORDER": [

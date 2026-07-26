@@ -1,7 +1,7 @@
 {
   "ZOMBIES": [
     {
-      "_CARDSPRITENAME": "tutorialarmor2",
+      "_CARDSPRITENAME": "peashooter",
       "CODENAME": "tutorial_armor3",
       "OBTAINWORLD": "frontyard",
       "ALMANAC": "RTID(tutorial@ZombieAlmanac)",

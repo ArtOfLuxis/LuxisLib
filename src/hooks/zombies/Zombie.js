@@ -20,7 +20,8 @@ export function wrapObjDataOwnZombie(ctx, proto, keys) {
 
     const zombie = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Zombie.ts")
 
-    ctx.unsafe.hooks.wrapProperty({ // i have no fucking idea why this works but it does so we dont touch it
+    // i have no fucking idea why this works but it does so we dont touch it (i couldnt get it to work with objdataOwn)
+    ctx.unsafe.hooks.wrapProperty({
         target: zombie.Zombie.prototype,
         key: "_objdata",
         get: ({ thisArg, value }) => {
@@ -50,7 +51,10 @@ export function init(ctx) {
         const materials = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Materials.ts")
         const frontYard = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/FrontYard.ts")
         const characterManager = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/CharacterManager.ts")
+        const soundResources = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/SoundRescourses.ts")
+        const particleSelfdestroy = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/ParticleSelfdestroy.ts")
         const nodePools = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/NodePools.ts")
+        const particles = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Particles.ts")
         const proto = zombie.Zombie.prototype
 
         const cc = ctx.unsafe.engine.getCc()
@@ -76,6 +80,7 @@ export function init(ctx) {
             "SpecificPlantSmashDamage": null,
             "MagnetCanTakeHead": null,
             "MagnetPFCanTakeHead": null,
+            "EMPOverride": null,
 
             "GlitteringDurationMultiplier": null,
             "PoisonDurationMultiplier": null,
@@ -202,7 +207,8 @@ export function init(ctx) {
                             thisArg.fallingInSky ||
                             thisArg.freeze > 0 ||
                             thisArg.chilibeanPoisoning ||
-                            thisArg.chiliStun > 0
+                            thisArg.chiliStun > 0 ||
+                            thisArg.___LuxisLibEMPCD > 0
                         )
                     ) {
                         return 0
@@ -277,6 +283,9 @@ export function init(ctx) {
             methodName: "characterOnEnable",
             handler: ({args, thisArg, callNext}) => {
                 callNext(...args)
+
+                thisArg.___LuxisLibEMPCD = 0
+                thisArg.empPSD = undefined
 
                 if (thisArg.objdata.TimeBeforeSelfExplode && isGameRunning()) {
                     thisArg.___LuxisLibSelfExploding = true
@@ -374,6 +383,30 @@ export function init(ctx) {
 
                 if (typeof thisArg.objdata.ForceFlyingMode === "boolean")
                     thisArg.flying = thisArg.objdata.ForceFlyingMode
+
+
+                if (thisArg.___LuxisLibEMPCD > 0) {
+                    if (thisArg.empPSD) {
+                        soundResources.sounds.playEmpSpark()
+                        thisArg.empPSD.node.worldPosition = new cc.Vec3(
+                            thisArg.worldPosition.x,
+                            thisArg.worldPosition.y + thisArg.height + (thisArg.zombieHeight ?? 0) / 2,
+                            1
+                        )
+                    }
+                    thisArg.___LuxisLibEMPCD -= deltaTime
+                    if (thisArg.___LuxisLibEMPCD <= 0) {
+                        if (thisArg.empPSD) {
+                            const db = thisArg.empPSD.db
+                            if (db) db.playAnimation("Die", 1)
+                            thisArg.empPSD.willBeKilled = true
+                        }
+                        thisArg.empPSD = null
+
+                        if (thisArg.activateSound)
+                            soundResources.sounds.playOneShot(thisArg.activateSound, 1, 0.1)
+                    }
+                }
 
                 const onUpdateActions = thisArg.objdata.OnUpdateActions
                 if (onUpdateActions && isGameRunning()) {
@@ -518,6 +551,54 @@ export function init(ctx) {
             }
         })
 
+
+        ctx.unsafe.hooks.wrapMethod({
+            target: proto,
+            methodName: "empStun",
+            handler: ({args, thisArg, callNext}) => {
+                if (!thisArg.objdata.EMPOverride)
+                    return callNext(...args)
+
+                let [duration] = args
+
+                duration *= thisArg.objdataOwn.EMPStunTimeScale ?? 1
+                if (thisArg.___LuxisLibEMPCD <= 0 && duration > 0) {
+                    if (thisArg.objdata.EMPOverride.SpawnEMPParticles) {
+                        const empEffect = nodePools.instantiatePooly(particles.particle.empEffect())
+                        empEffect.parent = thisArg.node.parent
+                        const particleSelfDestroy = empEffect.getComponent(particleSelfdestroy.ParticleSelfdestroy)
+                        thisArg.empPSD = particleSelfDestroy
+                        particleSelfDestroy.db.playAnimation("Idle1", 1)
+
+                        empEffect.worldPosition = new cc.Vec3(
+                            thisArg.worldPosition.x,
+                            thisArg.worldPositionY + thisArg.height + (thisArg.zombieHeight ?? 1) / 2,
+                            1
+                        )
+                    }
+
+                    thisArg.endSandStorm()
+
+                    if (thisArg.deactivateSound) {
+                        soundResources.sounds.playOneShot(thisArg.deactivateSound, 1, 0.1)
+                    }
+                }
+                thisArg.___LuxisLibEMPCD = thisArg.___LuxisLibEMPCD < duration ? duration : thisArg.___LuxisLibEMPCD
+            }
+        })
+
+
+        ctx.unsafe.hooks.wrapMethod({
+            target: proto,
+            methodName: "characterOnLaneChange",
+            handler: ({args, thisArg, callNext}) => {
+                callNext(...args)
+
+                if (thisArg.empPSD) {
+                    thisArg.empPSD.node.setParent(thisArg.inLane.prjLayer, true)
+                }
+            }
+        })
 
     })
 }

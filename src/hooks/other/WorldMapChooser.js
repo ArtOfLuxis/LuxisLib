@@ -2,7 +2,7 @@ import {libProperties} from "./JSONs";
 
 
 export function init(ctx) {
-    ctx.events.on("luxislib:properties", () => {
+    ctx.events.on("properties", () => {
         const chooser = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/WorldMapChooser.ts")
 
         const proto = chooser.WorldMapChooser.prototype

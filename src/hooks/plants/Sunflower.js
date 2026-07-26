@@ -2,7 +2,7 @@ import {wrapObjDataOwnPlant} from "./Plant";
 import {libProperties} from "../other/JSONs";
 
 export function init(ctx) {
-    ctx.events.on("luxislib:properties", () => {
+    ctx.events.on("engine:ready", () => {
         const sunflower = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Sunflower.ts")
         const droppings = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Droppings.ts")
         const dropping = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/dropping.ts")

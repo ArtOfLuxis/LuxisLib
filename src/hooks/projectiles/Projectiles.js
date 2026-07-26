@@ -1,7 +1,7 @@
 import {libProperties} from "../other/JSONs";
 
 export function init(ctx) {
-    ctx.events.on("luxislib:properties", () => {
+    ctx.events.on("properties", () => {
         const projectiles = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Projectiles.ts")
 
         let id = Object.entries(projectiles.ProjectileEnum).length / 2
@@ -14,6 +14,6 @@ export function init(ctx) {
             }
         })
 
-        ctx.events.emit("luxislib:projectile_enum")
+        ctx.events.emit("projectile_enum")
     })
 }

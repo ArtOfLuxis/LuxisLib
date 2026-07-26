@@ -1,7 +1,7 @@
 import { libProperties } from "./JSONs";
 
 export function init(ctx) {
-    ctx.events.on("luxislib:properties", () => {
+    ctx.events.on("properties", () => {
         const sun = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/sun.ts")
         const droppings = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Droppings.ts")
         const sunCount = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/SunCount.ts")

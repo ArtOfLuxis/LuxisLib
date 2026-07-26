@@ -9,6 +9,9 @@ export function init(ctx) {
         const cardFeature = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/CardFeature.ts")
         const nodePools = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/NodePools.ts")
         const cards = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Cards.ts")
+        const zombies = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Zombies.ts")
+        const zombie = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Zombie.ts")
+        const characterManager = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/CharacterManager.ts")
         const proto = seedChooser.SeedChooser.prototype
 
         const cc = ctx.unsafe.engine.getCc()

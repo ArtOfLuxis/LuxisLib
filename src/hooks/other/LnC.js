@@ -99,12 +99,13 @@ export function init(ctx) {
                     damageType = "fire",
                     screenShakeDuration = 0.2,
                     position = null,
+                    playSound = true,
                     extraZombieCallback = (zombie) => {}
                 ] = args
 
                 position = (position ?? thisArg.node.worldPosition).clone()
-                position.x += xOffset
-                position.y += yOffset
+                position.x += xOffset * square.Square.SquareWidth
+                position.y += yOffset * square.Square.SquareHeight
 
                 damageType = characterManager.ZombieDamageType[damageType]
 
@@ -202,10 +203,12 @@ export function init(ctx) {
                     })
                 }
 
-                if (explosionSound) {
-                    soundResources.sounds.playOneShot(explosionSound, 1, 0.1)
-                } else {
-                    soundResources.sounds.playExplosion()
+                if (playSound) {
+                    if (explosionSound) {
+                        soundResources.sounds.playOneShot(explosionSound, 1, 0.1)
+                    } else {
+                        soundResources.sounds.playExplosion()
+                    }
                 }
 
                 explosionPrefab ||= particles.particle.explosion(showExplosionText)

@@ -42,6 +42,11 @@
         "PlantSunCostFontScale": 0.75,
         "PlantSunCostHeightScale": 1,
 
+        "ArbitraryProjectileProperties": {
+          "FrozenType": null // default value
+          // check ActsLikeTorchwood for more info
+        },
+
 
         // decoding minigame
         "DecodeGemFormula": "\
@@ -196,7 +201,8 @@
           "dino_armor2",
           "zombossmech_egypt",
           "lawn",
-          "lawn_armor1"
+          "lawn_armor1",
+          "eighties_arcade"
         ],
         "ZombieEnumAdd": [
           // adding a zombie to the ZombieEnum allows you to properly use custom ZombieFeatures (in the almanac etc)

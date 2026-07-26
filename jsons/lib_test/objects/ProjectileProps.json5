@@ -57,6 +57,7 @@
         "pea"
       ],
       "objdata": {
+        "FrozenType": "pea_snow", // check ArbitraryProjectileProperties in PropertySheets
         "ColorMult": { "r": 0.5, "g": 0.5, "b": 0.5 },
         "CanBePeaVineBuffed": false,
         "OnHitActions": [
@@ -376,7 +377,26 @@
         "cabbage"
       ],
       "objdata": {
-        "Scale": 0.75
+        "Scale": 0.75,
+        "BeforePropInitActions": [
+          {
+            "kind": "SetRandomObjectProperties",
+            "properties": [
+              [
+                { "weight": 50, "properties": { "Scale": 1.5 }},
+                { "weight": 50, "properties": {} }
+              ],
+              [
+                { "weight": 10, "properties": {
+                  "Damage": 400,
+                  "DamageType": "ray",
+                  "ButterDuration": 8
+                }},
+                { "weight": 90, "properties": {} }
+              ]
+            ]
+          }
+        ]
       }
     },
     {

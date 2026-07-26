@@ -26,7 +26,7 @@ export function init(ctx) {
             ctx.ui.toast("Unable to load libProperties, add a PropertySheets file or try reloading!", "error")
         } else {
             ctx.ui.toast("Loaded libProperties", "success")
-            ctx.events.emit("luxislib:properties")
+            ctx.events.emit("properties")
         }
     })
 }

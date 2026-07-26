@@ -1,7 +1,7 @@
 import {libProperties} from "./JSONs";
 
 export function init(ctx) {
-    ctx.events.on("luxislib:zombie_enum", () => {
+    ctx.events.on("zombie_enum", () => {
         const sandBoxZombieCards = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/SandBoxZombieCards.ts")
         const zombies = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Zombies.ts")
         const proto = sandBoxZombieCards.SandBoxZombieCards.prototype

@@ -1,7 +1,7 @@
 import {libProperties} from "../other/JSONs";
 
 export function init(ctx) {
-    ctx.events.on("luxislib:properties", () => {
+    ctx.events.on("properties", () => {
         const zombies = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Zombies.ts")
 
         let id = zombies.ZombieEnum.zombieAmount
@@ -20,7 +20,7 @@ export function init(ctx) {
         zombies.ZombieEnum["zombieAmount"] = id
         zombies.ZombieEnum[id] = "zombieAmount"
 
-        ctx.events.emit("luxislib:zombie_enum")
+        ctx.events.emit("zombie_enum")
 
         ctx.unsafe.hooks.wrapMethod({
             target: zombies.zombies,

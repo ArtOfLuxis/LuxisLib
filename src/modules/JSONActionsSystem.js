@@ -5,6 +5,38 @@ export let executeActions
 export let evaluateExpression
 export let evaluate
 
+function resolveProperty(action, context) {
+    const object = action.object
+        ? evaluate(action.object, context)
+        : context.target
+
+    const path = evaluate(action.property, context).split(".")
+    const last = path.pop()
+
+    let target = object
+    for (const key of path) {
+        target = target[key]
+    }
+
+    return { target, last }
+}
+
+function withVariable(context, name, value, fn) {
+    const old = context[name]
+    const existed = name in context
+
+    context[name] = value
+
+    const result = fn()
+
+    if (existed)
+        context[name] = old
+    else
+        delete context[name]
+
+    return result
+}
+
 export function init(ctx) {
     ctx.events.on("engine:ready", () => {
         const projectiles = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Projectiles.ts")
@@ -41,24 +73,17 @@ export function init(ctx) {
                         const iterable = evaluate(action.iterable, context)
                         const variable = evaluate(action.variable, context)
                         const actions = action.actions ?? []
-                        for (const o of iterable) {
-                            context[variable] = o
-                            executeActions(actions, context)
-                        }
+
+                        iterable.forEach(item => {
+                            withVariable(context, variable, item, () => {
+                                executeActions(actions, context)
+                            })
+                        })
+
                         break
 
                     case "SetObjectProperty": {
-                        const object = action.object
-                            ? evaluate(action.object, context)
-                            : context.target
-
-                        const path = action.property.split(".")
-                        const last = path.pop()
-
-                        let target = object
-                        for (const key of path) {
-                            target = target[key]
-                        }
+                        const { target, last } = resolveProperty(action, context)
 
                         target[last] = evaluate(action.value, context)
                         break
@@ -87,17 +112,7 @@ export function init(ctx) {
                     }
 
                     case "IncrementObjectProperty": {
-                        const object = action.object
-                            ? evaluate(action.object, context)
-                            : context.target
-
-                        const path = action.property.split(".")
-                        const last = path.pop()
-
-                        let target = object
-                        for (const key of path) {
-                            target = target[key]
-                        }
+                        const { target, last } = resolveProperty(action, context)
 
                         target[last] = Math.max(
                             Math.min(
@@ -110,17 +125,7 @@ export function init(ctx) {
                     }
 
                     case "DecrementObjectProperty": {
-                        const object = action.object
-                            ? evaluate(action.object, context)
-                            : context.target
-
-                        const path = action.property.split(".")
-                        const last = path.pop()
-
-                        let target = object
-                        for (const key of path) {
-                            target = target[key]
-                        }
+                        const { target, last } = resolveProperty(action, context)
 
                         target[last] = Math.max(
                             Math.min(
@@ -129,6 +134,89 @@ export function init(ctx) {
                             ),
                             evaluate(action.min, context) ?? -Infinity
                         )
+                        break
+                    }
+
+                    case "ModifyObjectProperty": {
+                        const { target, last } = resolveProperty(action, context)
+
+                        let result
+                        switch (evaluate(action.operator, context)) {
+                            case "+=": {
+                                result = target[last] + evaluate(action.value, context)
+                                break
+                            }
+                            case "-=": {
+                                result = target[last] - evaluate(action.value, context)
+                                break
+                            }
+                            case "*=": {
+                                result = target[last] * evaluate(action.value, context)
+                                break
+                            }
+                            case "**=": {
+                                result = Math.pow(target[last], evaluate(action.value, context))
+                                break
+                            }
+                            case "/=": {
+                                result = target[last] / evaluate(action.value, context)
+                                break
+                            }
+                            case "//=": {
+                                result = Math.floor(target[last] / evaluate(action.value, context))
+                                break
+                            }
+                            case "%=": {
+                                result = target[last] % evaluate(action.value, context)
+                                break
+                            }
+                        }
+
+                        target[last] = Math.max(
+                            Math.min(
+                                result,
+                                evaluate(action.max, context) ?? Infinity
+                            ),
+                            evaluate(action.min, context) ?? -Infinity
+                        )
+                        break
+                    }
+
+                    case "SetRandomObjectProperties": {
+                        const object = action.object
+                            ? evaluate(action.object, context)
+                            : context.target
+
+                        for (const choices of evaluate(action.properties, context)) {
+                            const totalWeight = choices.reduce(
+                                (sum, choice) => sum + (choice.weight ?? 1),
+                                0
+                            )
+
+                            let roll = Math.random() * totalWeight
+                            let selected = choices[0]
+
+                            for (const choice of choices) {
+                                roll -= choice.weight ?? 1
+                                if (roll < 0) {
+                                    selected = choice
+                                    break
+                                }
+                            }
+
+                            for (const [property, value] of Object.entries(selected.properties ?? {})) {
+                                const path = property.split(".")
+                                const last = path.pop()
+
+                                let target = object
+                                for (const key of path) {
+                                    target = target[key]
+                                }
+
+                                target[last] = value
+                            }
+                        }
+
                         break
                     }
 
@@ -156,6 +244,59 @@ export function init(ctx) {
                         object.scheduleOnce(() => {
                             executeActions(action.actions, newContext)
                         }, evaluate(action.time, context))
+                        break
+                    }
+
+                    case "ExplodeCherryBomb": {
+                        const object = action.lnc
+                            ? evaluate(action.lnc, context)
+                            : context.target.inLnC
+
+                        object.explodeCherry3x3(
+                            evaluate(action.damage, context) ?? 1800,
+                            evaluate(action.showExplosionText, context) ?? false,
+                            null,
+                            null,
+                            evaluate(action.color, context) ?? null,
+                            evaluate(action.scale, context) ?? { x: 0.7, y: 0.7, z: 0.7 },
+                            evaluate(action.explosionWidth, context) ?? 3,
+                            evaluate(action.explosionHeight, context) ?? 3,
+                            evaluate(action.explosionLanes, context) ?? [-1, 0, 1],
+                            evaluate(action.xOffset, context) ?? 0,
+                            evaluate(action.yOffset, context) ?? 0,
+                            evaluate(action.armorProtection, context) ?? false,
+                            evaluate(action.armorKnockSound, context) ?? false,
+                            evaluate(action.bodyKnockSound, context) ?? false,
+                            evaluate(action.damageType, context) ?? "fire",
+                            evaluate(action.screenShakeDuration, context) ?? 0.2,
+                            evaluate(action.positionOverride, context) ?? null,
+                            null,
+                            evaluate(action.playSound, context) ?? true,
+                        )
+
+                        break
+                    }
+
+                    case "DealDamageZombie": {
+                        const target = action.zombie
+                            ? evaluate(action.zombie, context)
+                            : context.target
+
+                        target.dealDamage(
+                            evaluate(action.damageDetails, context) ?? null
+                        )
+
+                        break
+                    }
+                    case "DealDamagePlant": {
+                        const target = action.plant
+                            ? evaluate(action.plant, context)
+                            : context.target
+
+                        target.dealDamage(
+                            evaluate(action.damage, context) ?? null
+                        )
+
                         break
                     }
 
@@ -217,12 +358,12 @@ export function init(ctx) {
 
                     case "DropSun": {
                         return sunflower.sunflower.produceSun(
-                            evaluate(action.value, context),
-                            evaluate(action.position, context),
-                            evaluate(action.height, context),
-                            evaluate(action.addsToLevelTask, context),
-                            evaluate(action.singleBurst, context),
-                            evaluate(action.shineVineBoosted, context),
+                            evaluate(action.value, context) ?? 50,
+                            evaluate(action.position, context) ?? context.target?.worldPosition,
+                            evaluate(action.height, context) ?? 20,
+                            evaluate(action.addsToLevelTask, context) ?? true,
+                            evaluate(action.singleBurst, context) ?? false,
+                            evaluate(action.shineVineBoosted, context) ?? false,
                         )
                     }
 
@@ -289,7 +430,26 @@ export function init(ctx) {
                 }
                 case "InvokeConstructor": {
                     const object = evaluate(expr.object, context)
-                    return new object.constructor(...evaluate(expr.args ?? [], context))
+                    const args = evaluate(expr.args, context) ?? []
+                    return new object.constructor(...Array.isArray(args) ? args : [args])
+                }
+
+                case "RectangleIntersectsRectangle": {
+                    return evaluate(expr.rectangle1, context).judgeCrossRec(evaluate(expr.rectangle2, context))
+                }
+                case "ZombieBodyRectangle": {
+                    const zombie = evaluate(expr.zombie, context) ?? context.target
+                    return evaluate(expr.rectangleForProjectiles, context) ?
+                        zombie.bodyRecForShooter :
+                        zombie.bodyRec
+                }
+                case "PlantBodyRectangle": {
+                    const plant = evaluate(expr.plant, context) ?? context.target
+                    return plant.realBodyRec
+                }
+                case "ProjectileBodyRectangle": {
+                    const projectile = evaluate(expr.projectile, context) ?? context.target
+                    return projectile.bodyRec()
                 }
 
 
@@ -354,20 +514,38 @@ export function init(ctx) {
                     return projectiles.ProjectileShootingFunctions
 
                 case "CreateRectangle": {
-                    return characterManager.Rectangle.createRectangleNodeCenter(
-                        evaluate(expr.node, context),
-                        square.Square.SquareWidth * evaluate(expr.width, context),
-                        square.Square.SquareHeight * evaluate(expr.height, context),
+                    const node = evaluate(expr.node, context)
+
+                    const center = node.worldPosition.clone()
+                    center.x += square.Square.SquareWidth * (evaluate(expr.xOffset, context) ?? 0)
+                    center.y += square.Square.SquareHeight * (evaluate(expr.yOffset, context) ?? 0)
+
+                    return characterManager.Rectangle.createRectangleCenter(
+                        center,
+                        square.Square.SquareWidth * evaluate(expr.width, context) ?? 0,
+                        square.Square.SquareHeight * evaluate(expr.height, context) ?? 0,
                     )
                 }
                 case "CreateVec2": {
-                    return new cc.Vec2(evaluate(expr.x, context), evaluate(expr.y, context))
+                    return new cc.Vec2(
+                        evaluate(expr.x, context) ?? 0,
+                        evaluate(expr.y, context) ?? 0
+                    )
                 }
                 case "CreateVec3": {
-                    return new cc.Vec3(evaluate(expr.x, context), evaluate(expr.y, context), evaluate(expr.z, context))
+                    return new cc.Vec3(
+                        evaluate(expr.x, context) ?? 0,
+                        evaluate(expr.y, context) ?? 0,
+                        evaluate(expr.z, context) ?? 0
+                    )
                 }
                 case "CreateVec4": {
-                    return new cc.Vec4(evaluate(expr.x, context), evaluate(expr.y, context), evaluate(expr.z, context), evaluate(expr.w, context))
+                    return new cc.Vec4(
+                        evaluate(expr.x, context) ?? 0,
+                        evaluate(expr.y, context) ?? 0,
+                        evaluate(expr.z, context) ?? 0,
+                        evaluate(expr.w, context) ?? 0
+                    )
                 }
                 case "CreateDamageDetails": {
                     const damageDetails = new characterManager.ZombieDamageDetails(
@@ -377,8 +555,8 @@ export function init(ctx) {
                         evaluate(expr.bodyKnockSound, context) ?? true,
                         evaluate(expr.damageDirection, context) ?? null,
                         characterManager.ZombieDamageType[
-                        evaluate(expr.damageType, context) ?? "physicle"
-                            ],
+                            evaluate(expr.damageType, context) ?? "physicle"
+                        ],
                         evaluate(expr.flash, context) ?? true,
                         evaluate(expr.armorAlsoDamagedWhenNotProtecting, context) ?? false
                     )
@@ -449,58 +627,31 @@ export function init(ctx) {
                     const array = evaluate(expr.array, context)
                     const variable = evaluate(expr.variable, context)
 
-                    return array.filter(item => {
-                        const oldValue = context[variable]
-                        context[variable] = item
-
-                        const result = evaluate(expr.condition, context)
-
-                        if (oldValue === undefined) {
-                            delete context[variable]
-                        } else {
-                            context[variable] = oldValue
-                        }
-
-                        return result
-                    })
+                    return array.filter(item =>
+                        withVariable(context, variable, item, () =>
+                            evaluate(expr.condition, context)
+                        )
+                    )
                 }
                 case "FindArrayObject": {
                     const array = evaluate(expr.array, context)
                     const variable = evaluate(expr.variable, context)
 
-                    return array.find(item => {
-                        const oldValue = context[variable]
-                        context[variable] = item
-
-                        const result = evaluate(expr.condition, context)
-
-                        if (oldValue === undefined) {
-                            delete context[variable]
-                        } else {
-                            context[variable] = oldValue
-                        }
-
-                        return result
-                    })
+                    return array.find(item =>
+                        withVariable(context, variable, item, () =>
+                            evaluate(expr.condition, context)
+                        )
+                    )
                 }
                 case "ArrayAllObjects": {
                     const array = evaluate(expr.array, context)
                     const variable = evaluate(expr.variable ?? "item", context)
 
-                    return array.every(item => {
-                        const oldValue = context[variable]
-                        context[variable] = item
-
-                        const result = evaluate(expr.condition, context)
-
-                        if (oldValue === undefined) {
-                            delete context[variable]
-                        } else {
-                            context[variable] = oldValue
-                        }
-
-                        return result
-                    })
+                    return array.every(item =>
+                        withVariable(context, variable, item, () =>
+                            evaluate(expr.condition, context)
+                        )
+                    )
                 }
 
                 case "Ternary": {
@@ -522,7 +673,7 @@ export function init(ctx) {
                 case "!=":
                     return evaluate(expr.left, context) !== evaluate(expr.right, context)
                 case "+":
-                    return evaluate(expr.left, context) + evaluate(expr.right, context);
+                    return evaluate(expr.left, context) + evaluate(expr.right, context)
                 case "-":
                     return evaluate(expr.left, context) - evaluate(expr.right, context)
                 case "*":
@@ -569,7 +720,7 @@ export function init(ctx) {
         }
 
         evaluate = function (value, context) {
-            if (value === null)
+            if (value === null || value === undefined)
                 return null
 
             if (typeof value !== "object")
@@ -589,7 +740,7 @@ export function init(ctx) {
         }
     })
 
-    ctx.events.on("luxislib:properties", () => {
+    ctx.events.on("properties", () => {
         ctx.log.info("Loading JSONActionHooks from libProperties")
 
         try {

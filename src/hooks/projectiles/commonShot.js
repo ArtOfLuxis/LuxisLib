@@ -4,6 +4,7 @@ import {libProperties} from "../other/JSONs";
 export let createProjectileSpread
 export let createLobberProjectileSpread
 
+let projectileKeys
 
 export const handleGenericZombieProjectileHit = function (projectile) {
     if (typeof projectile.DamageMultiplierAfterHit === "number") {
@@ -87,7 +88,7 @@ export function init(ctx) {
 
         const cc = ctx.unsafe.engine.getCc()
 
-        const projectileKeys = {
+        projectileKeys = {
             "Scale": null,
             "ColorOffset": null,
             "ColorMult": null,
@@ -96,7 +97,9 @@ export function init(ctx) {
             "ZombieInvisibilityPotion": null,
             "ZombieToughnessPotion": null,
             "ZombieSpeedPotion": null,
+            "BeforePropInitActions": null,
             "OnEnableActions": null,
+            "BeforeEnableActions": null,
             "OnZombieDamageActions": null,
             "OnHitActions": null,
             "OnTombHitActions": null,
@@ -130,6 +133,16 @@ export function init(ctx) {
             target: proto,
             methodName: "defaultReadObjdata",
             handler: ({ args, thisArg, callNext }) => {
+
+                const objdata = args[0]
+
+                if (objdata.BeforePropInitActions) {
+                    executeActions(objdata.BeforePropInitActions, {
+                        target: objdata,
+                        source: thisArg,
+                    })
+                }
+
                 callNext(...args)
 
                 thisArg.AlreadyInverted = false
@@ -143,8 +156,6 @@ export function init(ctx) {
                 for (const key of Object.keys(projectileKeys)) {
                     thisArg[key] = undefined
                 }
-
-                const objdata = args[0]
 
                 Object.keys(projectileKeys).forEach((key) => {
                     const value = objdata[key]
@@ -191,6 +202,13 @@ export function init(ctx) {
             target: proto,
             methodName: "characterOnEnable",
             handler: ({ args, thisArg, callNext }) => {
+                if (thisArg.BeforeEnableActions) {
+                    executeActions(thisArg.BeforeEnableActions, {
+                        target: thisArg,
+                        source: thisArg,
+                    })
+                }
+
                 callNext(...args)
 
                 if (thisArg.ProjectileSpread || thisArg.LobberProjectileSpread) {
@@ -1122,7 +1140,10 @@ export function init(ctx) {
                                 } = findLaneAndTarget())
                             }
 
-                            const flightTime = 60 * (spreadPattern.FlightTimeMultiplier ?? 1)
+                            const flightTime =
+                                lockMode.InstantlyHitTarget ?
+                                    0 :
+                                    60 * (spreadPattern.FlightTimeMultiplier ?? 1)
 
                             const spawnX = originX + centerOffset.x * square.Square.SquareWidth
                             const spawnY = originY + centerOffset.y * square.Square.SquareHeight
@@ -1159,13 +1180,13 @@ export function init(ctx) {
                             }
 
                             if (lockMode.InstantlyHitTarget) {
-                                projectile.linearVelocity = new cc.Vec2(0.01, 0)
+                                projectile.linearVelocity = new cc.Vec2(-0.1, 0)
 
-                                projectile.bodyLinearVelocity = 0.01
+                                projectile.bodyLinearVelocity = 0
 
                                 projectile.worldPosition = new cc.Vec2(targetPos.x, targetPos.y)
 
-                                projectile.SelfExplodeCD = 0.1
+                                projectile.SelfExplodeCD = 0.02
                             } else {
                                 projectile.linearVelocity = new cc.Vec2(
                                     (targetPos.x - spawnX) / flightTime,
@@ -1199,5 +1220,14 @@ export function init(ctx) {
             })
         }
 
+    })
+
+    ctx.events.on("properties", () => {
+        const arbitraryProjectileProperties = libProperties?.ArbitraryProjectileProperties
+        if (arbitraryProjectileProperties) {
+            Object.entries(arbitraryProjectileProperties).forEach(([key, value]) => {
+                projectileKeys[key] = value
+            })
+        }
     })
 }

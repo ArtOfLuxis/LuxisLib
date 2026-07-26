@@ -32,7 +32,11 @@
         "explorer"
       ],
       "objdata": {
-        "ChillDurationMultiplier": 0
+        "ChillDurationMultiplier": 0,
+        "EMPOverride": {
+          "SpawnEMPParticles": false
+        },
+        "EMPStunTimeScale": 2
       }
     },
     {
