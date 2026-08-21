@@ -45,15 +45,6 @@
     {
       "objclass": "ProjectileProperties",
       "aliases": [
-        "pea_snow"
-      ],
-      "objdata": {
-        "Damage": 0
-      }
-    },
-    {
-      "objclass": "ProjectileProperties",
-      "aliases": [
         "pea"
       ],
       "objdata": {
@@ -120,6 +111,11 @@
         "pea_snow"
       ],
       "objdata": {
+        "Damage": 0,
+        "InvertDirectionOnTheLeft": {
+          "LeftX": 120,
+          "SmoothInvertDuration": 0.5
+        },
         "OnEnableActions": [
           {
             "kind": "SetObjectProperty",
@@ -243,78 +239,9 @@
         "ProjectileSpread": [
           {
             "ProjectileType": "pea",
-            "ProjectileAmount": 1,
-            "ProjectileSpreadDegrees": [{ "min": 0, "max": 0 }],
-            "FirstProjectileInterval": 0,
-            "ProjectileInterval": 0,
-            "ProjectilesPerInterval": 1,
-            "InitialDegreeOffset": 0,
-            "CenterOffset": { "x": 0, "y": -0 },
-          },
-          {
-            "ProjectileType": "pea",
-            "ProjectileAmount": 1,
-            "ProjectileSpreadDegrees": [{ "min": 45, "max": 45 }],
-            "FirstProjectileInterval": 0,
-            "ProjectileInterval": 0,
-            "ProjectilesPerInterval": 1,
-            "InitialDegreeOffset": 0,
-            "CenterOffset": { "x": 0, "y": -0 },
-          },
-          {
-            "ProjectileType": "pea",
-            "ProjectileAmount": 1,
-            "ProjectileSpreadDegrees": [{ "min": 90, "max": 90 }],
-            "FirstProjectileInterval": 0,
-            "ProjectileInterval": 0,
-            "ProjectilesPerInterval": 1,
-            "InitialDegreeOffset": 0,
-            "CenterOffset": { "x": 0, "y": -0 },
-          },
-          {
-            "ProjectileType": "pea",
-            "ProjectileAmount": 1,
-            "ProjectileSpreadDegrees": [{ "min": 135, "max": 135 }],
-            "FirstProjectileInterval": 0,
-            "ProjectileInterval": 0,
-            "ProjectilesPerInterval": 1,
-            "InitialDegreeOffset": 0,
-            "CenterOffset": { "x": 0, "y": -0 },
-          },
-          {
-            "ProjectileType": "pea",
-            "ProjectileAmount": 1,
-            "ProjectileSpreadDegrees": [{ "min": 180, "max": 180 }],
-            "FirstProjectileInterval": 0,
-            "ProjectileInterval": 0,
-            "ProjectilesPerInterval": 1,
-            "InitialDegreeOffset": 0,
-            "CenterOffset": { "x": 0, "y": -0 },
-          },
-          {
-            "ProjectileType": "pea",
-            "ProjectileAmount": 1,
-            "ProjectileSpreadDegrees": [{ "min": 225, "max": 225 }],
-            "FirstProjectileInterval": 0,
-            "ProjectileInterval": 0,
-            "ProjectilesPerInterval": 1,
-            "InitialDegreeOffset": 0,
-            "CenterOffset": { "x": 0, "y": -0 },
-          },
-          {
-            "ProjectileType": "pea",
-            "ProjectileAmount": 1,
-            "ProjectileSpreadDegrees": [{ "min": 270, "max": 270 }],
-            "FirstProjectileInterval": 0,
-            "ProjectileInterval": 0,
-            "ProjectilesPerInterval": 1,
-            "InitialDegreeOffset": 0,
-            "CenterOffset": { "x": 0, "y": -0 },
-          },
-          {
-            "ProjectileType": "pea",
-            "ProjectileAmount": 1,
-            "ProjectileSpreadDegrees": [{ "min": 315, "max": 315 }],
+            "ProjectileAmount": 8,
+            "ProjectileSpreadDegrees": [{ "min": 0, "max": 315 }],
+            "DegreeStep": 45,
             "FirstProjectileInterval": 0,
             "ProjectileInterval": 0,
             "ProjectilesPerInterval": 1,
@@ -532,15 +459,19 @@
       ],
       "objdata": {
         "Scale": 0.25,
-        "OnUpdateActions": [
+        "BeforeDestroyActions": [
           {
-            "kind": "InvokeObjectMethod",
-            "object": {
-              "kind": "GetObjectProperty",
-              "property": "inLnC"
+            "kind": "ExplodeCherryBomb",
+            "lnc": {
+              "kind": "GetObjectLnC",
+              "object": {
+                "kind": "GetContextObject",
+                "name": "target"
+              }
             },
-            "method": "explodeCherry3x3",
-            "args": [1800, true]
+            "damage": 1800,
+            "showExplosionText": true,
+            "zombieCallback": []
           }
         ]
       }
@@ -617,6 +548,66 @@
           }
         ]
       }
-    }
+    },
+    {
+      "objclass": "ProjectileProperties",
+      "aliases": [
+        "citron"
+      ],
+      "objdata": {
+        "PierceOverride": {
+          "Amount": { "min": 9999, "max": 9999 },
+          "PlayHitSound": true,
+          "PlayHitParticle": false,
+        },
+        "OnEnableActions": [ // tick damage every 0.2 seconds
+          {
+            "kind": "SetObjectProperty",
+            "property": "_Delay",
+            "value": 0
+          }
+        ],
+        "OnUpdateActions": [
+          {
+            "kind": "SetObjectProperty",
+            "property": "_Delay",
+            "value": {
+              "left": {
+                "kind": "GetObjectProperty",
+                "property": "_Delay"
+              },
+              "kind": "-",
+              "right": {
+                "kind": "GetContextObject",
+                "name": "deltaTime"
+              }
+            }
+          },
+          {
+            "kind": "If",
+            "condition": {
+              "left": {
+                "kind": "GetObjectProperty",
+                "property": "_Delay"
+              },
+              "kind": "<=",
+              "right": 0
+            },
+            "then": [
+              {
+                "kind": "SetObjectProperty",
+                "property": "_Delay",
+                "value": 0.2 // Time before Pierce Immunity Resets (In seconds)
+              },
+              {
+                "kind": "SetObjectProperty",
+                "property": "___LuxisLibContactingEnemies",
+                "value": []
+              },
+            ]
+          }
+        ]
+      }
+    },
   ]
 }

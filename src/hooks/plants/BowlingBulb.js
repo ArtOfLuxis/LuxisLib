@@ -23,8 +23,6 @@ export function init(ctx) {
                     for (let i = 0; i < rollOrder.length; i++) {
                         ballId = rollOrder[i]
 
-                        console.log(ballId, thisArg["ball" + ballId + "Loaded"])
-
                         if (thisArg["ball" + ballId + "Loaded"]) {
                             break
                         }

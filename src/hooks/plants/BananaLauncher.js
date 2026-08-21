@@ -46,7 +46,7 @@ export function init(ctx) {
 
                     target ??= square.Square.getRandomLnC()
 
-                    projectile.ProjectileShootingFunctions.throwOneBananaOnNode(
+                    projectile.PrjFunctions.throwOneBananaOnNode(
                         thisArg._objdataOwn.BananaType,
                         target.plantPoint,
                         1000,

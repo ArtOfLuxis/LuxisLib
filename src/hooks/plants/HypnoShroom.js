@@ -11,7 +11,7 @@ export function init(ctx) {
             handler: ({args, thisArg, callNext}) => {
                 const zombie = args[1]
 
-                const immuneToHypnoShroom = zombie.objdata.ImmuneToHypnoShroom
+                const immuneToHypnoShroom = zombie.objdataOwn.ImmuneToHypnoShroom
                 if (!immuneToHypnoShroom) return callNext(...args)
             }
         })

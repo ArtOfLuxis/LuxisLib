@@ -98,8 +98,6 @@ export function init(ctx) {
                 layout._layoutDirty = true
                 layout._childrenDirty = true
 
-                console.log(thisArg.recordParent)
-
                 return callNext()
             }
         })

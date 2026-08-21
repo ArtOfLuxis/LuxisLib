@@ -87,7 +87,7 @@ export function init(ctx) {
                     explosionPrefab = null,
                     explosionSound = null,
                     color = null,
-                    scale = { "x": 0.7, "y": 0.7, "z": 0.7 },
+                    scale = { "x": 1, "y": 1, "z": 1 },
                     explosionWidth = 3,
                     explosionHeight = 3,
                     explosionLanes = [-1,0,1],
@@ -110,9 +110,9 @@ export function init(ctx) {
                 damageType = characterManager.ZombieDamageType[damageType]
 
                 const scaleVec = new cc.Vec3(
-                    scale.x ?? 0.7,
-                    scale.y ?? 0.7,
-                    scale.z ?? scale.x ?? 0.7,
+                    (scale.x ?? 1) * 0.7,
+                    (scale.y ?? 1) * 0.7,
+                    (scale.z ?? scale.x ?? 1) * 0.7,
                 )
 
                 const column = thisArg.cIndex

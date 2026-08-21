@@ -8,9 +8,10 @@
         "tutorial"
       ],
       "objdata": {
-        "SpeedScale": 5,
+        "SpeedScale": 3,
         "MagnetCanTakeHead": true,
-        "MagnetHeadAbsorptionSpeed": 0.1
+        "MagnetHeadAbsorptionSpeed": 0.1,
+        "HurrikalePushSpeedMult": 0.1,
       }
     },
     {
@@ -23,7 +24,8 @@
         "ImmuneToChiliBean": true,
         "ImmuneToHypnoShroom": true,
         "ForceFlyingMode": true,
-        "MagnetPFCanTakeHead": true
+        "MagnetPFCanTakeHead": true,
+        "CannotBeCarriedByInferno": true
       }
     },
     {
@@ -34,9 +36,11 @@
       "objdata": {
         "ChillDurationMultiplier": 0,
         "EMPOverride": {
-          "SpawnEMPParticles": false
+          "SpawnEMPParticles": true
         },
-        "EMPStunTimeScale": 2
+        "EMPStunTimeScale": 2,
+        "DamageTypeImmunities": {"fire": 999, "potatoMine": 0.05, "electricity": -0.25, "ray": 0.05, "physicle": 1},
+        "StartingArmors": ["modern_armor1"]
       }
     },
     {
@@ -48,7 +52,26 @@
         "PlantSmashDamage": 1000,
         "SpecificPlantSmashDamage": {
           "endurian": 5000
-        }
+        },
+
+        "GlitteringDurationMultiplier": 1,
+        "PoisonDurationMultiplier": 1,
+        "ChillDurationMultiplier": 1,
+        "FreezeDurationMultiplier": 1,
+        "ButterDurationMultiplier": 1,
+        "StunDurationMultiplier": 1,
+        "DarkMatterDurationMultiplier": 1,
+        "PerfumeDurationMultiplier": 1,
+        "SapflingDurationMultiplier": 1,
+        "StunSpeedMultiplier": 0.5,
+        "ButterSpeedMultiplier": 0.5,
+        "FreezeSpeedMultiplier": 0.5,
+        "ChiliStunSpeedMultiplier": 0.5,
+        "ChillSpeedMultiplier": 0.5,
+        "PerfumeSpeedMultiplier": 0.5,
+        "SapSpeedMultiplier": 0.5,
+        "DarkmatterHealthRatioMultiplier": 1,
+        "DarkmatterSpeedMultiplier": 0.5
       }
     },
     {
@@ -195,7 +218,10 @@
         "OnBiteActions": [
           {
             "kind": "SetObjectProperty",
-            "object": { "kind": "GetContextObject", "name": "source" },
+            "object": {
+              "kind": "GetContextObject",
+              "name": "source"
+            },
             "property": "___LuxisLibTimeBeforeSelfExplode",
             "value": 0
           },
@@ -203,22 +229,25 @@
             "kind": "SpawnLaneFire",
             "lnc": {
               "kind": "GetObjectProperty",
+              "object": {
+                "kind": "GetContextObject",
+                "name": "target"
+              },
               "property": "inLnC"
             },
             "damage": 500,
             "armorProtection": true,
             "duration": 3,
-            "length": 15,
+            "height": 15,
             "color": "yellow",
             "spreadStyle": "split",
-            "fireLength": 18,
-            "fireWidth": 9,
-            "whitelist": [],
+            "spreadSpeed": 18,
+            "spreadDistance": 9,
+            "zombieWhitelist": [],
             "hypnoIncluded": true,
             "plantsIncluded": true,
             "isDPS": false,
-            "burnsFlying": true,
-            "parent": null
+            "burnsFlying": true
           }
         ]
       }

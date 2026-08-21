@@ -2,6 +2,16 @@
 const modules = import.meta.glob('./**/*.js', {eager: true});
 
 export async function setup(ctx) {
+    const oldWarn = console.warn
+    if (!oldWarn.___LuxisLibEdited) {
+        oldWarn.___LuxisLibEdited = true
+
+        console.warn = (...messages) => {
+            if (!messages?.[0]?.includes("Can't find the plant with type name: \"\""))
+                oldWarn(...messages)
+        }
+    }
+
     ctx.ui.toast("Initialized >w<", "success")
     for (const initModule of Object.values(modules)) {
         try {
@@ -119,6 +129,14 @@ export async function setup(ctx) {
                             allPlayerProperties.currentPlayer.worldkey += 1
                             allPlayerProperties.savePP()
                             worldKeyCount.WorldKeyCount.component?.start()
+                        }
+                    },
+                    {
+                        type: 'action',
+                        key: 'restart',
+                        label: 'Quick Game Restart',
+                        async onClick() {
+                            location.reload()
                         }
                     }
                 ]

@@ -24,7 +24,15 @@ export function init(ctx) {
 
                 const db = thisArg.ca._plantDB
 
-                zombieAnimations ??= Object.keys(db._armature?.animation?._animations)
+                const animations = db._armature?.animation?._animations;
+
+                if (!zombieAnimations) {
+                    if (!animations) {
+                        return;
+                    }
+
+                    zombieAnimations = Object.keys(animations);
+                }
 
                 const animation = thisArg.thisZombie._CARDSPRITENAME
                 if (!zombieAnimations.includes(animation)) {

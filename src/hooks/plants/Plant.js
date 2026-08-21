@@ -53,10 +53,10 @@ export function normalSmashOverride(args, thisArg, callNext) {
     const zombie = args[0]
     const damage =
         slamDamageInsteadOfDeath.ForcedDamage ??
-        zombie.objdata.SpecificPlantSmashDamage?.[thisArg.Plant_Type] ??
-        zombie.objdata.PlantSmashDamage ??
+        thisArg.objdataOwn.SpecificPlantSmashDamage?.[thisArg.Plant_Type] ??
+        thisArg.objdataOwn.PlantSmashDamage ??
         slamDamageInsteadOfDeath.PriorityDamage ??
-        zombie.objdataOwn.SmashDamage ??
+        thisArg.objdataOwn.SmashDamage ??
         slamDamageInsteadOfDeath.DefaultDamage ??
         1500
 
@@ -112,6 +112,7 @@ export function init(ctx) {
             "OnLeftClickActions": null,
             "OnRightClickActions": null,
             "DynamicPlantableCondition": null,
+            "PFOnSpawn": null
         })
 
         ctx.unsafe.hooks.wrapMethod({
@@ -123,27 +124,8 @@ export function init(ctx) {
                 let addColor = new cc.Vec4(0, 0, 0, 1)
                 let saturation = 0
 
-                if (thisArg.hurting > 0) {
-                    addColor.x += thisArg.hurting / 60
-                    addColor.y += thisArg.hurting / 60
-                    addColor.z += thisArg.hurting / 60
-                    saturation += thisArg.hurting / 20
-                }
-
                 if (thisArg._cdScaleByPlantCD > 0) {
                     saturation += libProperties?.GlacierShroomSaturation ?? 0.5
-                }
-
-                if (thisArg.hidden > 0) {
-                    addColor.x += 0.4
-                    addColor.y += 0.4
-                    addColor.z -= 0.2
-                }
-
-                if (thisArg.countDownInvincibleGlitter > 0) {
-                    addColor.x = 194 / 255
-                    addColor.y = 0
-                    addColor.z = 178 / 255
                 }
 
                 let holo = 1
@@ -230,7 +212,7 @@ export function init(ctx) {
                     }
                 }
 
-                const onBiteActions = zombie.objdata.OnBiteActions
+                const onBiteActions = zombie.objdataOwn.OnBiteActions
                 if (onBiteActions) {
                     executeActions(onBiteActions, {
                         target: thisArg,
@@ -273,6 +255,10 @@ export function init(ctx) {
                 }
 
                 callNext(...args)
+
+                if (thisArg.objdataOwn.PFOnSpawn) {
+                    thisArg.food()
+                }
 
                 const onEnableActions = thisArg.objdataOwn.OnEnableActions
                 if (onEnableActions) {
@@ -385,10 +371,7 @@ export function init(ctx) {
                             return
                         }
 
-                        console.log(projectile.FrozenType)
-
                         const newProjectile = await thisArg.ignite(projectile, thisArg.fooded)
-                        console.log(newProjectile)
 
                         if (newProjectile) {
                             newProjectile.inLnC = thisArg.inLnC
@@ -578,7 +561,7 @@ export function init(ctx) {
                 if (projectile[projectileProperty]) {
                     projectile.torchwoodWaiting = true
 
-                    newProjectile = await projectiles.ProjectileShootingFunctions.shootOnePea(
+                    newProjectile = await projectiles.PrjFunctions.shootOnePea(
                         projectile[projectileProperty],
                         projectile.worldPosition,
                         projectile.height,

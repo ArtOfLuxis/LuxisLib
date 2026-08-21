@@ -202,8 +202,6 @@ export function init(ctx) {
                 button.___LuxisLibPlantID = plantID
                 button.node.active = (levelingState !== null)
 
-                const buttonNode = button.node
-
                 if (levelingState) {
                     button.node.getChildByName("boost").components[1].string = (
                         libProperties?.SeedChooserLevelingSwitchButtonText ?? "LVL current/max")

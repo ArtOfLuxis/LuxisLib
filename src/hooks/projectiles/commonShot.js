@@ -83,7 +83,7 @@ export function init(ctx) {
         const characterManager = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/CharacterManager.ts")
         const square = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Square.ts")
         const levelController = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/levelController.ts")
-        const projectileShootingFunctions = projectiles.ProjectileShootingFunctions
+        const prjFunctions = projectiles.PrjFunctions
         const proto = commonShot.commonShot.prototype
 
         const cc = ctx.unsafe.engine.getCc()
@@ -104,6 +104,7 @@ export function init(ctx) {
             "OnHitActions": null,
             "OnTombHitActions": null,
             "OnUpdateActions": null,
+            "BeforeDestroyActions": null,
             "EnemyTypeOverride": null,
             "CanBePeaVineBuffed": null,
             "PierceOverride": null,
@@ -221,6 +222,21 @@ export function init(ctx) {
                         source: thisArg,
                     })
                 }
+            }
+        })
+
+        ctx.unsafe.hooks.wrapMethod({
+            target: proto,
+            methodName: "fade",
+            handler: ({ args, thisArg, callNext }) => {
+                if (thisArg.BeforeDestroyActions) {
+                    executeActions(thisArg.BeforeDestroyActions, {
+                        target: thisArg,
+                        source: thisArg,
+                    })
+                }
+
+                callNext(...args)
             }
         })
 
@@ -605,7 +621,7 @@ export function init(ctx) {
                 const clamp = (v, min, max) => Math.min(max, Math.max(min, v))
 
                 const toughnessPotion = thisArg.ZombieToughnessPotion
-                if (toughnessPotion !== undefined) {
+                if (toughnessPotion !== undefined && zombie.potionToughnessLevel < toughnessPotion?.max) {
                     zombie.potionToughnessLevel = clamp(
                         zombie.potionToughnessLevel + toughnessPotion.value,
                         toughnessPotion.min,
@@ -613,7 +629,7 @@ export function init(ctx) {
                     )
                 }
                 const speedPotion = thisArg.ZombieSpeedPotion
-                if (speedPotion !== undefined)
+                if (speedPotion !== undefined && zombie.potionSpeedLevel < speedPotion?.max)
                     zombie.potionSpeedLevel = clamp(
                         zombie.potionSpeedLevel + speedPotion.value,
                         speedPotion.min,
@@ -636,12 +652,11 @@ export function init(ctx) {
             target: proto,
             methodName: "detectEnemyNormal",
             handler: ({ args, thisArg, callNext }) => {
-                // const hasPierceProperties = typeof thisArg.___LuxisLibDealtTargetAmount === "number"
-                // if (
-                //     !hasPierceProperties &&
-                //     ((libProperties?.PeaVineDamageBoost ?? 1.5) === 1.5 || !thisArg.havePeaBuff)
-                // ) return callNext(...args)
-                // i think i fixed the targetting problems? so far everything seems okay
+                const hasPierceProperties = typeof thisArg.___LuxisLibDealtTargetAmount === "number"
+                if (
+                    !hasPierceProperties &&
+                    (((libProperties?.PeaVineDamageBoost ?? 1.5) === 1.5) || !thisArg.havePeaBuff)
+                ) return callNext(...args)
 
                 const someArgIDK = args[0]
 
@@ -695,37 +710,33 @@ export function init(ctx) {
                     if (thisArg.ignoreDifferentLane || levelController.LevelPlay.AirRaidProps) {
                         pool =
                             thisArg.enemyType === character.CharacterType.zombie
-                                ? character.ZombiePool.pool().concat()
-                                : character.ZombiePool.hypnoPool().concat()
+                                ? characterManager.ZombiePool.pool().concat()
+                                : characterManager.ZombiePool.hypnoPool().concat()
                     }
 
                     pool?.forEach(candidate => {
                         if (thisArg.___LuxisLibContactingEnemies.includes(candidate))
                             return
 
-                        if (thisArg.targetLocked && zombie === thisArg.targetLocked)
-                            return
+                        if (!thisArg.targetLocked || zombie === thisArg.targetLocked) {
+                            const bodyRec = thisArg.JudgesZombieBodyRecForShooter
+                                ? candidate.bodyRecForShooter
+                                : candidate.bodyRec
 
-                        if (thisArg.targetLocked && candidate !== thisArg.targetLocked)
-                            return
+                            if (!bodyRec || !bodyRec.judgeCrossRec(body))
+                                return
 
-                        const bodyRec = thisArg.JudgesZombieBodyRecForShooter
-                            ? candidate.bodyRecForShooter
-                            : candidate.bodyRec
+                            const pos = bodyRec.prjX()
 
-                        if (!bodyRec || !bodyRec.judgeCrossRec(body))
-                            return
-
-                        const pos = bodyRec.prjX()
-
-                        if (
-                            !zombie ||
-                            (thisArg.linearVelocity.x >= 0 && pos.x < minX) ||
-                            (thisArg.linearVelocity.x < 0 && pos.y > maxY)
-                        ) {
-                            zombie = candidate
-                            minX = pos.x
-                            maxY = pos.y
+                            if (
+                                !zombie ||
+                                (thisArg.linearVelocity.x >= 0 && pos.x < minX) ||
+                                (thisArg.linearVelocity.x < 0 && pos.y > maxY)
+                            ) {
+                                zombie = candidate
+                                minX = pos.x
+                                maxY = pos.y
+                            }
                         }
                     })
 
@@ -856,12 +867,15 @@ export function init(ctx) {
                             }
 
                             const initialDegreeOffset = spreadPattern.InitialDegreeOffset ?? 0
+                            const degreeStep = spreadPattern.DegreeStep ?? 0.1
 
                             const randomSpread = spread[Math.floor(Math.random() * spread.length)]
+                            const count = Math.floor((randomSpread.max - randomSpread.min) / degreeStep)
                             const degrees =
-                                (randomSpread.min + Math.random() *
-                                    (randomSpread.max - randomSpread.min)) + initialDegreeOffset
-                            // random degrees from "min" to "max" plus InitialDegreeOffset
+                                randomSpread.min +
+                                Math.floor(Math.random() * (count + 1)) * degreeStep +
+                                initialDegreeOffset
+                            // random degrees from "min" to "max" plus InitialDegreeOffset with DegreeStep steps
                             const radians = degrees * Math.PI / 180;
 
                             const velocity = new cc.Vec2(
@@ -871,7 +885,7 @@ export function init(ctx) {
 
                             const centerOffset = spreadPattern.CenterOffset ?? {"x": 0, "y": 0}
 
-                            const projectile = await projectileShootingFunctions.shootOnePea(
+                            const projectile = await prjFunctions.shootOnePea(
                                 spreadPattern.ProjectileType,
                                 {
                                     x: originX + centerOffset.x * square.Square.SquareWidth,

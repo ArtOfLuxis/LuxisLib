@@ -7,7 +7,7 @@ export function init(ctx) {
         const proto = sandBoxZombieCards.SandBoxZombieCards.prototype
 
         libProperties.SandboxZombiesIDs = []
-        libProperties.SandboxZombies.forEach((zombie) => {
+        libProperties.SandboxZombies?.forEach((zombie) => {
             const zombieEnum = zombies.zombies.getZombieEnumByCodename(zombie)
             libProperties.SandboxZombiesIDs.push(zombieEnum)
         })

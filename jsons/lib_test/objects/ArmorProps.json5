@@ -12,6 +12,20 @@
         "Toughness": 1600,
         "BowlingLevel": 3
       }
+    },
+    {
+      "objclass": "ArmorProperties",
+      "aliases": [
+        "pirate_armor2"
+      ],
+      "objdata": {
+        "isMetal": true,
+        "isIce": false,
+        "Toughness": 1100,
+        "BowlingLevel": 2,
+        "Scale": 2,
+        "DamageTypeImmunities": {"electricity": 25, "physicle": -2}
+      }
     }
   ]
 }

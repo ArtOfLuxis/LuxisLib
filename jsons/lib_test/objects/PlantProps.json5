@@ -52,7 +52,7 @@
       "objdata": {
         "ActsLikeTorchwood": ["FrozenType"], // check ArbitraryProjectileProperties in PropertySheets
         "IceAuraOverride": {
-          "DetectorOverride": { "x": 5, "y": 5, "lanes": [-2, 0, 2], "xOffset": 0, "yOffset": 0, "isCentered": true },
+          "DetectorOverride": [{ "x": 5, "y": 5, "lanes": [-2, 0, 2], "xOffset": 0, "yOffset": 0, "isCentered": true }],
           "AuraLanes": [-2, -1, 0, 1, 2],
           "AuraChillDuration": 2,
           "BoostArea": { "x": 1, "y": 1, "xOffset": 0, "yOffset": 1 }, // boosts 1 tile above
@@ -123,7 +123,56 @@
       "objdata": {
         "ColorOffset": { "r": 0, "g": 0, "b": 0, "holo": -0.5, "a": -127, "s": -0.6},
         "PeaType": "pea1",
-        "DetectorOverride": { "x": 5, "y": 3, "lanes": [-1, 0, 1], "xOffset": 0.2, "yOffset": 0 },
+        "DetectorOverride": { "x": 5, "y": 3, "lanes": [-1, 0, 1], "xOffset": 0.2, "yOffset": 0, "isCentered": false },
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "xshot"
+      ],
+      "objdata": {
+        "MaxShootAnimationCycles": 1,
+        "LimitDirectionAmount": 4,
+        "ForcedDirections": [
+          {"x":1,"y":1},
+          {"x":-1,"y":1},
+          {"x":1,"y":-1},
+          {"x":-1,"y":-1},
+
+          {"x":0,"y":1},
+          {"x":0,"y":-1},
+          {"x":1,"y":0},
+          {"x":-1,"y":0},
+        ],
+        "PlantfoodForcedDirections": [
+          {"x":0,"y":1},
+          {"x":0,"y":-1},
+          {"x":1,"y":0},
+          {"x":-1,"y":0},
+        ],
+        "DetectorOverride": [
+          {
+            "x": 16,
+            "y": 0.3,
+            "lanes": [-1, 0, 1],
+            "xOffset": 0,
+            "yOffset": 0,
+            "rotobagaDetectorRotation": "first",
+            "limitDetectorOutsideLawn": false,
+            "isCentered": true
+          },
+          {
+            "x": 16,
+            "y": 0.3,
+            "lanes": [-1, 0, 1],
+            "xOffset": 0,
+            "yOffset": 0,
+            "rotobagaDetectorRotation": "second",
+            "limitDetectorOutsideLawn": false,
+            "isCentered": true
+          }
+        ]
       }
     },
     {
@@ -1347,7 +1396,8 @@
             "damageType": "fire",
             "screenShakeDuration": 0.2,
             "positionOverride": null,
-            "playSound": false
+            "playSound": false,
+            "zombieCallback": []
           }
         ]
       }
@@ -1544,7 +1594,7 @@
         }
       }
     },
-    { // nitro's red with stinger custom plantfood
+    { // nitro's red stinger with custom plantfood
       "objclass": "PlantProperties",
       "aliases": [
         "redstinger"
@@ -1620,7 +1670,7 @@
         }
       }
     },
-    { // hexar's sunpod, dont take without permission
+    { // hexar's sunpod
       "objclass": "PlantProperties",
       "aliases": [
         "peapod"
@@ -1629,16 +1679,39 @@
         "MaxPeaHeads": 1,
         "OnUpdateActions": [
           {
-            "kind": "SetObjectProperty",
-            "property": "headCount",
-            "value": {
-              "left": {
-                "left": { "kind": "GetCurrentSunCount" },
-                "kind": "//",
-                "right": 250
+            "kind": "SetContextObject",
+            "name": "health",
+            "object": {
+              "kind": "GetObjectProperty",
+              "object": {
+                "kind": "GetContextObject",
+                "name": "target"
               },
-              "kind": "+",
-              "right": 1
+              "property": "health"
+            }
+          },
+          {
+            "kind": "SetObjectProperties",
+            "object": {
+              "kind": "GetContextObject",
+              "name": "target"
+            },
+            "properties": {
+              "headCount": {
+                "left": {
+                  "left": {
+                    "kind": "GetCurrentSunCount"
+                  },
+                  "kind": "//",
+                  "right": 250
+                },
+                "kind": "+",
+                "right": 1
+              },
+              "health": {
+                "kind": "GetContextObject",
+                "name": "health"
+              }
             }
           }
         ]

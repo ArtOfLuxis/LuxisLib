@@ -40,7 +40,7 @@ export function init(ctx) {
                     ) &&
                     (
                         !levelPlay.component.ExcludeListSunProducers ||
-                        CF.PF.TYPE.indexOf("sunProducer") === -1
+                        CF.PF.TAGS.indexOf("sunProducer") === -1
                     ) &&
                     lawnCheck
                 )

@@ -1,4 +1,6 @@
 import {libProperties} from "../other/JSONs";
+import {isGameRunning} from "../other/levelController";
+import {executeActions} from "../../modules/JSONActionsSystem";
 
 export function init(ctx) {
     ctx.events.on("engine:ready", () => {
@@ -10,6 +12,7 @@ export function init(ctx) {
         const armorKeys = [
             "ColorOffset",
             "Scale",
+            "DamageTypeImmunities"
         ]
 
         ctx.unsafe.hooks.wrapMethod({
@@ -35,29 +38,16 @@ export function init(ctx) {
             handler: ({ args, thisArg, callNext }) => {
                 callNext(...args)
 
-                const addColor = new cc.Color(0, 0, 0, 255);
-
-                if (thisArg.hurting > 0) {
-                    addColor.r += thisArg.hurting * 10;
-                    addColor.g += thisArg.hurting * 10;
-                    addColor.b += thisArg.hurting * 10;
-                }
-
-                if (thisArg.owner?.glittering > 0) {
-                    addColor.r = 194;
-                    addColor.g = 0;
-                    addColor.b = 178;
-                }
+                const addColor = new cc.Color(0, 0, 0, 255)
 
                 let saturation = 1
                 let holo = 1
 
                 if (thisArg.owner?.potionInvisible) {
-                    holo =
-                        libProperties?.ZombieInvisibilityPotionOpacity ?? 0.5
+                    holo = libProperties?.ZombieInvisibilityPotionOpacity ?? 0.5
                 }
 
-                const offset1 = thisArg.owner?.objdata.ColorOffset
+                const offset1 = thisArg.owner?.objdataOwn.ColorOffset
                 const offset2 = thisArg.props.ColorOffset
 
                 if (offset1) {
@@ -100,6 +90,5 @@ export function init(ctx) {
                 }
             }
         })
-
     })
 }

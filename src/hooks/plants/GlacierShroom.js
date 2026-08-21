@@ -26,12 +26,14 @@ export function init(ctx) {
                 const newSquare = args[1]
 
                 const detector = iceAuraOverride.DetectorOverride
-                if (detector) createDetector(thisArg, detector)
-                else thisArg.detector = character.Rectangle.createRectangleNodeCenter(
-                    newSquare.node,
-                    square.Square.SquareWidth * 3,
-                    square.Square.SquareHeight * 3
-                )
+                if (detector) thisArg.detectors = createDetector(thisArg, detector)
+                else thisArg.detectors = [
+                    character.Rectangle.createRectangleNodeCenter(
+                        newSquare.node,
+                        square.Square.SquareWidth * 3,
+                        square.Square.SquareHeight * 3
+                    )
+                ]
 
                 thisArg.tileBuffParticles.forEach(function (tileParticle) {
                     tileParticle.playAnimation("Fade", 1)
@@ -74,33 +76,40 @@ export function init(ctx) {
             methodName: "detectInRangeEnemies",
             handler: ({ args, thisArg, callNext }) => {
                 const override = thisArg.objdataOwn.IceAuraOverride
-                const detector = override?.DetectorOverride
+                let detectorOverrides = override?.DetectorOverride
 
-                if (!detector) return callNext(...args)
+                if (!detectorOverrides) return callNext(...args)
 
+                if (!Array.isArray(detectorOverrides))
+                    detectorOverrides = [detectorOverrides]
+
+                const detectors = thisArg.detectors ?? []
                 const zombies = new Set()
 
-                const laneOffsets = detector.lanes ?? [-1, 0, 1]
+                detectorOverrides.forEach((detectorOverride, i) => {
+                    const detector = detectors[i]
+                    if (!detector) return
 
-                laneOffsets.forEach(offset => {
-                    const laneIndex = thisArg.inLane.LaneIndex + offset
+                    const laneOffsets = detectorOverride.lanes ?? [-1, 0, 1]
 
-                    if (laneIndex < 0 || laneIndex > 4) return
+                    laneOffsets.forEach(offset => {
+                        const laneIndex = thisArg.inLane.LaneIndex + offset
 
-                    const lane = square.Square.getLane(laneIndex)
+                        if (laneIndex < 0 || laneIndex > 4) return
 
-                    lane.zombiePool().forEach(zombie => {
-                        if (thisArg.detector.judgeCrossRec(zombie.bodyRecReal)) {
-                            zombies.add(zombie)
-                        }
+                        const lane = square.Square.getLane(laneIndex)
+
+                        lane.zombiePool().forEach(zombie => {
+                            if (detector.judgeCrossRec(zombie.bodyRecReal)) {
+                                zombies.add(zombie)
+                            }
+                        })
                     })
                 })
 
                 return zombies
             }
         })
-
-
 
         ctx.unsafe.hooks.wrapMethod({
             target: proto,

@@ -13,6 +13,18 @@ export function init(ctx) {
             return (levelPlay.component?.gaming === true)
         }
 
+
+        ctx.unsafe.hooks.wrapMethod({
+            target: proto,
+            methodName: "_promise_start",
+            handler: async ({args, thisArg, callNext}) => {
+                await callNext(...args)
+
+                console.log("Level:", thisArg)
+            }
+        })
+
+
         ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "readObj",

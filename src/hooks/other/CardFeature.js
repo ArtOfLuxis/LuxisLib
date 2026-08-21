@@ -61,7 +61,15 @@ export function init(ctx) {
 
                 const db = thisArg.ca._plantDB
 
-                plantAnimations ??= Object.keys(db._armature?.animation?._animations)
+                const animations = db._armature?.animation?._animations;
+
+                if (!plantAnimations) {
+                    if (!animations) {
+                        return;
+                    }
+
+                    plantAnimations = Object.keys(animations);
+                }
 
                 const animation = thisArg.PF._CARDSPRITENAME
                 if (!plantAnimations.includes(animation)) {
