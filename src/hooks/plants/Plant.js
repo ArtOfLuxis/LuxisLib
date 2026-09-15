@@ -112,7 +112,9 @@ export function init(ctx) {
             "OnLeftClickActions": null,
             "OnRightClickActions": null,
             "DynamicPlantableCondition": null,
-            "PFOnSpawn": null
+            "PFOnSpawn": null,
+            "SpecificScale": null,
+            "ZIndexOffset": null,
         })
 
         ctx.unsafe.hooks.wrapMethod({
@@ -128,7 +130,7 @@ export function init(ctx) {
                     saturation += libProperties?.GlacierShroomSaturation ?? 0.5
                 }
 
-                let holo = 1
+                let holo = 0
                 const colorOffset = thisArg.objdataOwn.ColorOffset
                 if (colorOffset) {
                     addColor.x += (colorOffset.r ?? 0) / 255
@@ -150,7 +152,7 @@ export function init(ctx) {
                     1
                 ))
                 pass.setUniform(pass.getHandle("saturation"), saturation)
-                if (holo !== 1) pass.setUniform(pass.getHandle("holo"), holo)
+                if (holo !== 0) pass.setUniform(pass.getHandle("holo"), holo)
                 thisArg.anmControl.db.customMaterial = thisArg.material
             }
         })
@@ -163,7 +165,7 @@ export function init(ctx) {
 
                 const colorOffset = thisArg.objdataOwn.ColorOffset
                 if (colorOffset && colorOffset.a) {
-                    color.a += colorOffset.a
+                    color.a += colorOffset.a * 255
                 }
 
                 return color
@@ -600,5 +602,31 @@ export function init(ctx) {
 
             return newProjectile
         }
+
+
+
+        ctx.unsafe.hooks.wrapMethod({
+            target: proto,
+            methodName: "characterUpdate",
+            handler: ({ args, thisArg, callNext }) => {
+                const result = callNext(...args)
+
+                const specificScale = thisArg.objdataOwn?.SpecificScale
+                if (specificScale !== undefined && specificScale !== null) {
+                    const e = thisArg._scaleForCharacter
+                    const depthFactor = thisArg.depth <= 0 ? 1 : 1.414
+                    const customScaleX = thisArg.objdataOwn?.SpecificScale?.x ?? 1
+                    const customScaleY = thisArg.objdataOwn?.SpecificScale?.y ?? 1
+
+                    thisArg.node.scale = new cc.Vec3(
+                        e * customScaleX,
+                        depthFactor * Math.abs(e) * customScaleY,
+                        Math.abs(e)
+                    )
+                }
+
+                return result
+            }
+        })
     })
 }

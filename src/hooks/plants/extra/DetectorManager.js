@@ -50,11 +50,13 @@ function wrapDetector(ctx, plantID) {
         case "BowlingBulb":
         case "Dandelion":
         case "SporeShroom":
+        case "SlingPea":
             detectFunction = "detectEnemies"
             break
         case "Cactus":
             detectFunction = "detectShootEnemy"
     }
+
     if (typeof proto[detectFunction] === "function") {
         ctx.unsafe.hooks.wrapMethod({
             target: proto,
@@ -240,6 +242,56 @@ function wrapDetector(ctx, plantID) {
             }
         })
     }
+
+    if (plantID === "SlingPea") {
+        ctx.unsafe.hooks.wrapMethod({
+            target: proto,
+            methodName: "_shoot",
+            handler: ({ args, thisArg, callNext }) => {
+                const overrides = thisArg.objdataOwn.DetectorOverride
+                if (!overrides) return callNext(...args)
+
+                const overrideList = Array.isArray(overrides) ? overrides : [overrides]
+                const detectors = thisArg.detectors ?? []
+                const laneDetectors = new Map()
+
+                overrideList.forEach((override, i) => {
+                    const detector = detectors[i]
+                    if (!detector) return
+                    const lanes = override.lanes ?? [0]
+                    lanes.forEach((offset) => {
+                        const laneIndex = thisArg.inLnC.lIndex + offset
+                        if (laneIndex < 0 || laneIndex > 4) return
+                        if (!laneDetectors.has(laneIndex)) laneDetectors.set(laneIndex, [])
+                        laneDetectors.get(laneIndex).push(detector)
+                    })
+                })
+
+                const originalGetAllLane = square.Square.getAllLane
+                square.Square.getAllLane = (...laneArgs) => {
+                    return originalGetAllLane.apply(square.Square, laneArgs)
+                        .filter((lane) => laneDetectors.has(lane.LaneIndex))
+                        .map((lane) => {
+                            const rects = laneDetectors.get(lane.LaneIndex)
+                            return {
+                                zombiePool: () => lane.zombiePool().filter((z) =>
+                                    rects.some((rect) => rect.judgeCrossRec(z.bodyRecForShooter))
+                                ),
+                                tombPool: () => lane.tombPool().filter((t) =>
+                                    rects.some((rect) => rect.judgeCrossRec(t.bodyRec))
+                                )
+                            }
+                        })
+                }
+
+                try {
+                    return callNext(...args)
+                } finally {
+                    square.Square.getAllLane = originalGetAllLane
+                }
+            }
+        })
+    }
 }
 
 export function init(ctx) {
@@ -355,7 +407,7 @@ export function init(ctx) {
             "Cactus", "Dandelion",
             "Anthurium", "SplitPea",
             "FirePeashooter", "SporeShroom",
-            "Rotobaga"
+            "Rotobaga", "SlingPea"
         ]
 
         detectorPlants.forEach((plantID) => {

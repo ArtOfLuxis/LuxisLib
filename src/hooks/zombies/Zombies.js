@@ -4,6 +4,10 @@ export function init(ctx) {
     ctx.events.on("properties", () => {
         const zombies = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Zombies.ts")
 
+        globalThis.luxisLib ??= {}
+        globalThis.luxisLib.dumpZombieEnum = () => zombies.ZombieEnum
+        globalThis.luxisLib.dumpZombieFeatures = () => zombies.zombies.zombieRes.ZombieFeatures
+
         let id = zombies.ZombieEnum.zombieAmount
 
         delete zombies.ZombieEnum[zombies.ZombieEnum.zombieAmount]

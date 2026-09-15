@@ -3,7 +3,7 @@ import { defineConfig } from 'vite';
 export default defineConfig({
     build: {
         assetsInlineLimit: 100000000, //100mb
-        minify: false,
+        minify: "oxc",
         rollupOptions: {
             input: 'src/main.js',
             preserveEntrySignatures: "allow-extension",

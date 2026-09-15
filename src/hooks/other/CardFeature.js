@@ -48,8 +48,14 @@ export function init(ctx) {
         ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "cardGrouperPlant",
-            handler: ({ thisArg, callNext, args }) => {
+            handler: async ({thisArg, callNext, args}) => {
                 callNext(...args)
+
+
+                if (await ctx.settings.get("hideMintIcons")) {
+                    let s = cc.internal.ArmatureDisplay;
+                    thisArg.node.getChildByName("Family").getComponent(s).playAnimation("Nope");
+                }
 
                 const assets = cc.assetManager.assets._map
 

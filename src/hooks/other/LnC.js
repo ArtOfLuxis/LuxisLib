@@ -13,6 +13,7 @@ export function init(ctx) {
         const characterManager = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/CharacterManager.ts")
         const particles = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Particles.ts")
         const soundResources = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/SoundRescourses.ts")
+        const levelTaskCount = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/LevelTaskCount.ts")
         const proto = LnC.LnC.prototype
 
         const cc = ctx.unsafe.engine.getCc()
@@ -45,38 +46,74 @@ export function init(ctx) {
             }
         })
 
+        const getPlantSunCostForLevelTask = (lnc, plantID, props) => {
+            const ui = lnc.UIInGame
+            const currentCard = ui.currentCF
+
+            if (currentCard && (currentCard.ID === plantID || currentCard.Type === plantID)) {
+                return currentCard.SUNCOST ?? 0
+            }
+
+            return 0
+        }
+
+        const wouldBreakSunCostLimit = (lnc, plantID, props) => {
+            const ui = lnc.UIInGame
+            const task = ui.getLevelTaskObject(levelTaskCount.LevelTaskCountModeEnum.SunCostLimit)
+
+            if (!task || task.LeftSun === undefined || task.LeftSun === null) return false
+
+            const cost = getPlantSunCostForLevelTask(lnc, plantID, props)
+
+            return cost > task.LeftSun
+        }
+
         ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "putPlantAvailable",
-            handler: ({args, thisArg, callNext}) => {
-
+            handler: ({ args, thisArg, callNext }) => {
                 let result = callNext(...args)
 
                 const plantID = args[1]
 
                 if (plants.plants.getPlantFeature(plantID).RES.Plant === "Imitater") {
                     result = true
+
                     if (plants.plants.getPlantProps(plantID).MakesPlantSeedPacket) {
                         result = imitatorSeedPacketPlants(thisArg, null).length > 0
                     }
                 }
 
+                if (!result) return result
+
+                const props = plants.plants.getPlantProps(plantID)
+
+                if (wouldBreakSunCostLimit(thisArg, plantID, props)) {
+                    thisArg.UIInGame.warnLevelTask(
+                        levelTaskCount.LevelTaskCountModeEnum.SunCostLimit
+                    )
+                    return false
+                }
+
                 if (typeof plantID === "number" && !isNaN(plantID)) {
-                    const props = plants.plants.getPlantProps(plantID)
                     const dynamicPlantableCondition = props.DynamicPlantableCondition
-                    if (dynamicPlantableCondition) return evaluate(dynamicPlantableCondition, {
-                        "target": thisArg,
-                        "source": thisArg,
-                        "originalResult": result,
-                        "checkOverlap": args[0],
-                        "plantID": plantID,
-                        "terrainRestrictions": args[2] ?? true
-                    })
+
+                    if (dynamicPlantableCondition) {
+                        return evaluate(dynamicPlantableCondition, {
+                            target: thisArg,
+                            source: thisArg,
+                            originalResult: result,
+                            checkOverlap: args[0],
+                            plantID: plantID,
+                            terrainRestrictions: args[2] ?? true
+                        })
+                    }
                 }
 
                 return result
             }
         })
+
         ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "explodeCherry3x3",

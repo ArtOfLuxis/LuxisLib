@@ -1,6 +1,5 @@
-import {evaluate, executeActions} from "../../modules/JSONActionsSystem";
 
-export let libProperties = undefined
+export let libProperties;
 
 export function init(ctx) {
     ctx.events.on("engine:ready", async () => {

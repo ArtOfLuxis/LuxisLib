@@ -1,6 +1,24 @@
 
 const modules = import.meta.glob('./**/*.js', {eager: true});
 
+async function shouldForcePageReload(ctx) {
+    if (!(await ctx.settings.get("allowForceReload"))) {
+        return false
+    }
+
+    const firstLoadThisDocument =
+        window.__luxisLoadedThisDocument !== true
+
+    window.__luxisLoadedThisDocument = true
+
+    const navigation = performance.getEntriesByType("navigation")[0]
+
+    const pageWasReloaded =
+        navigation?.type === "reload"
+
+    return !pageWasReloaded || !firstLoadThisDocument
+}
+
 export async function setup(ctx) {
     const oldWarn = console.warn
     if (!oldWarn.___LuxisLibEdited) {
@@ -87,6 +105,27 @@ export async function setup(ctx) {
             default: false
         },
         {
+            key: "allowForceReload",
+            label: "Force Reload on Mod Reload",
+            type: "toggle",
+            default: true
+        },
+        {
+            key: "hideMintIcons",
+            label: "Hide SeedPacket Mint Icons",
+            type: "toggle",
+            default: false
+        },
+        {
+            key: "deltaTimeThreshold",
+            label: "Low FPS Slowdown",
+            type: "slider",
+            min: 0,
+            max: 144,
+            step: 1,
+            default: 15
+        },
+        {
             key: "overrideFastForwardSpeed",
             label: "Override FastForward Speed",
             type: "toggle",
@@ -96,9 +135,9 @@ export async function setup(ctx) {
             key: "fastForwardSpeed",
             label: "FastForward Speed",
             type: "slider",
-            min: 0.5,
-            max: 10,
-            step: 0.1,
+            min: 0.1,
+            max: 8,
+            step: 0.05,
             default: 1.5
         },
     ]
@@ -143,6 +182,15 @@ export async function setup(ctx) {
             }
         ]
     })
+
+
+    if (await shouldForcePageReload(ctx)) {
+        ctx.log.info("Mod runtime reload detected; reloading page")
+        ctx.ui.toast("Mod runtime reload detected; reloading page", "info")
+
+        location.reload()
+        return
+    }
 
     ctx.log.info("Full initialization done")
 }

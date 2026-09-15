@@ -217,6 +217,8 @@
         "holonut"
       ],
       "objdata": {
+        "ColorOffset": {"a": -0.5},
+        "SpecificScale": { "x": 5, "y": 1 },
         "HitRectOverride": {
           "ModifyOriginal": false,
           "Size": { "width": 5.05, "height": 1, "xOffset": 0, "yOffset": 0 }
@@ -271,6 +273,46 @@
       ],
       "objdata": {
         "AlwaysShoots": true // didnt work in vanilla
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "goldleaf"
+      ],
+      "objdata": {
+        "SunCost": 25
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "witchhazel"
+      ],
+      "objdata": {
+        "NormalTransformPlantList": ["puffshroom", "seashroom", "xshot"],
+        "NormalTransformPlantListMint": ["fumeshroom", "seashroom", "xshot"],
+        "PFTransformPlantList": ["toadstool", "seashooter", "pineapple"],
+        "PFTransformPlantListMint": ["doomshroom", "seashooter", "pineapple"],
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "slingpea"
+      ],
+      "objdata": {
+        "DetectorOverride": { "x": 3, "y": 3, "lanes": [-1, 0, 1] }
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "floawerPot"
+      ],
+      "objdata": {
+        "CanTransportOtherPlants": true,
+        "OnlyTransportShovelablePlants": false
       }
     },
     {
@@ -347,6 +389,27 @@
             }]
           }
         ],
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "hypnoshroom"
+      ],
+      "objdata": {
+        "OnEatenActions": [
+          {
+            "kind": "InvokeObjectMethod",
+            "object": {
+              "kind": "GetContextObject",
+              "name": "source"
+            },
+            "method": "addArmor",
+            "args": [
+              "dark_armor1"
+            ]
+          }
+        ]
       }
     },
     {
@@ -1050,17 +1113,17 @@
             "damage": 0,
             "armorProtection": true,
             "duration": 4,
-            "length": 40,
+            "height": 40,
             "color": "yellow",
             "spreadStyle": "split",
-            "fireLength": 18,
-            "fireWidth": 9,
-            "whitelist": [],
+            "spreadSpeed": 18,
+            "spreadDistance": 9,
+            "zombieWhitelist": [],
             "hypnoIncluded": false,
             "plantsIncluded": false,
             "isDPS": false,
             "burnsFlying": true,
-            "parent": {
+            "parentObject": {
               "kind": "GetObjectProperty",
               "property": "perfumeFire"
             }

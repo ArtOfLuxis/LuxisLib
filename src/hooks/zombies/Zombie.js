@@ -90,6 +90,7 @@ export function init(ctx) {
         const particleSelfdestroy = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/ParticleSelfdestroy.ts")
         const nodePools = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/NodePools.ts")
         const particles = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Particles.ts")
+        const zombossMechZombie = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/ZombossMechZombie.ts")
         const proto = zombie.Zombie.prototype
 
         const cc = ctx.unsafe.engine.getCc()
@@ -123,6 +124,7 @@ export function init(ctx) {
             "DamageTypeImmunities": null,
             "CannotBeCarriedByInferno": null,
             "HurrikalePushSpeedMult": null,
+            "MagnetHeadAbsorptionSpeed": null,
 
             "GlitteringDurationMultiplier": null,
             "PoisonDurationMultiplier": null,
@@ -178,9 +180,9 @@ export function init(ctx) {
 
                 const colorMult = thisArg.objdataOwn.ColorMult ?
                     new cc.Vec4(
-                        colorMult.r ?? 1,
-                        colorMult.g ?? 1,
-                        colorMult.b ?? 1,
+                        thisArg.objdataOwn.ColorMult.r ?? 1,
+                        thisArg.objdataOwn.ColorMult.g ?? 1,
+                        thisArg.objdataOwn.ColorMult.b ?? 1,
                         1
                     ) :
                     null
@@ -312,6 +314,9 @@ export function init(ctx) {
 
                 thisArg.___LuxisLibEMPCD = 0
                 thisArg.empPSD = undefined
+
+                if (typeof thisArg.objdataOwn.ForceFlyingMode === "boolean")
+                    thisArg.flying = thisArg.objdataOwn.ForceFlyingMode
 
                 if (thisArg.objdataOwn.TimeBeforeSelfExplode && isGameRunning()) {
                     thisArg.___LuxisLibSelfExploding = true
@@ -753,6 +758,29 @@ export function init(ctx) {
                         damageDetails: damageDetails
                     })
                 }
+            }
+        })
+
+
+        ctx.unsafe.hooks.wrapMethod({
+            target: zombossMechZombie.ZombossMechZombie.prototype,
+            methodName: "heal",
+            disposeOnProfileChange: true,
+            handler: ({ args, thisArg }) => {
+                if (!thisArg.isAlive()) return
+
+                const hitPointHealths = thisArg.hitPointHealths
+                let maxHealth = thisArg.toughness
+
+                if (Array.isArray(hitPointHealths) && hitPointHealths.length > 0) {
+                    const s = hitPointHealths.length - 1 - thisArg.currentStage
+                    if (s >= 0 && s < hitPointHealths.length) {
+                        maxHealth = Math.min(maxHealth, hitPointHealths[s] - 0.1)
+                    }
+                }
+
+                const amount = args[0]
+                thisArg.health = Math.min(maxHealth, thisArg.health + amount)
             }
         })
 

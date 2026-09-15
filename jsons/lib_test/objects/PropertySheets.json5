@@ -12,12 +12,14 @@
         "FastForwardSpeed": 3, // default value is 1.5
         "ImitaterSlotPlant": "wallnut",  // default value is "imitater"
 
+        "PutAllAvailableCostumesInShop": true,
+
         "SeedChooserLevelingSwitchButtonText": "LVLaaaa current/max",
         "SeedChooserLevelingSwitchButtonOffset": 65,
 
         "YetiResetTimesPerDay": 86400,
         "DecodeResetTimesPerDay": 86400,
-        "ClearDecodeGemTextOnRefresh": false,
+        "ClearDecodeGemTextOnRefresh": true,
 
         "SunValueOverrides": {
           "5": 5,
@@ -111,8 +113,8 @@
 
 
         // worlds and levels
-        "ForceSkipTutorial": true,
-        "StartingWorlds": ["pirate", "future"],
+        "ForceInitialLevel": "egypt1", // default is tutorial1, set to "" to just skip tutorial
+        "StartingWorlds": ["egypt", "future"],
         "WorldOrder": [
           // deleting a world from here won't remove it from the order and
           // will just cause the world to be in front the ones in the list
@@ -190,6 +192,7 @@
           "tutorial_armor2",
           "tutorial_armor3",
           "tutorial_armor4",
+          "future_jetpack",
           "pirate_armor1",
           "pirate_armor2",
           "explorer",

@@ -18,12 +18,45 @@ export function init(ctx) {
             target: allPlayerProperties,
             methodName: "getForceLevel",
             handler: ({args, thisArg, callNext}) => {
-                if (!libProperties?.ForceSkipTutorial) return callNext(...args)
+                const forcedLevel = libProperties?.ForceInitialLevel
 
-                if (!thisArg.currentPlayer.forceLevel || tutorialLevels.includes(thisArg.currentPlayer.forceLevel)) {
-                    thisArg.currentPlayer.forceLevel = ""
+                if (forcedLevel === undefined || forcedLevel === null) {
+                    return callNext(...args)
+                }
+
+                const forcedProgress = thisArg.getLevelProgressByID(forcedLevel)
+                const isForcedLevelFinished =
+                    forcedProgress?.progress >= playerProperties.LevelProgress.finished
+
+                if (isForcedLevelFinished) {
+                    if (
+                        thisArg.currentPlayer.forceLevel === forcedLevel ||
+                        (
+                            tutorialLevels.includes(thisArg.currentPlayer.forceLevel) &&
+                            !tutorialLevels.includes(forcedLevel)
+                        )
+                    ) {
+                        thisArg.currentPlayer.forceLevel = ""
+                        thisArg.savePP()
+                    }
+
+                    return callNext(...args)
+                }
+
+                if (
+                    (
+                        thisArg.currentPlayer.forceLevel !== "" &&
+                        !thisArg.currentPlayer.forceLevel
+                    ) ||
+                    (
+                        tutorialLevels.includes(thisArg.currentPlayer.forceLevel) &&
+                        !tutorialLevels.includes(forcedLevel)
+                    )
+                ) {
+                    thisArg.currentPlayer.forceLevel = forcedLevel
                     thisArg.savePP()
                 }
+
                 return thisArg.currentPlayer.forceLevel
             }
         })
@@ -77,6 +110,10 @@ export function init(ctx) {
                     thisArg.savePP()
                     if (shouldReturnChangedState)
                         return { yetiChanged, decodeChanged }
+                }
+
+                if (libProperties?.PutAllAvailableCostumesInShop === true) {
+                    thisArg.currentPlayer.date.plantCostumeToday = thisArg.getAvailablePlantCostumeList()
                 }
 
                 return result

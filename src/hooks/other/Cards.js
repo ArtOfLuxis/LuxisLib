@@ -13,7 +13,7 @@ export function init(ctx) {
             target: proto,
             methodName: "GameStartable",
             handler: ({thisArg, callNext}) => {
-                return thisArg.HaveMatchedChallengeDecks() || thisArg.CFs.length > 0;
+                return thisArg.HaveMatchedChallengeDecks() || true
             }
         })
 
