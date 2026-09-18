@@ -520,19 +520,17 @@ export function init(ctx) {
             target: proto,
             methodName: "dealSplashDamage",
             handler: ({args, thisArg, callNext}) => {
-                const splashdamage = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/commonShot.ts").SplashDamage;
-                if (thisArg.inLnC.getSquareType() == lnc.SquareType.water && thisArg.objdataOwn.SplashDamageOnWater) {
-                    const watersplash = thisArg.objdataOwn.SplashDamageOnWater.map((function(t) {
-                        return splashdamage.fromPP(t)
+                if (thisArg.inLnC.getSquareType() === lnc.SquareType.water && thisArg.objdataOwn.SplashDamageOnWater) {
+                    const waterSplash = thisArg.objdataOwn.SplashDamageOnWater.map((function(t) {
+                        return commonShot.SplashDamage.fromPP(t)
                     }))
-                    if (watersplash) {
-                        thisArg.splashDamages = thisArg.splashDamages.concat(watersplash)
+                    if (waterSplash) {
+                        thisArg.splashDamages = thisArg.splashDamages.concat(waterSplash)
                     }
                 }
-                callNext(...args);
+                callNext(...args)
             }
-            }
-        )
+        })
 
         ctx.unsafe.hooks.wrapMethod({
             target: proto,

@@ -161,7 +161,7 @@ export function init(ctx) {
                     saturation += libProperties?.GlacierShroomSaturation ?? 0.5
                 }
 
-                let holo = 0
+                let holo = thisArg.extraHolo
                 const colorOffset = thisArg.objdataOwn.ColorOffset
                 if (colorOffset) {
                     addColor.x += (colorOffset.r ?? 0) / 255
