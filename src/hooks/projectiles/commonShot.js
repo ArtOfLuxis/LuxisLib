@@ -82,6 +82,7 @@ export function init(ctx) {
         const zombie = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Zombie.ts")
         const characterManager = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/CharacterManager.ts")
         const square = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Square.ts")
+        const lnc = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/LnC.ts")
         const levelController = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/levelController.ts")
         const prjFunctions = projectiles.PrjFunctions
         const proto = commonShot.commonShot.prototype
@@ -114,6 +115,8 @@ export function init(ctx) {
             "DamageMultiplierAfterHit": null,
             "SpeedScaleAfterHit": null,
             "DamageAfterHitList": null,
+            "SplashDamageOnWater": null,
+            "DefenceRateList": null
         }
 
         ctx.unsafe.hooks.wrapMethod({
@@ -409,6 +412,24 @@ export function init(ctx) {
 
         ctx.unsafe.hooks.wrapMethod({
             target: proto,
+            methodName: "dealSplashDamage",
+            handler: ({args, thisArg, callNext}) => {
+                const splashdamage = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/commonShot.ts").SplashDamage;
+                if (thisArg.inLnC.getSquareType() == lnc.SquareType.water && thisArg.objdataOwn.SplashDamageOnWater) {
+                    const watersplash = thisArg.objdataOwn.SplashDamageOnWater.map((function(t) {
+                        return splashdamage.fromPP(t)
+                    }))
+                    if (watersplash) {
+                        thisArg.splashDamages = thisArg.splashDamages.concat(watersplash)
+                    }
+                }
+                callNext(...args);
+            }
+            }
+        )
+
+        ctx.unsafe.hooks.wrapMethod({
+            target: proto,
             methodName: "dealDamageToZombie",
             priority: -100,
             handler: ({args, thisArg}) => {
@@ -595,6 +616,22 @@ export function init(ctx) {
                 }
 
                 thisArg.onDamageOnZombie(zombieVictim, dealSplash)
+            }
+        })
+
+        ctx.unsafe.hooks.wrapMethod({
+            target: proto,
+            methodName: "beforeZombieHit",
+            prioritiy: 100,
+            handler: ({args, thisArg, callNext}) => {
+                const zombie = args[0]
+
+                const defenceRateList = thisArg.objdataOwn.DefenceRateList;
+                if (defenceRateList)
+                    zombie.pushBloomingHeartDefenceRateList(defenceRateList)
+
+                callNext(...args)
+
             }
         })
 
