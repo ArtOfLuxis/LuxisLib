@@ -2,12 +2,12 @@
 export let createDetector
 
 function wrapDetector(ctx, plantID) {
+    ctx.log.info("Patching " + plantID)
+
     const square = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Square.ts")
     const plant = ctx.unsafe.engine.getSystemModule(`chunks:///_virtual/${plantID}.ts`)
 
     const cc = ctx.unsafe.engine.getCc()
-
-    ctx.log.info("Patching " + plantID)
     let protoID = `${plantID}Plant`
     const proto = plant[protoID].prototype
 
@@ -26,7 +26,7 @@ function wrapDetector(ctx, plantID) {
                     if (detectors) thisArg.detectors = detectors
                 }
             })
-        } else ctx.log.warn(`${func} doesnt exist for ${plantID}`)
+        } else ctx.log.info(`${func} doesnt exist for ${plantID}`)
     })
 
     const laneOffsetReturningPlants = new Set(["Dandelion"])
@@ -133,7 +133,7 @@ function wrapDetector(ctx, plantID) {
                     : newResult
             }
         })
-    } else ctx.log.warn(`${detectFunction} doesn't exist for ${plantID}`)
+    } else ctx.log.info(`${detectFunction} doesn't exist for ${plantID}`)
 
     if (typeof proto["getDirections"] === "function") {
         ctx.unsafe.hooks.wrapMethod({
@@ -301,6 +301,24 @@ function wrapDetector(ctx, plantID) {
                 } finally {
                     square.Square.getAllLane = originalGetAllLane
                 }
+            }
+        })
+    }
+
+    if (plantID === "Dandelion") {
+        ctx.unsafe.hooks.wrapMethod({
+            target: proto,
+            methodName: "detectEnemy",
+            handler: ({ args, thisArg, callNext }) => {
+                if (thisArg.objdataOwn.AlwaysShoots) {
+                    return true
+                }
+
+                if (thisArg.objdataOwn.DetectorOverride) {
+                    return thisArg.getEnemyLane() !== -2
+                }
+
+                return callNext(...args)
             }
         })
     }

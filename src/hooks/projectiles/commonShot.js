@@ -84,6 +84,7 @@ export function init(ctx) {
         const square = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Square.ts")
         const lnc = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/LnC.ts")
         const levelController = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/levelController.ts")
+        const mouse = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Mouse.ts")
         const prjFunctions = projectiles.PrjFunctions
         const proto = commonShot.commonShot.prototype
 
@@ -117,6 +118,7 @@ export function init(ctx) {
             "DamageAfterHitList": null,
             "SplashDamageOnWater": null,
             "DefenceRateList": null
+            "MouseFollow": null,
         }
 
         ctx.unsafe.hooks.wrapMethod({
@@ -339,13 +341,13 @@ export function init(ctx) {
                 const effectiveY = thisArg.linearVelocity.y * thisArg.speedScale
 
                 if (
-                    thisArg.worldPositionX <= -50 && effectiveX <= 0 ||
-                    thisArg.worldPositionX >= 1200 && effectiveX >= 0 ||
-                    thisArg.worldPositionY <= -100 &&
-                    (thisArg.worldPositionY + thisArg.height_depth <= -100 ||
-                        thisArg.worldPositionY + thisArg.height_depth >= 700) &&
+                    thisArg.worldPositionX <= -200 && effectiveX <= 0 ||
+                    thisArg.worldPositionX >= 1800 && effectiveX >= 0 ||
+                    thisArg.worldPositionY <= -200 &&
+                    (thisArg.worldPositionY + thisArg.height_depth <= -200 ||
+                        thisArg.worldPositionY + thisArg.height_depth >= 1100) &&
                     effectiveY <= 0 ||
-                    thisArg.worldPositionY >= 700 && effectiveY >= 0
+                    thisArg.worldPositionY >= 1100 && effectiveY >= 0
                 ) {
                     thisArg.fade()
                 }
@@ -358,9 +360,113 @@ export function init(ctx) {
             target: proto,
             methodName: "update",
             handler: ({args, thisArg, callNext}) => {
+                const deltaTime = args[0]
+
                 callNext(...args)
 
-                const deltaTime = args[0]
+                const mouseFollow = thisArg.MouseFollow
+                if (mouseFollow) {
+                    const target = mouse.Mouse.position
+
+                    if (mouseFollow.Instant) {
+                        thisArg.worldPositionX = target.x
+                        thisArg.worldPositionY = target.y
+                        return
+                    }
+
+                    const dx = target.x - thisArg.worldPositionX
+                    const dy = target.y - thisArg.worldPositionY
+                    const distance = Math.hypot(dx, dy)
+
+                    if (distance > 0) {
+                        const directionX = dx / distance
+                        const directionY = dy / distance
+                        const velocity = thisArg.linearVelocity
+
+                        const turnAcceleration =
+                            mouseFollow.TurnAcceleration ?? 0
+
+                        const movementAcceleration =
+                            mouseFollow.MovementAcceleration ?? 0
+
+                        const currentSpeed =
+                            Math.hypot(velocity.x, velocity.y)
+
+                        if (currentSpeed > 0 && turnAcceleration > 0) {
+                            const desiredVelocityX =
+                                directionX * currentSpeed
+                            const desiredVelocityY =
+                                directionY * currentSpeed
+
+                            const changeX =
+                                desiredVelocityX - velocity.x
+                            const changeY =
+                                desiredVelocityY - velocity.y
+
+                            const changeLength =
+                                Math.hypot(changeX, changeY)
+
+                            const maxChange =
+                                turnAcceleration * deltaTime
+
+                            if (changeLength <= maxChange) {
+                                velocity.x = desiredVelocityX
+                                velocity.y = desiredVelocityY
+                            } else {
+                                velocity.x +=
+                                    changeX / changeLength * maxChange
+                                velocity.y +=
+                                    changeY / changeLength * maxChange
+                            }
+                        }
+
+                        if (movementAcceleration > 0) {
+                            const speed =
+                                Math.hypot(velocity.x, velocity.y)
+
+                            if (speed > 0) {
+                                velocity.x +=
+                                    velocity.x / speed *
+                                    movementAcceleration *
+                                    deltaTime
+
+                                velocity.y +=
+                                    velocity.y / speed *
+                                    movementAcceleration *
+                                    deltaTime
+                            } else {
+                                velocity.x +=
+                                    directionX *
+                                    movementAcceleration *
+                                    deltaTime
+
+                                velocity.y +=
+                                    directionY *
+                                    movementAcceleration *
+                                    deltaTime
+                            }
+                        }
+
+                        const movementMaxSpeed = mouseFollow.MovementMaxSpeed ?? 0
+
+                        if (movementMaxSpeed > 0) {
+                            const speed = Math.hypot(velocity.x, velocity.y)
+
+                            if (speed > movementMaxSpeed) {
+                                velocity.x =
+                                    velocity.x / speed *
+                                    movementMaxSpeed
+
+                                velocity.y =
+                                    velocity.y / speed *
+                                    movementMaxSpeed
+                            }
+                        }
+
+                        thisArg.linearVelocity = velocity
+                        thisArg.rotate()
+                    }
+                }
 
                 const speedScalePerSecond = thisArg.SpeedScalePerSecond
                 if (speedScalePerSecond) thisArg.speedScale += speedScalePerSecond * deltaTime

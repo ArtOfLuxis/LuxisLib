@@ -674,5 +674,28 @@ export function init(ctx) {
                 return result
             }
         })
+
+        ctx.unsafe.hooks.wrapMethod({
+            target: proto,
+            methodName: "addWave",
+            handler: ({ args, thisArg, callNext }) => {
+                const result = callNext(...args)
+
+                const isFloating =
+                    thisArg.TYPE?.includes("floating") === true
+
+                if (
+                    isFloating &&
+                    thisArg.amphibiousPlant &&
+                    thisArg.depth > 0
+                ) {
+                    thisArg.depth = 0
+                    thisArg.divingEnd()
+                }
+
+                return result
+            }
+        })
+
     })
 }

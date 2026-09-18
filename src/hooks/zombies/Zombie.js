@@ -216,6 +216,7 @@ export function init(ctx) {
                         thisArg.iceblocked ||
                         thisArg.icebloom_block ||
                         thisArg.teleporting ||
+                        thisArg.stickyriced ||
                         !thisArg.invincible && (
                             thisArg.fallingInSky ||
                             thisArg.chilibeanPoisoning ||
@@ -240,7 +241,6 @@ export function init(ctx) {
                         if (thisArg.chiliStun > 0) {
                             speed *= thisArg.objdataOwn.ChiliStunSpeedMultiplier ?? libProperties?.ZombieChiliStunSpeedMultiplier ?? 0
                         }
-
 
 
                         if (thisArg.chill > 0 && thisArg.freeze <= 0) {

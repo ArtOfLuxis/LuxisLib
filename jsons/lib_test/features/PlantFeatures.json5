@@ -54,6 +54,31 @@
 
 
 
+    {
+      "_CARDSPRITENAME": "pinkstarfruit",
+      "CODENAME": "pinkstarfruit",
+      "OBTAINWORLD": "market",
+      "ALMANAC": "RTID(pinkstarfruit@PlantAlmanac)",
+      "PROPS": "RTID(pinkstarfruit@PlantProps)",
+      "NAME": {
+        "en": "Angel Starfruit",
+        "zh": "天使星星果"
+      },
+      "TAGS": [
+        "amphibious",
+        "floating"
+      ],
+      "ZENGARDEN": {
+        "PlantPlace": "dirt"
+      },
+      "RES": {
+        "Disabled": "PinkStarFruit",
+        "Plant": "PinkStarFruit"
+      }
+    },
+
+
+
 
 
     {

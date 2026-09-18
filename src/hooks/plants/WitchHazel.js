@@ -2,7 +2,7 @@ import {wrapObjDataOwnPlant} from "./Plant";
 
 export function init(ctx) {
     ctx.events.on("engine:ready", () => {
-        const witchHazel = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/WizardHazel.ts")
+        const witchHazel = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/WitchHazel.ts")
         const zombie = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Zombie.ts")
         const proto = witchHazel.WitchHazelPlant.prototype
 

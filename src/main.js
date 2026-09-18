@@ -20,6 +20,16 @@ async function shouldForcePageReload(ctx) {
 }
 
 export async function setup(ctx) {
+    const oldGetSystemModule = ctx.unsafe.engine.getSystemModule
+    if (!oldGetSystemModule.___LuxisLibEdited) {
+        oldGetSystemModule.___LuxisLibEdited = true
+
+        ctx.unsafe.engine.getSystemModule = (module) => {
+            const result = oldGetSystemModule(module)
+            console.log("[Luxis Lib Debug] Loading System Module:",  module, "exists: ", !!result)
+            return result
+        }
+    }
     const oldWarn = console.warn
     if (!oldWarn.___LuxisLibEdited) {
         oldWarn.___LuxisLibEdited = true
