@@ -120,21 +120,6 @@ export function init(ctx) {
 
         ctx.unsafe.hooks.wrapMethod({
             target: proto,
-            methodName: "addWave",
-            handler({args, thisArg, callNext}) {
-                let result = callNext(...args);
-                return (
-                    thisArg.TYPE?.includes(`floating`) === !0 &&
-                    thisArg.amphibiousPlant &&
-                    thisArg.depth > 0 &&
-                    ((thisArg.depth = 0), thisArg.divingEnd()),
-                        result
-                );
-            }
-        });
-
-        ctx.unsafe.hooks.wrapMethod({
-            target: proto,
             methodName: "replantable",
             isStatic: false,
             handler({args, thisArg, callNext}) {

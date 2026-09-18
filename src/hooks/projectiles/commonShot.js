@@ -117,7 +117,7 @@ export function init(ctx) {
             "SpeedScaleAfterHit": null,
             "DamageAfterHitList": null,
             "SplashDamageOnWater": null,
-            "DefenceRateList": null
+            "DefenceRateList": null,
             "MouseFollow": null,
         }
 

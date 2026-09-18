@@ -2,8 +2,8 @@ import {wrapObjDataOwnPlant} from "./Plant";
 
 export function init(ctx) {
     ctx.events.on("engine:ready", () => {
-        const peaPod = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/PeaPod.ts");
-        const proto = peaPod.PeaPodPlant.prototype;
+        const peaPod = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/PeaPod.ts")
+        const proto = peaPod.PeaPodPlant.prototype
 
         wrapObjDataOwnPlant(ctx, proto, {
             "MaxPeaHeads": null,
@@ -35,7 +35,7 @@ export function init(ctx) {
                         thisArg.health = thisArg.toughness;
                     }
                     else if (typeof toughnessBoost === "object") {
-                        thisArg.toughness += toughnessBoost[thisArg.headCount - 2] ?? 0;
+                        thisArg.toughness += toughnessBoost[thisArg.headCount - 2] ?? 0
                         thisArg.health = thisArg.toughness;
                     }
                 }

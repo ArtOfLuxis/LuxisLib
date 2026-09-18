@@ -3,16 +3,12 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "build": "vite build && copy dist\\bundle.js \"C:\\Users\\User\\AppData\\Roaming\\com.pvzge.game\\gp-next\\packs\\Luxis Lib\" && robocopy jsons\\lib_test \"C:\\Users\\User\\AppData\\Roaming\\com.pvzge.game\\gp-next\\packs\\Luxis Lib Test\\jsons\" /E & robocopy jsons\\lib \"C:\\Users\\User\\AppData\\Roaming\\com.pvzge.game\\gp-next\\packs\\Luxis Lib\\jsons\" /E"
   },
   "private": true,
   "devDependencies": {
-    "@eslint/js": "^10.0.1",
-    "@eslint/json": "^2.1.0",
-    "eslint": "^10.10.0",
-    "globals": "^17.12.0",
-    "vite": "^8.3.0",
-    "vite-plugin-checker": "^0.14.5"
+    "vite": "^8.3.0"
   }
 }
