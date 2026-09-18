@@ -96,14 +96,30 @@ function wrapDetector(ctx, plantID) {
 
                                 const lane = square.Square.getLane(laneIndex)
 
-                                if (
-                                    lane.zombiePool().some(zombie =>
+                                let condition = lane.zombiePool().some(zombie =>
                                         detector.judgeCrossRec(zombie.bodyRecForShooter)
                                     ) ||
                                     lane.tombPool().some(tomb =>
                                         detector.judgeCrossRec(tomb.bodyRec)
                                     )
-                                ) {
+                                if (plantID == "HomingThistle") {
+                                    const characterManager = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/CharacterManager.ts")
+                                    const zombiePool = characterManager.ZombiePool;
+                                    const tombpool = characterManager.TombPool;
+                                    let zombie = zombiePool.getBodyRecLeftest(function(zombie) {
+                                        return !zombie.objdataOwn.IgnoredByHomingThistle && zombie.height_depth <= 100
+                                    })
+                                    let tomb = tombpool.getLeftest(function(tomb) {
+                                        return tomb.lIndexReal == lane
+                                    })
+                                    if (zombie || tomb)
+                                        condition = (
+                                            detector.judgeCrossRec(zombie?.bodyRecForShooter) ||
+                                            detector.judgeCrossRec(tomb?.bodyRec)
+                                        )
+                                    else condition = false;
+                                }
+                                if (condition) {
                                     newResult = true
                                     laneOffset = offset
                                     break outer
@@ -421,7 +437,7 @@ export function init(ctx) {
             "Cactus", "Dandelion",
             "Anthurium", "SplitPea",
             "FirePeashooter", "SporeShroom",
-            "Rotobaga", "SlingPea"
+            "Rotobaga", "SlingPea", "HomingThistle"
         ]
 
         detectorPlants.forEach((plantID) => {
