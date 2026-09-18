@@ -51,6 +51,14 @@
         "FrozenType": "pea_snow", // check ArbitraryProjectileProperties in PropertySheets
         "ColorMult": { "r": 0.5, "g": 0.5, "b": 0.5 },
         "CanBePeaVineBuffed": false,
+        "MouseFollow": {
+          // these are in-game units, not squares or anything,
+          // cant really translate them that well
+          "TurnAcceleration": 150,
+          "MovementAcceleration": 20,
+          "MovementMaxSpeed": 120,
+          "Instant": false
+        },
         "OnHitActions": [
           {
             "kind": "InvokeObjectMethod",

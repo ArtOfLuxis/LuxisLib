@@ -55,8 +55,8 @@ export function init(ctx) {
                     const heightScale = libProperties?.PlantSunCostHeightScale ?? 1
                     const heightSize = 70 * heightScale
 
-                    cf.ca._priceDB.fontSize = fontSize
-                    cf.ca._priceDB.node.height = heightSize
+                    cf.ca.__priceLB.fontSize = fontSize
+                    cf.ca.__priceLB.node.height = heightSize
 
                     if (cf.node.parent === thisArg.imitatorSlot) return
                     cf.node.setScale(scaleX, scaleY, 1)

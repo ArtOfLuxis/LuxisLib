@@ -2,8 +2,8 @@ import {wrapObjDataOwnPlant} from "./Plant";
 
 export function init(ctx) {
     ctx.events.on("engine:ready", () => {
-        const appleMortar = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/AppleMortar.ts");
-        const proto = appleMortar.AppleMortar.prototype;
+        const appleMortar = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/AppleMortar.ts")
+        const proto = appleMortar.AppleMortarPlant.prototype
 
         wrapObjDataOwnPlant(ctx, proto, {
             "ExtraSideApples": false,

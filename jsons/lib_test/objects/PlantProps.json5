@@ -1308,7 +1308,7 @@
         "moonflower"
       ],
       "objdata": {
-        "DoesntShadowBoost": true
+        "DoesntShadowBoost": false
       }
     },
     {
@@ -1468,13 +1468,36 @@
     {
       "objclass": "PlantProperties",
       "aliases": [
+        "meteorflower"
+      ],
+      "objdata": {
+        "MeteorTypePlantfood": "banana" // doesnt exist in vanilla
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "dusklobber"
+      ],
+      "objdata": {
+        "CabbageTypeShadow": "inferno_tornado", // doesnt exist in vanilla
+        "CabbageTypePlantfoodShadow": "missiletoe1" // doesnt exist in vanilla
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
         "bloomerang"
       ],
       "objdata": {
-        "DynamicPlantableCondition": { // this code makes bloomerang only plantable on gold tiles
+        "BoomerangTypePlantfood": "boomerang2", // doesnt exist in vanilla
+        "DynamicPlantableCondition": { // this code makes bloomerang not plantable on gold tiles
           "left": {
-            "kind": "GetObjectProperty",
-            "property": "GoldTile"
+            "kind": "not",
+            "value": {
+              "kind": "GetObjectProperty",
+              "property": "GoldTile"
+            }
           },
           "kind": "&&",
           "right": {

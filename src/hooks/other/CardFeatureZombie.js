@@ -22,7 +22,7 @@ export function init(ctx) {
                 const zombieAsset = assets["52499037-3d67-4db4-a1c1-d5055559bc09"]
                 const zombieAtlas = assets["1460d3f3-5bba-411c-bad2-47aa2d6b278f"]
 
-                const db = thisArg.ca._plantDB
+                const db = thisArg.ca.__plantDB
 
                 const animations = db._armature?.animation?._animations;
 
