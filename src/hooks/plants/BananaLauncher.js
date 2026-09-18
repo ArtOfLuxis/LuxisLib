@@ -16,6 +16,22 @@ export function init(ctx) {
 
         ctx.unsafe.hooks.wrapMethod({
             target: proto,
+            methodName: "replant",
+            isStatic: false,
+            handler({args, thisArg, callNext}) {
+                callNext(...args);
+                const wallAidOverride = thisArg.objdataOwn.WallnutAidOverride;
+                if (wallAidOverride) {
+                    thisArg.health = thisArg.toughness * (wallAidOverride.HealPercent ?? 1.0);
+                    if (wallAidOverride.RestTimeRestore && thisArg.sleepCD > 0) {
+                        thisArg.coolingdown = 0;
+                    }
+                }
+            }
+        });
+
+        ctx.unsafe.hooks.wrapMethod({
+            target: proto,
             methodName: "animationListener",
             handler: ({args, thisArg, callNext}) => {
                 const animation = args[0]

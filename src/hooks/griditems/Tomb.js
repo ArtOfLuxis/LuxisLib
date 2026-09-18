@@ -1,5 +1,6 @@
 import {isGameRunning} from "../other/levelController";
 import {executeActions} from "../../modules/JSONActionsSystem";
+import {libProperties} from "../other/JSONs";
 
 export function init(ctx) {
     ctx.events.on("engine:ready", () => {
@@ -13,8 +14,49 @@ export function init(ctx) {
             "BeforeDamageActions": null,
             "OnDeathActions": null,
             "BeforeDeathActions": null,
+            "SpawnedScale": null,
+            "ColorOffset": null
         }
 
+        ctx.unsafe.hooks.wrapMethod({
+            target: proto,
+            methodName: "shouldMaterial",
+            handler: ({ args, thisArg, callNext }) => {
+                callNext(...args)
+
+                let addColor = new cc.Vec4(0, 0, 0, 1)
+                let saturation = 0
+
+                if (thisArg._cdScaleByPlantCD > 0) {
+                    saturation += libProperties?.GlacierShroomSaturation ?? 0.5
+                }
+
+                let holo = 0
+                const colorOffset = thisArg.objdataOwn.ColorOffset
+                if (colorOffset) {
+                    addColor.x += (colorOffset.r ?? 0) / 255
+                    addColor.y += (colorOffset.g ?? 0) / 255
+                    addColor.z += (colorOffset.b ?? 0) / 255
+                    saturation += colorOffset.s ?? 0
+                    holo += colorOffset.holo ?? 0
+                }
+
+                const colorMult = thisArg.objdataOwn.ColorMult
+
+                const pass = thisArg.material.passes[0]
+
+                pass.setUniform(pass.getHandle("addColor"), addColor)
+                if (colorMult) pass.setUniform(pass.getHandle("multColor"), new cc.Vec4(
+                    colorMult.r ?? 1,
+                    colorMult.g ?? 1,
+                    colorMult.b ?? 1,
+                    1
+                ))
+                pass.setUniform(pass.getHandle("saturation"), saturation)
+                if (holo !== 0) pass.setUniform(pass.getHandle("holo"), holo)
+                thisArg.body.customMaterial = thisArg.material
+            }
+        })
 
         ctx.unsafe.hooks.wrapMethod({
             target: proto,
@@ -94,6 +136,8 @@ export function init(ctx) {
             methodName: "characterOnEnable",
             handler: ({ args, thisArg, callNext }) => {
                 const result = callNext(...args)
+
+                if (thisArg.objdataOwn.SpawnedScale) thisArg.scale = thisArg.objdataOwn.SpawnedScale;
 
                 thisArg.scheduleOnce(() => {
                     const onEnableActions = thisArg.objdataOwn.OnEnableActions

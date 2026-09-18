@@ -7,6 +7,8 @@ export function init(ctx) {
 
         wrapObjDataOwnPlant(ctx, proto, {
             "MaxPeaHeads": null,
+            "ToughnessPerHead": null,
+            "HeadsPerReplant": null
         })
 
 
@@ -20,6 +22,24 @@ export function init(ctx) {
             }
         })
 
-
+        ctx.unsafe.hooks.wrapMethod({
+            target: proto,
+            methodName: "replant",
+            handler: ({args, thisArg, callNext}) => {
+                thisArg.headCount += thisArg.objdataOwn.HeadsPerReplant ?? 1;
+                const toughnessBoost = thisArg.objdataOwn.ToughnessPerHead ?? 0;
+                if (toughnessBoost)
+                {
+                    if (typeof toughnessBoost === "number") {
+                        thisArg.toughness += toughnessBoost;
+                        thisArg.health = thisArg.toughness;
+                    }
+                    else if (typeof toughnessBoost === "object") {
+                        thisArg.toughness += toughnessBoost[thisArg.headCount - 2] ?? 0;
+                        thisArg.health = thisArg.toughness;
+                    }
+                }
+            }
+        })
     })
 }

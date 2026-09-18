@@ -1,4 +1,4 @@
-import {executeActions} from "../../modules/JSONActionsSystem"
+import {evaluate, executeActions} from "../../modules/JSONActionsSystem"
 import {isGameRunning} from "../other/levelController"
 import {libProperties} from "../other/JSONs";
 
@@ -115,7 +115,53 @@ export function init(ctx) {
             "PFOnSpawn": null,
             "SpecificScale": null,
             "ZIndexOffset": null,
+            "WallnutAidOverride": null
         })
+
+        ctx.unsafe.hooks.wrapMethod({
+            target: proto,
+            methodName: "addWave",
+            handler({args, thisArg, callNext}) {
+                let result = callNext(...args);
+                return (
+                    thisArg.TYPE?.includes(`floating`) === !0 &&
+                    thisArg.amphibiousPlant &&
+                    thisArg.depth > 0 &&
+                    ((thisArg.depth = 0), thisArg.divingEnd()),
+                        result
+                );
+            }
+        });
+
+        ctx.unsafe.hooks.wrapMethod({
+            target: proto,
+            methodName: "replantable",
+            isStatic: false,
+            handler({args, thisArg, callNext}) {
+                const wallAidOverride = thisArg.objdataOwn.WallnutAidOverride;
+                if (!wallAidOverride) return callNext(...args);
+                if (wallAidOverride.CustomCondition) {
+                    return evaluate(wallAidOverride.CustomCondition, {
+                        target: thisArg,
+                        originalResult: false
+                    })
+                }
+                 return thisArg.health <= thisArg.toughness * (wallAidOverride.AidHealthPercent ?? 0.75);
+            }
+        });
+
+        ctx.unsafe.hooks.wrapMethod({
+            target: proto,
+            methodName: "replant",
+            isStatic: false,
+            handler({args, thisArg, callNext}) {
+                callNext(...args);
+                const wallAidOverride = thisArg.objdataOwn.WallnutAidOverride;
+                if (wallAidOverride?.HealPlant ?? true) {
+                    thisArg.health = thisArg.toughness * (wallAidOverride.HealPercent ?? 1.0);
+                }
+            }
+        });
 
         ctx.unsafe.hooks.wrapMethod({
             target: proto,
