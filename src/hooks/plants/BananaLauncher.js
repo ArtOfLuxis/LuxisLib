@@ -23,7 +23,7 @@ export function init(ctx) {
                 const wallAidOverride = thisArg.objdataOwn.WallnutAidOverride;
                 if (wallAidOverride) {
                     thisArg.health = thisArg.toughness * (wallAidOverride.HealPercent ?? 1.0);
-                    if (wallAidOverride.RestTimeRestore && thisArg.sleepCD > 0) {
+                    if (wallAidOverride.RestTimeRestore && thisArg.coolingdown > 0) {
                         thisArg.coolingdown = 0;
                     }
                 }
