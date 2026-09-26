@@ -1369,6 +1369,7 @@
           "CustomCondition": {
             "left": { "kind": "GetObjectProperty", "property": "coolingdown" }, "kind": ">", "right": 0 }
         },
+        "BananaTypePlantfood": "pea_mega_mint",
         "BananasPerPFAnimation": 5,
         "MaxPFAnimationCycles": { "amount": 2, "forceEndFooding": true }
       }
@@ -1379,12 +1380,12 @@
         "nightshade"
       ],
       "objdata": {
+        "PeaTypeShadow": "nightshade_mega",
+        "PeaTypePlantfoodShadow": "pea",
+        "PeaTypePlantfoodMegaShadow": "pea2",
         "WallnutAidOverride": {
           "HealPercent": 1,
           "AidHealthPercent": 1,
-          "PeaTypeShadow": "nightshade_mega",
-          "PeaTypePlantfoodShadow": "pea",
-          "PeaTypePlantfoodMegaShadow": "pea2",
           "NightshadeLeafRestore": true,
           "CustomCondition": {
             "left": { "kind": "GetObjectProperty", "property": "leftPRJCount" }, "kind": "<", "right": 3 }
