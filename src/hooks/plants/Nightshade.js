@@ -33,11 +33,10 @@ export function init(ctx) {
             methodName: "_shoot",
             isStatic: false,
             handler: ({args, thisArg, callNext}) => {
-                const shadowProjectile = thisArg._objdataOwn.PeaTypeShadow
-                const shadowPfProjectile = thisArg._objdataOwn.PeaTypePlantfoodShadow
-                const shadowPfMegaProjectile = thisArg._objdataOwn.PeaTypePlantfoodMegaShadow
-                if (!thisArg.ShadowPowered || (thisArg.fooded && !shadowPfProjectile) || (!thisArg.fooded && !shadowProjectile) ||
-                (thisArg.fooding && !shadowPfMegaProjectile)) {
+                const shadowProjectile = thisArg._objdataOwn.PeaTypeShadow ?? thisArg._objdataOwn.PeaType;
+                const shadowPfProjectile = thisArg._objdataOwn.PeaTypePlantfoodShadow ?? thisArg._objdataOwn.PeaTypePlantfood;
+                const shadowPfMegaProjectile = thisArg._objdataOwn.PeaTypePlantfoodMegaShadow ?? thisArg._objdataOwn.PeaTypePlantfoodMega;
+                if (!thisArg.ShadowPowered) {
                     return callNext(...args)
                 }
 
