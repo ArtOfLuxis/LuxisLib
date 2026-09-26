@@ -48,6 +48,18 @@
         "pea"
       ],
       "objdata": {
+        "DefenceRateList": [
+          0.9
+        ],
+        "SplashDamageOnWater": [
+          {
+            "ChillDuration": 5,
+            "Range": {
+              "w": 1,
+              "h": 1
+            }
+          }
+        ],
         "FrozenType": "pea_snow", // check ArbitraryProjectileProperties in PropertySheets
         "ColorMult": { "r": 0.5, "g": 0.5, "b": 0.5 },
         "CanBePeaVineBuffed": false,

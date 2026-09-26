@@ -12,6 +12,7 @@ export function init(ctx) {
         wrapObjDataOwnPlant(ctx, proto, {
             "BananasPerPFAnimation": null,
             "MaxPFAnimationCycles": null,
+            "BananaTypePlantfood": null
         })
 
         ctx.unsafe.hooks.wrapMethod({
@@ -32,12 +33,47 @@ export function init(ctx) {
 
         ctx.unsafe.hooks.wrapMethod({
             target: proto,
+            methodName: "characterOnEnable",
+            handler: ({args, thisArg, callNext}) => {
+                callNext(...args)
+                thisArg.fooding = false;
+            }
+        })
+
+        ctx.unsafe.hooks.wrapMethod({
+            target: proto,
+            methodName: "specialPlantFoodEnd",
+            handler: ({args, thisArg, callNext}) => {
+                callNext(...args)
+                thisArg.fooding = false;
+            }
+        })
+
+        ctx.unsafe.hooks.wrapMethod({
+            target: proto,
+            methodName: "specialSniperFood",
+            handler: ({args, thisArg, callNext}) => {
+                callNext(...args)
+                thisArg.fooding = true;
+            }
+        })
+
+        ctx.unsafe.hooks.wrapMethod({
+            target: proto,
             methodName: "animationListener",
             handler: ({args, thisArg, callNext}) => {
+                const pfProjectile = thisArg._objdataOwn.BananaTypePlantfood
+                const old = thisArg._objdataOwn.BananaType
+                if (thisArg.fooding && pfProjectile) thisArg._objdataOwn.BananaType = pfProjectile;
+
                 const animation = args[0]
                 const maxCycles = thisArg._objdataOwn.MaxPFAnimationCycles
 
-                if (animation.name !== "drop" || !maxCycles) return callNext(...args)
+                if (animation.name !== "drop" || !maxCycles) {
+                    const result = callNext(...args)
+                    thisArg._objdataOwn["BananaType"] = old;
+                    return result;
+                }
 
                 const currentCycles = thisArg.___LuxisLibBananaPFCycles ?? 0
                 if (currentCycles >= maxCycles.amount) {
@@ -47,7 +83,11 @@ export function init(ctx) {
                 }
                 thisArg.___LuxisLibBananaPFCycles = currentCycles + 1
 
-                if (typeof thisArg._objdataOwn.BananasPerPFAnimation !== "number") return callNext(...args)
+                if (typeof thisArg._objdataOwn.BananasPerPFAnimation !== "number") {
+                    const result = callNext(...args)
+                    thisArg._objdataOwn["BananaType"] = old;
+                    return result;
+                }
 
                 for (let i = 0; i < thisArg._objdataOwn.BananasPerPFAnimation; i++) {
                     let target = zombiePool.ZombiePool.inLawnPool()
@@ -72,6 +112,7 @@ export function init(ctx) {
                         thisArg.MintBoosted
                     )
                 }
+                thisArg._objdataOwn.BananaType = old;
             }
         })
 

@@ -5,6 +5,12 @@ export function init(ctx) {
         const nightshade = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/NightShade.ts")
         const proto = nightshade.NightShadePlant.prototype
 
+        wrapObjDataOwnPlant(ctx, proto, {
+            "PeaTypeShadow": null,
+            "PeaTypePlantfoodShadow": null,
+            "PeaTypePlantfoodMegaShadow": null
+        })
+
         ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "replant",
@@ -18,6 +24,35 @@ export function init(ctx) {
                         thisArg.leftPRJCount = thisArg.objdataOwn.MaxProjectiles
                         thisArg.setPRJSlots()
                     }
+                }
+            }
+        })
+
+        ctx.unsafe.hooks.wrapMethod({
+            target: proto,
+            methodName: "_shoot",
+            isStatic: false,
+            handler: ({args, thisArg, callNext}) => {
+                const shadowProjectile = thisArg._objdataOwn.PeaTypeShadow
+                const shadowPfProjectile = thisArg._objdataOwn.PeaTypePlantfoodShadow
+                const shadowPfMegaProjectile = thisArg._objdataOwn.PeaTypePlantfoodMegaShadow
+                if (!thisArg.ShadowPowered || (thisArg.fooded && !shadowPfProjectile) || (!thisArg.fooded && !shadowProjectile) ||
+                (thisArg.fooding && !shadowPfMegaProjectile)) {
+                    return callNext(...args)
+                }
+
+                const type = thisArg.fooding ?
+                    ["PeaTypePlantfoodMega", shadowPfMegaProjectile] :
+                    thisArg.fooded ?
+                        ["PeaTypePlantfood", shadowPfProjectile]:
+                    ["PeaType", shadowProjectile]
+
+                const old = thisArg._objdataOwn[type[0]]
+                try {
+                    thisArg._objdataOwn[type[0]] = type[1]
+                    callNext(...args)
+                } finally {
+                    thisArg._objdataOwn[type[0]] = old
                 }
             }
         })
