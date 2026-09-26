@@ -1,5 +1,5 @@
 
-let zombieAnimations
+export let zombieAnimations
 
 export function init(ctx) {
     ctx.events.on("engine:ready", () => {

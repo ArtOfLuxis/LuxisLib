@@ -726,7 +726,7 @@ export function init(ctx) {
         ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "beforeZombieHit",
-            prioritiy: 100,
+            priority: 100,
             handler: ({args, thisArg, callNext}) => {
                 const zombie = args[0]
 
@@ -742,7 +742,7 @@ export function init(ctx) {
         ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "dealDamageToZombie",
-            prioritiy: 100,
+            priority: 100,
             handler: ({args, thisArg, callNext}) => {
                 callNext(...args)
 

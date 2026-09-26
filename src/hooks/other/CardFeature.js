@@ -1,3 +1,4 @@
+import {zombieAnimations} from "./CardFeatureZombie.js";
 
 let plantAnimations
 
@@ -51,7 +52,6 @@ export function init(ctx) {
             handler: async ({thisArg, callNext, args}) => {
                 callNext(...args)
 
-
                 if (await ctx.settings.get("hideMintIcons")) {
                     let s = cc.internal.ArmatureDisplay;
                     thisArg.node.getChildByName("Family").getComponent(s).playAnimation("Nope");
@@ -78,18 +78,23 @@ export function init(ctx) {
                 }
 
                 const animation = thisArg.PF._CARDSPRITENAME
-                if (!plantAnimations.includes(animation)) {
+                let changed = false
+                if (!plantAnimations.includes(animation) && zombieAnimations?.includes(animation)) {
                     db._dragonAsset = zombieAsset
                     db._dragonAtlasAsset = zombieAtlas
+                    changed = db._armatureName !== "Zombie"
                     db._armatureName = "Zombie"
                 } else {
                     db._dragonAsset = plantAsset
                     db._dragonAtlasAsset = plantAtlas
+                    changed = db._armatureName !== "plants"
                     db._armatureName = "plants"
                 }
 
-                db._buildArmature()
-                db.playAnimation(animation)
+                if (changed) {
+                    db._buildArmature()
+                    db.playAnimation(animation)
+                }
             }
         })
     })

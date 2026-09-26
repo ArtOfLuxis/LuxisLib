@@ -29,12 +29,16 @@ export function init(ctx) {
         ctx.unsafe.hooks.wrapMethod({
             target: loquat.LoquatTornado.prototype,
             methodName: "update",
-            handler: ({ args, thisArg }) => {
+            handler: ({ args, thisArg, callNext }) => {
+                const objdata = thisArg.___plant?.objdataOwn
+                if (!objdata?.TornadoAOE && !objdata?.TornadoDamage) {
+                    return callNext(...args)
+                }
+
                 const deltaTime = args[0]
 
                 thisArg.LifeCD -= deltaTime
 
-                const objdata = thisArg.___plant.objdataOwn
                 const aoe = objdata?.TornadoAOE ?? { "x":3, "y":3, "lanes":[-1, 0, 1] }
                 const damage = objdata?.TornadoDamage
 

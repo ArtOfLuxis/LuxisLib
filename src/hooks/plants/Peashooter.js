@@ -15,7 +15,7 @@ export function init(ctx) {
             handler: ({args, thisArg, callNext}) => {
                 const proj = args[0]
                 const maxShootAnimationCycles = thisArg.objdataOwn?.MaxShootAnimationCycles
-                if (thisArg._foodLeftPeaCount === 0 && typeof maxShootAnimationCycles === "number") {
+                if (!thisArg.fooding && typeof maxShootAnimationCycles === "number") {
                     if ((thisArg.___LuxisLibShootAnimationCycles ??= 0) >= maxShootAnimationCycles) {
                         proj.fade()
                         return
