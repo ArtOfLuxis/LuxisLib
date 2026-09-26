@@ -1362,8 +1362,46 @@
         "banana"
       ],
       "objdata": {
+        "WallnutAidOverride": {
+          "HealPercent": 1,
+          "AidHealthPercent": 1,
+          "RestTimeRestore": true,
+          "CustomCondition": {
+            "left": { "kind": "GetObjectProperty", "property": "coolingdown" }, "kind": ">", "right": 0 }
+        },
         "BananasPerPFAnimation": 5,
         "MaxPFAnimationCycles": { "amount": 2, "forceEndFooding": true }
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "nightshade"
+      ],
+      "objdata": {
+        "WallnutAidOverride": {
+          "HealPercent": 1,
+          "AidHealthPercent": 1,
+          "PeaTypeShadow": "nightshade_mega",
+          "PeaTypePlantfoodShadow": "pea",
+          "PeaTypePlantfoodMegaShadow": "pea2",
+          "NightshadeLeafRestore": true,
+          "CustomCondition": {
+            "left": { "kind": "GetObjectProperty", "property": "leftPRJCount" }, "kind": "<", "right": 3 }
+        },
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "homingthistle"
+      ],
+      "objdata": {
+        "DetectorOverride": {
+          "x": 2, "y": 5,
+          "lanes": [-1,0,1, -2, 2],
+          "xOffset": 0, "yOffset": 0
+        },
       }
     },
     {

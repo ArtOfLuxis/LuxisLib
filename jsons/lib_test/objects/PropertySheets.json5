@@ -14,6 +14,14 @@
 
         "PutAllAvailableCostumesInShop": true,
 
+        "MedalBoostAmount": 2,
+        "MedalBoostAmountSpecific": {
+          "wallnut": 3,
+          "tallnut": 1,
+          "peashooter": 5
+        },
+        "MedalBoostPageString": "Unlock each plant with uhhh i forgot",
+
         "SeedChooserLevelingSwitchButtonText": "LVLaaaa current/max",
         "SeedChooserLevelingSwitchButtonOffset": 65,
 
@@ -204,7 +212,6 @@
           "zomboni",
           "prospector",
           "dino_bully",
-          "iceage_hunter_veteran",
           "lostcity_crystalskull",
           "kongfu_bomb",
           "dino_armor2",
