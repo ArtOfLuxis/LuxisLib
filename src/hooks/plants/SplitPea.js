@@ -6,9 +6,25 @@ export function init(ctx) {
         const proto = splitPea.SplitPeaPlant.prototype;
 
         wrapObjDataOwnPlant(ctx, proto, {
+            "BackPeaType": null,
             "AlwaysShootsBack": null,
             "AlwaysShootsFront": null
         })
+
+
+        ctx.unsafe.hooks.wrapMethod({
+            target: proto,
+            methodName: "_shootBack",
+            handler: ({args, thisArg, callNext}) => {
+                const peaType = args[2]
+                const backPeaType = thisArg.objdataOwn.BackPeaType
+                if (backPeaType && (peaType === undefined || peaType === thisArg.objdataOwn.PeaType)) {
+                    args[2] = backPeaType
+                }
+                callNext(...args)
+            }
+        })
+
 
         ctx.unsafe.hooks.wrapMethod({
             target: proto,
