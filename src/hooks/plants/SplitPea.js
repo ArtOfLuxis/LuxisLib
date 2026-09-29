@@ -6,7 +6,6 @@ export function init(ctx) {
         const proto = splitPea.SplitPeaPlant.prototype;
 
         wrapObjDataOwnPlant(ctx, proto, {
-            "BackPeaType": null,
             "AlwaysShootsBack": null,
             "AlwaysShootsFront": null
         })
