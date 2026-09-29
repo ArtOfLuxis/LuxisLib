@@ -23,16 +23,14 @@ export function init(ctx) {
             methodName: "shouldMaterial",
             handler: ({ args, thisArg, callNext }) => {
                 callNext(...args)
+                const colorOffset = thisArg.objdataOwn.ColorOffset
+                const colorMult = thisArg.objdataOwn.ColorMult
+                if (!colorMult && !colorOffset) return;
 
                 let addColor = new cc.Vec4(0, 0, 0, 1)
                 let saturation = 0
 
-                if (thisArg._cdScaleByPlantCD > 0) {
-                    saturation += libProperties?.GlacierShroomSaturation ?? 0.5
-                }
-
                 let holo = 0
-                const colorOffset = thisArg.objdataOwn.ColorOffset
                 if (colorOffset) {
                     addColor.x += (colorOffset.r ?? 0) / 255
                     addColor.y += (colorOffset.g ?? 0) / 255
@@ -40,8 +38,6 @@ export function init(ctx) {
                     saturation += colorOffset.s ?? 0
                     holo += colorOffset.holo ?? 0
                 }
-
-                const colorMult = thisArg.objdataOwn.ColorMult
 
                 const pass = thisArg.material.passes[0]
 
