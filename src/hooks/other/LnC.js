@@ -295,7 +295,7 @@ export function init(ctx) {
                 thisArg.index = 0
 
                 const canPlacePlant =
-                    (thisArg.putPlantAvailable(true, plantID, true, true, plantData?.spf) ||
+                    (thisArg.plantEvolvable(plantType) || thisArg.putPlantAvailable(true, plantID, true, true, plantData?.spf) ||
                         thisArg.replantable(plantID)) &&
                     ui.UIInGame.index >= 0 &&
                     ui.UIInGame.index <= 8
