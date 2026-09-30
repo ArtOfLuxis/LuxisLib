@@ -21,7 +21,7 @@ export function init(ctx) {
                 if (backPeaType && (peaType === undefined || peaType === thisArg.objdataOwn.PeaType)) {
                     args[2] = backPeaType
                 }
-                callNext(...args)
+                return callNext(...args)
             }
         })
 
