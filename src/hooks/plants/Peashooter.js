@@ -29,7 +29,7 @@ export function init(ctx) {
 
         ctx.unsafe.hooks.wrapMethod({
             target: proto,
-            methodName: "startShooting",
+            methodName: "playShootAnm",
             handler: ({args, thisArg, callNext}) => {
                 thisArg.___LuxisLibShootAnimationCycles = 0
                 callNext(...args)
