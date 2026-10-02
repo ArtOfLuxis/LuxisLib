@@ -115,7 +115,8 @@ export function init(ctx) {
             "PFOnSpawn": null,
             "SpecificScale": null,
             "ZIndexOffset": null,
-            "WallnutAidOverride": null
+            "WallnutAidOverride": null,
+            "LoadProjectilesWithPlant": null,
         })
 
         ctx.unsafe.hooks.wrapMethod({
@@ -196,7 +197,7 @@ export function init(ctx) {
 
                 const colorOffset = thisArg.objdataOwn.ColorOffset
                 if (colorOffset && colorOffset.a) {
-                    color.a += colorOffset.a * 255
+                    color.a += colorOffset.a
                 }
 
                 return color

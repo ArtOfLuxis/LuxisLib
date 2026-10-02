@@ -8,8 +8,21 @@ export function init(ctx) {
 
         libProperties.SandboxZombiesIDs = []
         libProperties.SandboxZombies?.forEach((zombie) => {
-            const zombieEnum = zombies.zombies.getZombieEnumByCodename(zombie)
-            libProperties.SandboxZombiesIDs.push(zombieEnum)
+            const zombieEnum = zombies.zombies.getZombieEnumByCodename(zombie, false)
+
+            const feature =
+                Number.isInteger(zombieEnum)
+                    ? zombies.zombies.getZombieFeature(zombieEnum)
+                    : undefined
+
+            if (feature) {
+                libProperties.SandboxZombiesIDs.push(zombieEnum)
+            } else {
+                console.warn(
+                    "[Luxis Lib] Invalid sandbox zombie:", zombie,
+                    "resolved ID:", zombieEnum
+                )
+            }
         })
 
         ctx.unsafe.hooks.wrapMethod({

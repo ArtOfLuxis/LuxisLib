@@ -1,3 +1,4 @@
+import {plantAnimations} from "./CardFeature.js";
 
 export let zombieAnimations
 
@@ -12,7 +13,7 @@ export function init(ctx) {
             target: proto,
             methodName: "cardGrouperZombie",
             handler: ({ thisArg, callNext, args }) => {
-                callNext(...args)
+                const result = callNext(...args)
 
                 const assets = cc.assetManager.assets._map
 
@@ -22,20 +23,23 @@ export function init(ctx) {
                 const zombieAsset = assets["52499037-3d67-4db4-a1c1-d5055559bc09"]
                 const zombieAtlas = assets["1460d3f3-5bba-411c-bad2-47aa2d6b278f"]
 
-                const db = thisArg.ca.__plantDB
+                const animation = thisArg.thisZombie?._CARDSPRITENAME
+                const db = thisArg.ca?.__plantDB
+                if (!animation || !db) {
+                    return result
+                }
 
-                const animations = db._armature?.animation?._animations;
+                const animations = db._armature?.animation?._animations
 
                 if (!zombieAnimations) {
                     if (!animations) {
-                        return;
+                        return result
                     }
 
-                    zombieAnimations = Object.keys(animations);
+                    zombieAnimations = Object.keys(animations)
                 }
 
-                const animation = thisArg.thisZombie._CARDSPRITENAME
-                if (!zombieAnimations.includes(animation)) {
+                if (!zombieAnimations.includes(animation) && plantAnimations.includes(animation)) {
                     db._dragonAsset = plantAsset
                     db._dragonAtlasAsset = plantAtlas
                     db._armatureName = "plants"
@@ -47,6 +51,8 @@ export function init(ctx) {
 
                 db._buildArmature()
                 db.playAnimation(animation)
+
+                return result
             }
         })
 

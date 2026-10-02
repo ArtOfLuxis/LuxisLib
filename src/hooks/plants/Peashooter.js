@@ -6,7 +6,20 @@ export function init(ctx) {
         const proto = peashooter.PeashooterPlant.prototype
 
         wrapObjDataOwnPlant(ctx, proto, {
-            "MaxShootAnimationCycles": null
+            "MaxShootAnimationCycles": null,
+            "NoUpgradeOnPlantFood": null,
+        })
+
+        ctx.unsafe.hooks.wrapMethod({
+            target: proto,
+            methodName: "upgrade",
+            handler: ({args, thisArg, callNext}) => {
+                if (thisArg.objdataOwn.NoUpgradeOnPlantFood === true) {
+                    return
+                }
+
+                return callNext(...args)
+            }
         })
 
         ctx.unsafe.hooks.wrapMethod({

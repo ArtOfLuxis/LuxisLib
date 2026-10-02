@@ -1,6 +1,6 @@
 import {zombieAnimations} from "./CardFeatureZombie.js";
 
-let plantAnimations
+export let plantAnimations
 
 export function init(ctx) {
     ctx.events.on("engine:ready", () => {
