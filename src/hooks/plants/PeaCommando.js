@@ -42,9 +42,14 @@ export function init(ctx) {
                 if (!thisArg.fooding && thisArg.objdataOwn.BaseRayDamage) {
                     thisArg.objdataOwn.PlantfoodRayDamage = thisArg.objdataOwn.BaseRayDamage;
                 }
-                const result = callNext(...args);
-                thisArg.objdataOwn.PlantfoodRayDamage = originalRayDamage;
-                return result;
+                let result
+                try {
+                    result = callNext(...args);
+                }
+                finally {
+                    thisArg.objdataOwn.PlantfoodRayDamage = originalRayDamage;
+                    return result;
+                }
             }
         })
 
