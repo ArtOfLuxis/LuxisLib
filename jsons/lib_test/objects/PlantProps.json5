@@ -199,6 +199,29 @@
     {
       "objclass": "PlantProperties",
       "aliases": [
+        "snappea"
+      ],
+      "objdata": {
+        "PlantfoodCallingType": [
+          "peashooter",
+          "repeater",
+          "snappea"
+        ],
+        "SpawnWithPFUpgrade": true
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
+        "parsnip"
+      ],
+      "objdata": {
+        "TileRange": 6
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
         "peanut"
       ],
       "objdata": {
