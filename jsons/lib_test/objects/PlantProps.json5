@@ -18,6 +18,24 @@
           "IncrementSunCost": 25,
           "ListSunCost": [50, 75],
         },
+        "OnEnableActions": [
+          {
+            "kind": "Sleep",
+            "time": 0, // sleeps for 1 frame so the plant has time to set its world position correctly
+            "cloneContext": true,
+            "actions": [
+              {
+                "kind": "DropSun",
+                "value": 25,
+                "position": {"kind": "GetObjectProperty", "property": "worldPosition"},
+                "height": 40,
+                "addsToLevelTask": true,
+                "singleBurst": false,
+                "shineVineBoosted": false
+              }
+            ]
+          }
+        ]
       }
     },
     {

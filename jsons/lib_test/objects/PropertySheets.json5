@@ -222,6 +222,7 @@
           "sky_dronemaker",
           "sky_drone",
           "sky",
+          "iceage_hunter",
         ],
         "ZombieEnumAdd": [
           // adding a zombie to the ZombieEnum allows you to properly use custom ZombieFeatures (in the almanac etc)
