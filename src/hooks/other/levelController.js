@@ -140,9 +140,9 @@ export function init(ctx) {
                     }
                 }
 
-                return result;
+                return result
             }
-        });
+        })
 
     })
 }
