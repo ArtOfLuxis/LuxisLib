@@ -21,7 +21,6 @@ export function init(ctx) {
         delete enumTable.zombieAmount
 
         for (const typeName of libProperties.ZombieEnumAdd ?? []) {
-            console.log(typeName)
             if (
                 typeof typeName !== "string" ||
                 enumTable[typeName] !== undefined
@@ -37,15 +36,13 @@ export function init(ctx) {
                 (feature) => feature?.CODENAME === featureName
             )
 
-            console.log(typeData, featureName, featureID)
-
             if (featureID === -1) {
                 console.warn("[Luxis Lib] ZombieBasedOn feature not found:", typeName, featureName)
                 continue
             }
 
             enumTable[typeName] = featureID
-            enumTable[featureID] = typeName
+            //enumTable[featureID] = typeName
         }
 
         enumTable.zombieAmount = features.length
@@ -54,8 +51,6 @@ export function init(ctx) {
             (libProperties.SandboxZombies ?? [])
                 .map(typeName => enumTable[typeName])
                 .filter(id => Number.isInteger(id))
-
-        console.log(libProperties.SandboxZombiesIDs)
 
         ctx.events.emit("zombie_enum")
 
@@ -73,7 +68,7 @@ export function init(ctx) {
                         if (zombies.zombies.f1BlackList.indexOf(id) !== -1)
                             continue
 
-                        await zombies.zombies.spawnZombieFromLaneByID(lane, id);
+                        await zombies.zombies.spawnZombieFromLaneByID(lane, id)
                     }
                 }
             }

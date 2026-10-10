@@ -27,6 +27,25 @@ export function init(ctx) {
 
         ctx.unsafe.hooks.wrapMethod({
             target: proto,
+            methodName: "start",
+            handler: ({ args, thisArg, callNext }) => {
+                const result = callNext(...args)
+                const sandboxZombies = libProperties?.SandboxZombiesIDs
+
+                if (!sandboxZombies || sandboxZombies.length === 0) {
+                    return result
+                }
+
+                thisArg.onMouseScroll({
+                    getScrollY() { return 0 }
+                })
+
+                return result
+            }
+        })
+
+        ctx.unsafe.hooks.wrapMethod({
+            target: proto,
             methodName: "onMouseScroll",
             handler: ({ args, thisArg, callNext }) => {
                 const sandboxZombies = libProperties?.SandboxZombiesIDs
@@ -36,7 +55,7 @@ export function init(ctx) {
                 }
 
                 const len = sandboxZombies.length
-                const scroll = args[0].getScrollY() < 0 ? 1 : -1
+                const scroll = -Math.sign(args[0].getScrollY())
 
                 if (thisArg.___sandboxIndex == null) {
                     const current = sandboxZombies.indexOf(thisArg.zombieCards[0].ID)

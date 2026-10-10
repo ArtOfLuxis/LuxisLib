@@ -49,6 +49,7 @@ export function init(ctx) {
         ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "cardGrouperPlant",
+            priority: -10000,
             handler: async ({thisArg, callNext, args}) => {
                 callNext(...args)
 
@@ -79,7 +80,7 @@ export function init(ctx) {
 
                 const animation = thisArg.PF._CARDSPRITENAME
                 let changed = false
-                if (!plantAnimations.includes(animation) && zombieAnimations?.includes(animation)) {
+                if (!plantAnimations?.includes(animation) && zombieAnimations?.includes(animation)) {
                     db._dragonAsset = zombieAsset
                     db._dragonAtlasAsset = zombieAtlas
                     changed = db._armatureName !== "Zombie"

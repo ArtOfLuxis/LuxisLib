@@ -644,11 +644,17 @@ export function init(ctx) {
                 const result = callNext(...args)
 
                 const specificScale = thisArg.objdataOwn?.SpecificScale
-                if (specificScale !== undefined && specificScale !== null) {
+                if (
+                    (specificScale !== undefined && specificScale !== null) ||
+                    thisArg.___LuxisLibCustomScaleX !== undefined ||
+                    thisArg.___LuxisLibCustomScaleY !== undefined
+                ) {
                     const e = thisArg._scaleForCharacter
                     const depthFactor = thisArg.depth <= 0 ? 1 : 1.414
-                    const customScaleX = thisArg.objdataOwn?.SpecificScale?.x ?? 1
-                    const customScaleY = thisArg.objdataOwn?.SpecificScale?.y ?? 1
+                    const customScaleX =
+                        thisArg.___LuxisLibCustomScaleX ?? thisArg.objdataOwn?.SpecificScale?.x ?? 1
+                    const customScaleY =
+                        thisArg.___LuxisLibCustomScaleY ?? thisArg.objdataOwn?.SpecificScale?.y ?? 1
 
                     thisArg.node.scale = new cc.Vec3(
                         e * customScaleX,

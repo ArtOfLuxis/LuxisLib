@@ -32,11 +32,6 @@ export function init(ctx) {
                         return Promise.resolve()
                     }
 
-                    if (typeof projectiles.ProjectileEnum[type] !== "number") {
-                        console.warn(`Unknown projectile: ${type}`)
-                        return Promise.resolve()
-                    }
-
                     return projectiles.projectileRes
                         .loadProjectile(type)
                         .catch((error) => {

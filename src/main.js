@@ -30,28 +30,6 @@ export async function setup(ctx) {
             return result
         }
     }
-    const oldWrapMethod = ctx.unsafe.hooks.wrapMethod
-    if (!oldWrapMethod.___LuxisLibEdited) {
-        oldWrapMethod.___LuxisLibEdited = true
-
-        ctx.unsafe.hooks.wrapMethod = (args) => {
-            const target = args?.target
-            const className =
-                target?.["__classname__"] ??
-                target?.prototype?.["__classname__"] ??
-                target?.name ??
-                "UNKNOWN"
-            const isStatic = target && !target["__classname__"] && target.name
-
-            console.log(
-                `[Luxis Lib Debug] Wrapping ${isStatic ? "Static " : ""}Method '${args?.methodName}' ` + (isStatic ?
-                    `of class '${className}' (cant infer real name)` :
-                    `of class '${className}'`
-                )
-            )
-            return oldWrapMethod(args)
-        }
-    }
     const oldWarn = console.warn
     if (!oldWarn.___LuxisLibEdited) {
         oldWarn.___LuxisLibEdited = true
@@ -220,7 +198,7 @@ export async function setup(ctx) {
         ctx.log.info("Mod runtime reload detected; reloading page")
         ctx.ui.toast("Mod runtime reload detected; reloading page", "info")
 
-        location.reload()
+        setTimeout(() => {location.reload()}, 0.7)
         return
     }
 

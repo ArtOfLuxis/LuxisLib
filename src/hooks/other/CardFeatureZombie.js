@@ -12,6 +12,7 @@ export function init(ctx) {
         ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "cardGrouperZombie",
+            priority: -10000,
             handler: ({ thisArg, callNext, args }) => {
                 const result = callNext(...args)
 
@@ -39,7 +40,7 @@ export function init(ctx) {
                     zombieAnimations = Object.keys(animations)
                 }
 
-                if (!zombieAnimations.includes(animation) && plantAnimations.includes(animation)) {
+                if (!zombieAnimations?.includes(animation) && plantAnimations?.includes(animation)) {
                     db._dragonAsset = plantAsset
                     db._dragonAtlasAsset = plantAtlas
                     db._armatureName = "plants"
