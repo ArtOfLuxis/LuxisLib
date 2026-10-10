@@ -6,7 +6,34 @@ export function init(ctx) {
         const proto = peashooter.PeashooterPlant.prototype
 
         wrapObjDataOwnPlant(ctx, proto, {
-            "MaxShootAnimationCycles": null
+            "MaxShootAnimationCycles": null,
+            "NoUpgradeOnPlantFood": null,
+            "SpawnWithPFUpgrade": null,
+        })
+
+        ctx.unsafe.hooks.wrapMethod({
+            target: proto,
+            methodName: "characterOnEnable",
+            handler: ({args, thisArg, callNext}) => {
+                const result = callNext(...args)
+                if (thisArg.objdataOwn.SpawnWithPFUpgrade) {
+                    thisArg.upgrade();
+                }
+
+                return result
+            }
+        })
+
+        ctx.unsafe.hooks.wrapMethod({
+            target: proto,
+            methodName: "upgrade",
+            handler: ({args, thisArg, callNext}) => {
+                if (thisArg.objdataOwn.NoUpgradeOnPlantFood === true) {
+                    return
+                }
+
+                return callNext(...args)
+            }
         })
 
         ctx.unsafe.hooks.wrapMethod({
@@ -15,7 +42,7 @@ export function init(ctx) {
             handler: ({args, thisArg, callNext}) => {
                 const proj = args[0]
                 const maxShootAnimationCycles = thisArg.objdataOwn?.MaxShootAnimationCycles
-                if (thisArg._foodLeftPeaCount === 0 && typeof maxShootAnimationCycles === "number") {
+                if (!thisArg.fooding && typeof maxShootAnimationCycles === "number") {
                     if ((thisArg.___LuxisLibShootAnimationCycles ??= 0) >= maxShootAnimationCycles) {
                         proj.fade()
                         return
@@ -29,7 +56,7 @@ export function init(ctx) {
 
         ctx.unsafe.hooks.wrapMethod({
             target: proto,
-            methodName: "startShooting",
+            methodName: "playShootAnm",
             handler: ({args, thisArg, callNext}) => {
                 thisArg.___LuxisLibShootAnimationCycles = 0
                 callNext(...args)

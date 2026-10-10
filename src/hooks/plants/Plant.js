@@ -115,7 +115,9 @@ export function init(ctx) {
             "PFOnSpawn": null,
             "SpecificScale": null,
             "ZIndexOffset": null,
-            "WallnutAidOverride": null
+            "WallnutAidOverride": null,
+            "LoadProjectilesWithPlant": null,
+            "PlantfoodCallingType": null
         })
 
         ctx.unsafe.hooks.wrapMethod({
@@ -196,7 +198,7 @@ export function init(ctx) {
 
                 const colorOffset = thisArg.objdataOwn.ColorOffset
                 if (colorOffset && colorOffset.a) {
-                    color.a += colorOffset.a * 255
+                    color.a += colorOffset.a
                 }
 
                 return color
@@ -457,6 +459,15 @@ export function init(ctx) {
             handler: ({args, thisArg, callNext}) => {
                 let originalHP = thisArg.health
                 const result = callNext(...args)
+                const pfCallingType = thisArg.objdataOwn.PlantfoodCallingType;
+                if (pfCallingType) {
+                    characterManager.PlantPool.pool().forEach(function (plant) {
+                        if (pfCallingType.indexOf(plant.Plant_Type) >= 0 && plant.foodable && !plant.fooding && !plant.dead && !plant.sheepend) {
+                            plant.food(false);
+                        }
+                    })
+                }
+
 
                 if (thisArg.objdataOwn.HealAfterPF === false) {
                     thisArg.health = originalHP
@@ -643,11 +654,17 @@ export function init(ctx) {
                 const result = callNext(...args)
 
                 const specificScale = thisArg.objdataOwn?.SpecificScale
-                if (specificScale !== undefined && specificScale !== null) {
+                if (
+                    (specificScale !== undefined && specificScale !== null) ||
+                    thisArg.___LuxisLibCustomScaleX !== undefined ||
+                    thisArg.___LuxisLibCustomScaleY !== undefined
+                ) {
                     const e = thisArg._scaleForCharacter
                     const depthFactor = thisArg.depth <= 0 ? 1 : 1.414
-                    const customScaleX = thisArg.objdataOwn?.SpecificScale?.x ?? 1
-                    const customScaleY = thisArg.objdataOwn?.SpecificScale?.y ?? 1
+                    const customScaleX =
+                        thisArg.___LuxisLibCustomScaleX ?? thisArg.objdataOwn?.SpecificScale?.x ?? 1
+                    const customScaleY =
+                        thisArg.___LuxisLibCustomScaleY ?? thisArg.objdataOwn?.SpecificScale?.y ?? 1
 
                     thisArg.node.scale = new cc.Vec3(
                         e * customScaleX,
