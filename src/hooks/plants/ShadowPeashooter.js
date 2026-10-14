@@ -22,7 +22,6 @@ export function init(ctx) {
 
                 return result
             }
-            "NoUpgradeOnPlantFood": null
         })
 
         ctx.unsafe.hooks.wrapMethod({
