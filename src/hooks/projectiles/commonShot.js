@@ -85,6 +85,7 @@ export function init(ctx) {
         const lnc = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/LnC.ts")
         const levelController = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/levelController.ts")
         const mouse = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Mouse.ts")
+        const plant = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Plant.ts")
         const prjFunctions = projectiles.PrjFunctions
         const proto = commonShot.commonShot.prototype
 
@@ -726,7 +727,7 @@ export function init(ctx) {
         ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "beforeZombieHit",
-            prioritiy: 100,
+            priority: 100,
             handler: ({args, thisArg, callNext}) => {
                 const zombie = args[0]
 
@@ -742,7 +743,7 @@ export function init(ctx) {
         ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "dealDamageToZombie",
-            prioritiy: 100,
+            priority: 100,
             handler: ({args, thisArg, callNext}) => {
                 callNext(...args)
 
@@ -799,7 +800,7 @@ export function init(ctx) {
                     (((libProperties?.PeaVineDamageBoost ?? 1.5) === 1.5) || !thisArg.havePeaBuff)
                 ) return callNext(...args)
 
-                const someArgIDK = args[0]
+                const deltaTime = args[0]
 
                 if (!thisArg.inLane || !thisArg.detectEnemyOn)
                     return
@@ -826,14 +827,22 @@ export function init(ctx) {
 
                 thisArg.___LuxisLibContactingEnemies =
                     thisArg.___LuxisLibContactingEnemies.filter(enemy => {
-                        const bodyRec = thisArg.JudgesZombieBodyRecForShooter
-                            ? (enemy.bodyRecForShooter ?? enemy.bodyRec)
-                            : enemy.bodyRec
+                        let enemyBody;
+
+                        if (enemy instanceof plant.Plant) {
+                            enemyBody = thisArg.iceblockLevel > 0
+                                ? enemy.bodyRecForSnowball
+                                : enemy.realBodyRec;
+                        } else {
+                            enemyBody = thisArg.JudgesZombieBodyRecForShooter
+                                ? (enemy.bodyRecForShooter ?? enemy.bodyRec)
+                                : enemy.bodyRec;
+                        }
 
                         return pool.includes(enemy) &&
-                            bodyRec.judgeCrossRec(body)
-                    }
-                )
+                            !!enemyBody &&
+                            enemyBody.judgeCrossRec(body);
+                    });
 
                 if (
                     thisArg.enemyType === character.CharacterType.zombie ||
@@ -976,10 +985,77 @@ export function init(ctx) {
                 }
 
                 if (thisArg.enemyType === character.CharacterType.plant) {
-                    thisArg.detectPlant(someArgIDK, body)
+                    thisArg.detectPlant(deltaTime, body)
                 }
             }
         })
+
+        ctx.unsafe.hooks.wrapMethod({
+            target: proto,
+            methodName: "detectPlant",
+            handler: ({ args, thisArg, callNext }) => {
+                if (typeof thisArg.___LuxisLibDealtTargetAmount !== "number") {
+                    return callNext(...args)
+                }
+
+                const body = args[1] ?? thisArg.bodyRec()
+                const plants = thisArg.inLane?.plantPool() ?? []
+
+                thisArg.___LuxisLibContactingEnemies ??= []
+                thisArg.___LuxisLibMaxPierceAmount ??= 1
+
+                for (const p of plants) {
+                    if (thisArg.dead) return
+
+                    if (thisArg.___LuxisLibContactingEnemies.includes(p)) {
+                        continue;
+                    }
+
+                    const plantBody = thisArg.iceblockLevel > 0
+                        ? p.bodyRecForSnowball
+                        : p.realBodyRec;
+
+                    if (
+                        !plantBody ||
+                        !(p.eaterDetectable || thisArg.detectsEaterDetectDisabledPlants) ||
+                        !body.judgeCrossRec(plantBody) ||
+                        (thisArg.targetLocked && p !== thisArg.targetLocked)
+                    ) {
+                        continue
+                    }
+
+                    const umbrellaNearby =
+                        thisArg.bodyLinearVelocity < 0 &&
+                        p.haveUmbrellaNearby()
+
+                    if (!thisArg.dealDamageToPlant(p)) {
+                        continue
+                    }
+
+                    if (!umbrellaNearby) {
+                        thisArg.dealSplashDamage(null, null, p)
+                    }
+
+                    thisArg.___LuxisLibContactingEnemies.push(p)
+                    thisArg.___LuxisLibDealtTargetAmount++
+
+                    if (thisArg.dead) return
+
+                    if (thisArg.___LuxisLibDealtTargetAmount >= thisArg.___LuxisLibMaxPierceAmount) {
+                        thisArg.pop()
+                        return
+                    }
+
+                    if (thisArg.___LuxisLibPiercePlayHitSound === true) {
+                        thisArg.playPopSound()
+                    }
+
+                    if (thisArg.___LuxisLibPiercePlayHitParticle === true) {
+                        thisArg.playParticle()
+                    }
+                }
+            }
+        });
 
 
 

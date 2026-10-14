@@ -18,6 +18,24 @@
           "IncrementSunCost": 25,
           "ListSunCost": [50, 75],
         },
+        "OnEnableActions": [
+          {
+            "kind": "Sleep",
+            "time": 0, // sleeps for 1 frame so the plant has time to set its world position correctly
+            "cloneContext": true,
+            "actions": [
+              {
+                "kind": "DropSun",
+                "value": 25,
+                "position": {"kind": "GetObjectProperty", "property": "worldPosition"},
+                "height": 40,
+                "addsToLevelTask": true,
+                "singleBurst": false,
+                "shineVineBoosted": false
+              }
+            ]
+          }
+        ]
       }
     },
     {
@@ -121,6 +139,7 @@
         "peashooter"
       ],
       "objdata": {
+        "LoadProjectilesWithPlant": ["pea1", "pea_flame_yellow", "pea_flame_blue"],
         "ColorOffset": { "r": 0, "g": 0, "b": 0, "holo": -0.5, "a": -127, "s": -0.6},
         "PeaType": "pea1",
         "DetectorOverride": { "x": 5, "y": 3, "lanes": [-1, 0, 1], "xOffset": 0.2, "yOffset": 0, "isCentered": false },
@@ -240,7 +259,7 @@
         "holonut"
       ],
       "objdata": {
-        "ColorOffset": {"a": -0.5},
+        "ColorOffset": {"a": -127},
         "SpecificScale": { "x": 5, "y": 1 },
         "HitRectOverride": {
           "ModifyOriginal": false,
@@ -1328,6 +1347,15 @@
     {
       "objclass": "PlantProperties",
       "aliases": [
+        "shadowpeashooter_mgp"
+      ],
+      "objdata": {
+        "MaxShootAnimationCycles": 2
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
         "moonflower"
       ],
       "objdata": {
@@ -1435,6 +1463,7 @@
       ],
       "objdata": {
         "MaxShootAnimationCycles": 1,
+        "NoUpgradeOnPlantFood": true,
         "PeaType": "pea1_flame_yellow"
       }
     },
@@ -1445,6 +1474,7 @@
       ],
       "objdata": {
         "MaxShootAnimationCycles": 1,
+        "NoUpgradeOnPlantFood": true,
         "PeaType": "pea2_flame_yellow"
       }
     },

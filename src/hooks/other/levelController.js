@@ -114,5 +114,35 @@ export function init(ctx) {
             }
         })
 
+        ctx.unsafe.hooks.wrapMethod({
+            target: proto,
+            methodName: "module_SetLevelDefinition",
+            handler: async ({ args, thisArg, callNext }) => {
+                const result = await callNext(...args)
+
+                if ((await ctx.settings.get("disableDialogue")) === true) {
+                    thisArg.IntroNarrative = ""
+                    thisArg.OutroNarrative = ""
+                    return result
+                }
+
+                if ((await ctx.settings.get("replayDialogue")) === true) {
+                    const definition = thisArg.levelDefinition
+
+                    if (definition) {
+                        if (!definition.ReplayIntroNarrative && definition.FirstIntroNarrative) {
+                            thisArg.IntroNarrative = definition.FirstIntroNarrative
+                        }
+
+                        if (!definition.ReplayOutroNarrative && definition.FirstOutroNarrative) {
+                            thisArg.OutroNarrative = definition.FirstOutroNarrative
+                        }
+                    }
+                }
+
+                return result
+            }
+        })
+
     })
 }
