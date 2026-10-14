@@ -7,6 +7,21 @@ export function init(ctx) {
 
         wrapObjDataOwnPlant(ctx, proto, {
             "MaxShootAnimationCycles": null,
+            "NoUpgradeOnPlantFood": null,
+            "SpawnWithPFUpgrade": null,
+        })
+
+        ctx.unsafe.hooks.wrapMethod({
+            target: proto,
+            methodName: "characterOnEnable",
+            handler: ({args, thisArg, callNext}) => {
+                const result = callNext(...args)
+                if (thisArg.objdataOwn.SpawnWithPFUpgrade) {
+                    thisArg.upgrade();
+                }
+
+                return result
+            }
             "NoUpgradeOnPlantFood": null
         })
 

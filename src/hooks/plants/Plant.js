@@ -117,6 +117,7 @@ export function init(ctx) {
             "ZIndexOffset": null,
             "WallnutAidOverride": null,
             "LoadProjectilesWithPlant": null,
+            "PlantfoodCallingType": null
         })
 
         ctx.unsafe.hooks.wrapMethod({
@@ -458,6 +459,15 @@ export function init(ctx) {
             handler: ({args, thisArg, callNext}) => {
                 let originalHP = thisArg.health
                 const result = callNext(...args)
+                const pfCallingType = thisArg.objdataOwn.PlantfoodCallingType;
+                if (pfCallingType) {
+                    characterManager.PlantPool.pool().forEach(function (plant) {
+                        if (pfCallingType.indexOf(plant.Plant_Type) >= 0 && plant.foodable && !plant.fooding && !plant.dead && !plant.sheepend) {
+                            plant.food(false);
+                        }
+                    })
+                }
+
 
                 if (thisArg.objdataOwn.HealAfterPF === false) {
                     thisArg.health = originalHP
