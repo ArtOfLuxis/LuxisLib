@@ -5,6 +5,7 @@ export function init(ctx) {
         const medaldisplay = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/PlantMedalDisplayer.ts");
         const playerproperties = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/PlayerProperties.ts");
         const medal = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/PlantMedal.ts");
+        const plants = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Plants.ts");
         const displayproto = medaldisplay.PlantMedalDisplayer.prototype;
         const proto = medal.PlantMedal.prototype;
 
@@ -47,11 +48,23 @@ export function init(ctx) {
                     boostAmount = libProperties.MedalBoostAmountSpecific[features.CODENAME]
                 }
                 callNext(...args);
-                const properties = playerproperties.AllPlayerProperties;
-                const boost = properties.getPlantProgressByID(args[0]).boost;
-                thisArg.boost_progress.progress = boost / boostAmount;
-                thisArg.boost_count_label.string = boost.toString() + "/" + boostAmount.toString();
-                thisArg.unlock_button.node.active = ((boost / boostAmount) >= 1 && !thisArg.pp.medal)
+                if (thisArg.isMint) {
+                    const properties = playerproperties.AllPlayerProperties;
+                    thisArg.plantDB_boost.node.parent.active = false;
+                    thisArg.boost_progress.node.active = false;
+                    thisArg.boost_count_label.node.active = false;
+                    thisArg.unlock_button.node.active = thisArg.medals_required_types.every((function(t) {
+                        var plantEnum = plants.plants.getPlantEnumWithPropByPlantTypes(args[0]).id;
+                        return properties.getPlantProgressByID(plantEnum).medal;
+                    }));
+                }
+                else {
+                    const properties = playerproperties.AllPlayerProperties;
+                    const boost = properties.getPlantProgressByID(args[0]).boost;
+                    thisArg.boost_progress.progress = boost / boostAmount;
+                    thisArg.boost_count_label.string = boost.toString() + "/" + boostAmount.toString();
+                    thisArg.unlock_button.node.active = ((boost / boostAmount) >= 1 && !thisArg.pp.medal)
+                }
             }
         })
     });
