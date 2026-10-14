@@ -118,7 +118,19 @@ export async function setup(ctx) {
             key: "allowForceReload",
             label: "Force Reload on Mod Reload",
             type: "toggle",
+            default: false
+        },
+        {
+            key: "replayDialogue",
+            label: "Replay Level Dialogue",
+            type: "toggle",
             default: true
+        },
+        {
+            key: "disableDialogue",
+            label: "Disable Level Dialogue",
+            type: "toggle",
+            default: false
         },
         {
             key: "hideMintIcons",
@@ -131,9 +143,9 @@ export async function setup(ctx) {
             label: "Low FPS Slowdown",
             type: "slider",
             min: 0,
-            max: 144,
+            max: 165,
             step: 1,
-            default: 15
+            default: 20
         },
         {
             key: "overrideFastForwardSpeed",
@@ -198,7 +210,7 @@ export async function setup(ctx) {
         ctx.log.info("Mod runtime reload detected; reloading page")
         ctx.ui.toast("Mod runtime reload detected; reloading page", "info")
 
-        location.reload()
+        setTimeout(() => {location.reload()}, 0.7)
         return
     }
 

@@ -1,5 +1,6 @@
+import {zombieAnimations} from "./CardFeatureZombie.js";
 
-let plantAnimations
+export let plantAnimations
 
 export function init(ctx) {
     ctx.events.on("engine:ready", () => {
@@ -48,9 +49,9 @@ export function init(ctx) {
         ctx.unsafe.hooks.wrapMethod({
             target: proto,
             methodName: "cardGrouperPlant",
+            priority: -10000,
             handler: async ({thisArg, callNext, args}) => {
                 callNext(...args)
-
 
                 if (await ctx.settings.get("hideMintIcons")) {
                     let s = cc.internal.ArmatureDisplay;
@@ -78,18 +79,23 @@ export function init(ctx) {
                 }
 
                 const animation = thisArg.PF._CARDSPRITENAME
-                if (!plantAnimations.includes(animation)) {
+                let changed = false
+                if (!plantAnimations?.includes(animation) && zombieAnimations?.includes(animation)) {
                     db._dragonAsset = zombieAsset
                     db._dragonAtlasAsset = zombieAtlas
+                    changed = db._armatureName !== "Zombie"
                     db._armatureName = "Zombie"
                 } else {
                     db._dragonAsset = plantAsset
                     db._dragonAtlasAsset = plantAtlas
+                    changed = db._armatureName !== "plants"
                     db._armatureName = "plants"
                 }
 
-                db._buildArmature()
-                db.playAnimation(animation)
+                if (changed) {
+                    db._buildArmature()
+                    db.playAnimation(animation)
+                }
             }
         })
     })

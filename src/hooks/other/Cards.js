@@ -1,3 +1,4 @@
+import {libProperties} from "./JSONs.js";
 
 export function init(ctx) {
     ctx.events.on("engine:ready", () => {
@@ -44,6 +45,24 @@ export function init(ctx) {
                     ) &&
                     lawnCheck
                 )
+            }
+        })
+
+
+        ctx.unsafe.hooks.wrapMethod({
+            target: proto,
+            methodName: "gameStart",
+            handler: ({ args, thisArg, callNext }) => {
+                const result = callNext(...args)
+
+                thisArg.onMouseScroll({
+                    getScrollY() { return 1 }
+                })
+                thisArg.onMouseScroll({
+                    getScrollY() { return -1 }
+                })
+
+                return result
             }
         })
 

@@ -8,8 +8,40 @@ export function init(ctx) {
 
         libProperties.SandboxZombiesIDs = []
         libProperties.SandboxZombies?.forEach((zombie) => {
-            const zombieEnum = zombies.zombies.getZombieEnumByCodename(zombie)
-            libProperties.SandboxZombiesIDs.push(zombieEnum)
+            const zombieEnum = zombies.zombies.getZombieEnumByCodename(zombie, false)
+
+            const feature =
+                Number.isInteger(zombieEnum)
+                    ? zombies.zombies.getZombieFeature(zombieEnum)
+                    : undefined
+
+            if (feature) {
+                libProperties.SandboxZombiesIDs.push(zombieEnum)
+            } else {
+                console.warn(
+                    "[Luxis Lib] Invalid sandbox zombie:", zombie,
+                    "resolved ID:", zombieEnum
+                )
+            }
+        })
+
+        ctx.unsafe.hooks.wrapMethod({
+            target: proto,
+            methodName: "start",
+            handler: ({ args, thisArg, callNext }) => {
+                const result = callNext(...args)
+                const sandboxZombies = libProperties?.SandboxZombiesIDs
+
+                if (!sandboxZombies || sandboxZombies.length === 0) {
+                    return result
+                }
+
+                thisArg.onMouseScroll({
+                    getScrollY() { return 0 }
+                })
+
+                return result
+            }
         })
 
         ctx.unsafe.hooks.wrapMethod({
@@ -23,7 +55,7 @@ export function init(ctx) {
                 }
 
                 const len = sandboxZombies.length
-                const scroll = args[0].getScrollY() < 0 ? 1 : -1
+                const scroll = -Math.sign(args[0].getScrollY())
 
                 if (thisArg.___sandboxIndex == null) {
                     const current = sandboxZombies.indexOf(thisArg.zombieCards[0].ID)
