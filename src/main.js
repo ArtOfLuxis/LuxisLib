@@ -43,7 +43,7 @@ export async function setup(ctx) {
     ctx.ui.toast("Initialized >w<", "success")
     for (const initModule of Object.values(modules)) {
         try {
-            initModule.init(ctx)
+            initModule.init?.(ctx)
         } catch (err) {
             ctx.ui.toast("error encountered :c", "error")
             ctx.log.error(err.message)
@@ -90,13 +90,8 @@ export async function setup(ctx) {
     ]
     const normalFields = [
         {
-            key: "seedPacketSettings",
-            label: "SeedPacket Settings",
-            type: "readonly"
-        },
-        {
             key: "seedPacketCount",
-            label: "Count",
+            label: "SeedPacket Count",
             type: "slider",
             min: 2,
             max: 16,
@@ -137,6 +132,12 @@ export async function setup(ctx) {
             label: "Hide SeedPacket Mint Icons",
             type: "toggle",
             default: false
+        },
+        {
+            key: "deterministicPinatas",
+            label: "Deterministic Pinata Parties",
+            type: "toggle",
+            default: true
         },
         {
             key: "deltaTimeThreshold",
