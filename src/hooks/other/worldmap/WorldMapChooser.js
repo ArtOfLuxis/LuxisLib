@@ -1,8 +1,8 @@
-import {libProperties} from "./JSONs";
+import {libProperties} from "../JSONs.js";
 
 
 export function init(ctx) {
-    ctx.events.on("properties", () => {
+    ctx.events.on("lib-properties", () => {
         const chooser = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/WorldMapChooser.ts")
 
         const proto = chooser.WorldMapChooser.prototype

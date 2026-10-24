@@ -1,7 +1,7 @@
 import {libProperties} from "../other/JSONs";
 
 export function init(ctx) {
-    ctx.events.on("properties", () => {
+    ctx.events.on("lib-properties", () => {
         const projectiles = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Projectiles.ts")
 
         let id = Object.entries(projectiles.ProjectileEnum).length / 2

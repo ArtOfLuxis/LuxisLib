@@ -41,7 +41,18 @@ export async function setup(ctx) {
     }
 
     ctx.ui.toast("Initialized >w<", "success")
-    for (const initModule of Object.values(modules)) {
+    const moduleEntries = Object.entries(modules)
+
+    const orderedModules = [
+        ...moduleEntries.filter(([path]) =>
+            !path.endsWith("JSONs.js")
+        ),
+        ...moduleEntries.filter(([path]) =>
+            path.endsWith("JSONs.js")
+        ),
+    ]
+
+    for (const [, initModule] of orderedModules) {
         try {
             initModule.init?.(ctx)
         } catch (err) {
@@ -52,12 +63,6 @@ export async function setup(ctx) {
 
     const isAdvanced = await ctx.settings.get("isAdvanced")
     const advancedFields = [
-        {
-            key: "luxisLibAlias",
-            label: "Lib Props Alias",
-            type: "text",
-            default: "LuxisLibProps"
-        },
         {
             key: "seedPacketSettings",
             label: "SeedPacket Settings",

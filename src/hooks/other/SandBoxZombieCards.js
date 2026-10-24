@@ -36,9 +36,13 @@ export function init(ctx) {
                     return result
                 }
 
-                thisArg.onMouseScroll({
-                    getScrollY() { return 0 }
-                })
+                thisArg.scheduleOnce(() => {
+                    thisArg.onMouseScroll({
+                        getScrollY() {
+                            return 0
+                        }
+                    })
+                }, 0)
 
                 return result
             }

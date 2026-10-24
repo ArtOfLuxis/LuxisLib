@@ -860,7 +860,7 @@ export function init(ctx) {
         }
     })
 
-    ctx.events.on("properties", () => {
+    ctx.events.on("lib-properties", () => {
         try {
             if (libProperties.JSONActionHooks?.length) {
                 ctx.log.info("Loading JSONActionHooks from libProperties")

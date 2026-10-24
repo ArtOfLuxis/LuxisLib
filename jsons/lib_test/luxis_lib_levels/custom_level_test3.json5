@@ -1,0 +1,177 @@
+{
+  "version": 1,
+  "objects": [
+    {
+      "objclass": "LevelDefinition",
+      "objdata": {
+        "Description": "[PLAYERS_HOUSE]",
+        "LevelNumber": 4,
+        "Loot": "RTID(NoLoot@LevelModules)",
+        "Modules": [
+          "RTID(StandardIntro@LevelModules)",
+          "RTID(DefaultSunDropper@LevelModules)",
+          "RTID(ZombiesDeadWinCon@LevelModules)",
+          "RTID(FrontLawnMowers@LevelModules)",
+          "RTID(SeedBank@CurrentLevel)",
+          "RTID(DefaultZombieWinCondition@LevelModules)",
+          "RTID(NewWaves@CurrentLevel)"
+        ],
+        "Name": "[TUTORIAL_LEVEL_NAME]",
+        "StageModule": "RTID(TutorialStage@LevelModules)",
+      }
+    },
+    {
+      "aliases": [
+        "ZombieSpeedEvent"
+      ],
+      "objclass": "LLExecuteActions",
+      "objdata": {
+        "Actions": [{
+          "kind": "InvokeJavaScript",
+          "variables": {
+            "zombiePool": { "kind": "GetZombiePoolArray" },
+            "Math": { "kind": "GetMath" }
+          },
+          "code": '\
+                  zombiePool.forEach(zombie => {\
+                    zombie.potionSpeedLevel = Math.max(3, zombie.potionSpeedLevel + 1) \
+                  })\
+                ',
+        }]
+      }
+    },
+    {
+      "aliases": [
+        "SeedBank"
+      ],
+      "objclass": "SeedBankProperties",
+      "objdata": {
+        "SuppressObjectiveTip": true,
+        "SelectionMethod": "chooser"
+      }
+    },
+    {
+      "aliases": [
+        "NewWaves"
+      ],
+      "objclass": "WaveManagerModuleProperties",
+      "objdata": {
+        "WaveManagerProps": "RTID(WaveManagerProps@CurrentLevel)"
+      }
+    },
+    {
+      "aliases": [
+        "WaveManagerProps"
+      ],
+      "objclass": "WaveManagerProperties",
+      "objdata": {
+        "FlagWaveInterval": 3,
+        "WaveCount": 3,
+        "Waves": [
+          [
+            "RTID(Wave1@CurrentLevel)",
+            "RTID(ZombieSpeedEvent@CurrentLevel)"
+          ],
+          [
+            "RTID(Wave2@CurrentLevel)",
+            "RTID(ZombieSpeedEvent@CurrentLevel)"
+          ],
+          [
+            "RTID(Wave3@CurrentLevel)",
+            "RTID(ZombieSpeedEvent@CurrentLevel)"
+          ]
+        ]
+      }
+    },
+    {
+      "aliases": [
+        "Wave1"
+      ],
+      "objclass": "SpawnZombiesJitteredWaveActionProps",
+      "objdata": {
+        "Zombies": [
+          {
+            "Row": 1,
+            "Type": "RTID(tutorial@ZombieTypes)"
+          },
+          {
+            "Row": 2,
+            "Type": "RTID(tutorial@ZombieTypes)"
+          },
+          {
+            "Row": 3,
+            "Type": "RTID(tutorial@ZombieTypes)"
+          },
+          {
+            "Row": 4,
+            "Type": "RTID(tutorial@ZombieTypes)"
+          },
+          {
+            "Row": 5,
+            "Type": "RTID(tutorial@ZombieTypes)"
+          }
+        ]
+      }
+    },
+    {
+      "aliases": [
+        "Wave2"
+      ],
+      "objclass": "SpawnZombiesJitteredWaveActionProps",
+      "objdata": {
+        "Zombies": [
+          {
+            "Row": 1,
+            "Type": "RTID(tutorial@ZombieTypes)"
+          },
+          {
+            "Row": 2,
+            "Type": "RTID(tutorial@ZombieTypes)"
+          },
+          {
+            "Row": 3,
+            "Type": "RTID(tutorial@ZombieTypes)"
+          },
+          {
+            "Row": 4,
+            "Type": "RTID(tutorial@ZombieTypes)"
+          },
+          {
+            "Row": 5,
+            "Type": "RTID(tutorial@ZombieTypes)"
+          }
+        ]
+      }
+    },
+    {
+      "aliases": [
+        "Wave3"
+      ],
+      "objclass": "SpawnZombiesJitteredWaveActionProps",
+      "objdata": {
+        "Zombies": [
+          {
+            "Row": 1,
+            "Type": "RTID(tutorial@ZombieTypes)"
+          },
+          {
+            "Row": 2,
+            "Type": "RTID(tutorial@ZombieTypes)"
+          },
+          {
+            "Row": 3,
+            "Type": "RTID(tutorial@ZombieTypes)"
+          },
+          {
+            "Row": 4,
+            "Type": "RTID(tutorial@ZombieTypes)"
+          },
+          {
+            "Row": 5,
+            "Type": "RTID(tutorial@ZombieTypes)"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,10 +1,10 @@
+import {libWorldmapProperties} from "../JSONs.js";
 
 export function init(ctx) {
     ctx.events.on("engine:ready", () => {
-        const worldMapModule = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/WorldMap.ts")
-        const plantsModule = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Plants.ts")
-        const trophiesModule = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Trophies.ts")
-        const playerPropertiesModule = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/PlayerProperties.ts")
+        const Plants = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Plants.ts")
+        const Trophies = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Trophies.ts")
+        const PlayerProperties = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/PlayerProperties.ts")
 
         const islandDisplayNames = ["level", "plant", "giftBox", "upgrade", "epicPortal"]
         const appearanceNames = ["normal", "minigame", "gargantuar", "zomboss"]
@@ -30,11 +30,11 @@ export function init(ctx) {
                     : { levelId: island.levelJsonsID[0] }
             } else if (island.islandDisplay === 1) {
                 entry.template = { type: "plant", plantDisplayed: island.plantDisplayed }
-                entry.plantReward = plantsModule.plants.getPlantFeature(island.plantDisplayed)?.CODENAME
+                entry.plantReward = Plants.plants.getPlantFeature(island.plantDisplayed)?.CODENAME
             } else if (island.islandDisplay === 3) {
                 entry.template = { type: "upgrade", upgradeDisplayed: island.upgradeDisplayed }
-                entry.upgradeReward = trophiesModule.UpgradeEnum
-                    ? trophiesModule.UpgradeEnum[island.upgradeDisplayed]
+                entry.upgradeReward = Trophies.UpgradeEnum
+                    ? Trophies.UpgradeEnum[island.upgradeDisplayed]
                     : island.upgradeDisplayed
             } else if (island.islandDisplay === 4) {
                 entry.template = { type: "epicPortal" }
@@ -149,8 +149,8 @@ export function init(ctx) {
             const mainline = mainlineIslands.map(toEntryWithParent)
             const branches = branchIslands.map(toEntryWithParent)
 
-            const worldKey = playerPropertiesModule.WorldMapSceneDisplayEnum
-                ? playerPropertiesModule.WorldMapSceneDisplayEnum[worldMap.displayEnum]
+            const worldKey = PlayerProperties.WorldMapSceneDisplayEnum
+                ? PlayerProperties.WorldMapSceneDisplayEnum[worldMap.displayEnum]
                 : worldMap.displayEnum
 
             return {
@@ -166,37 +166,7 @@ export function init(ctx) {
             }
         }
 
-        const cc = ctx.unsafe.engine.getCc()
-        const instantiate = cc.instantiate
-
-        const posKey = (pos) => `${Math.round(pos.x)},${Math.round(pos.y)}`
-
-        const islandArtSnapshots = new WeakMap()
         let currentWorldMap = null
-
-        ctx.unsafe.hooks.wrapMethod({
-            target: worldMapModule.WorldMap.prototype,
-            methodName: "init",
-            handler: ({ args, thisArg, callNext }) => {
-                const resultPromise = callNext(...args)
-                Promise.resolve(resultPromise).then(() => {
-                    currentWorldMap = thisArg
-
-                    try {
-                        restoreIslandArt(thisArg)
-                    } catch (e) {
-                        console.error("Failed to restore island art: " + e)
-                    }
-
-                    try {
-                        fixNodeLayering(thisArg)
-                    } catch (e) {
-                        console.error("Failed to fix node layering: " + e)
-                    }
-                })
-                return resultPromise
-            }
-        })
 
         globalThis.luxisLib = globalThis.luxisLib ?? {}
         globalThis.luxisLib.dumpWorldMap = () => {
@@ -204,12 +174,12 @@ export function init(ctx) {
                 console.warn("No WorldMap is currently loaded")
                 return null
             }
+
             try {
                 const schema = dumpWorldMap(currentWorldMap)
                 console.log(
                     "WorldMap dump:\n",
-                    JSON.stringify(schema, null, 2)
-                        .slice(1, -1)
+                    JSON.stringify(schema, null, 2).slice(1, -1)
                 )
                 return schema
             } catch (e) {
@@ -217,83 +187,5 @@ export function init(ctx) {
                 return null
             }
         }
-
-        function fixNodeLayering(worldMap) {
-            const nodes = worldMap.levelIslands.map(isl => isl.islandNode).filter(Boolean)
-            if (!nodes.length) return
-
-            const byParent = new Map()
-            nodes.forEach((node) => {
-                const p = node.parent
-                if (!p) return
-                if (!byParent.has(p)) byParent.set(p, [])
-                byParent.get(p).push(node)
-            })
-
-            byParent.forEach((groupNodes, parent) => {
-                const allZero = groupNodes.every((n) => n.position.z === 0)
-                if (allZero) {
-                    return
-                }
-
-                const sorted = groupNodes.slice().sort((a, b) => a.position.z - b.position.z)
-                sorted.forEach((node, i) => node.setSiblingIndex(i))
-            })
-        }
-
-        ctx.unsafe.hooks.wrapMethod({
-            target: worldMapModule.WorldMap.prototype,
-            methodName: "onLoad",
-            handler: ({ args, thisArg, callNext }) => {
-                const result = callNext(...args)
-
-                try {
-                    snapshotIslandArt(thisArg)
-                } catch (e) {
-                    console.error("Failed to snapshot island art: " + e)
-                }
-
-                return result
-            }
-        })
-
-        function snapshotIslandArt(worldMap) {
-            const snapshot = new Map()
-            worldMap.levelIslands.forEach((island) => {
-                const artNode = island.islandNode.children.find(c => c.name === "island")
-
-                if (artNode) {
-                    const clone = instantiate(artNode)
-                    clone.removeFromParent()
-                    snapshot.set(posKey(island.islandNode.position), {
-                        node: clone,
-                        localPosition: artNode.position.clone(),
-                        localScale: artNode.scale.clone(),
-                        localRotation: artNode.rotation.clone(),
-                    })
-                }
-
-            })
-            islandArtSnapshots.set(worldMap, snapshot)
-        }
-
-        function restoreIslandArt(worldMap) {
-            const snapshot = islandArtSnapshots.get(worldMap)
-
-            if (!snapshot || snapshot.size === 0) return
-            worldMap.levelIslands.forEach((island) => {
-                const hasArt = island.islandNode.children.some(c => c.name === "island")
-                if (hasArt) return
-                const saved = snapshot.get(posKey(island.islandNode.position))
-                if (!saved) return
-                const clone = instantiate(saved.node)
-                clone.name = "island"
-                clone.parent = island.islandNode
-                clone.position = saved.localPosition
-                clone.scale = saved.localScale
-                clone.rotation = saved.localRotation
-            })
-        }
-
     })
 }

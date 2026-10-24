@@ -1,7 +1,7 @@
 import {libProperties} from "./JSONs";
 
 export function init(ctx) {
-    ctx.events.on("properties", () => {
+    ctx.events.on("lib-properties", () => {
         const playerProperties = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/PlayerProperties.ts")
         const allPlayerProperties = playerProperties.AllPlayerProperties
 
@@ -18,6 +18,7 @@ export function init(ctx) {
             target: allPlayerProperties,
             methodName: "getForceLevel",
             handler: ({args, thisArg, callNext}) => {
+
                 const forcedLevel = libProperties?.ForceInitialLevel
 
                 if (forcedLevel === undefined || forcedLevel === null) {

@@ -1453,7 +1453,7 @@ export function init(ctx) {
 
     })
 
-    ctx.events.on("properties", () => {
+    ctx.events.on("lib-properties", () => {
         const arbitraryProjectileProperties = libProperties?.ArbitraryProjectileProperties
         if (arbitraryProjectileProperties) {
             Object.entries(arbitraryProjectileProperties).forEach(([key, value]) => {

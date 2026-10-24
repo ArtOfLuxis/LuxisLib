@@ -1,7 +1,7 @@
 import {libProperties} from "../other/JSONs";
 
 export function init(ctx) {
-    ctx.events.on("properties", () => {
+    ctx.events.on("lib-properties", () => {
         const zombies = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Zombies.ts")
 
         const enumTable = zombies.ZombieEnum
