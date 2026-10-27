@@ -1,16 +1,46 @@
-import {libWorldmapProperties} from "../JSONs.js";
-
 export function init(ctx) {
     ctx.events.on("engine:ready", () => {
+        const WorldMap = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/WorldMap.ts")
         const Plants = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Plants.ts")
         const Trophies = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Trophies.ts")
         const PlayerProperties = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/PlayerProperties.ts")
+        const EndlessZoneEntrance = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/EndlessZoneEntrance.ts").EndlessZoneEntrance
+        const worldMapDisplayEnum = PlayerProperties.WorldMapSceneDisplayEnum
 
         const islandDisplayNames = ["level", "plant", "giftBox", "upgrade", "epicPortal"]
         const appearanceNames = ["normal", "minigame", "gargantuar", "zomboss"]
 
         function makeId(island, i) {
             return island.islandNode.name
+        }
+
+        function findEndlessEntrances(worldMap) {
+            return worldMap.node.getComponentsInChildren(EndlessZoneEntrance)
+        }
+
+        function toEndlessEntry(entrance, i) {
+            const position = entrance.node.position
+            const id = entrance.node.name || `endless-${i + 1}`
+
+            return {
+                id,
+                template: entrance.node.name
+                    ? {id: entrance.node.name}
+                    : {
+                        levelIds: entrance.levelsID.slice(),
+                        endlessData: worldMapDisplayEnum[entrance.endlessData],
+                        isMiniGame: entrance.isMiniGame
+                    },
+                levels: entrance.levelsID.slice(),
+                endlessData: worldMapDisplayEnum[entrance.endlessData],
+                isMiniGame: entrance.isMiniGame,
+                position: {
+                    x: Math.round(position.x * 100) / 100,
+                    y: Math.round(position.y * 100) / 100,
+                    z: Math.round(position.z * 100) / 100
+                },
+                siblingIndex: entrance.node.getSiblingIndex()
+            }
         }
 
         function toEntry(island, idByNode, prevPos, prevSiblingIndex, hasParent) {
@@ -44,21 +74,21 @@ export function init(ctx) {
             }
 
             const pos = island.islandNode.position
-            const siblingIndex = island.islandNode.getSiblingIndex()
+            entry.siblingIndex = island.islandNode.getSiblingIndex()
 
             if (useAbsolutePosition) {
                 entry.position = {
                     x: Math.round(pos.x * 100) / 100,
                     y: Math.round(pos.y * 100) / 100,
-                    z: siblingIndex,
+                    z: Math.round(pos.z * 100) / 100
                 }
             } else {
                 const basePos = prevPos ?? pos
-                const baseSiblingIndex = prevSiblingIndex ?? siblingIndex
+
                 entry.relativePosition = {
                     x: Math.round((pos.x - basePos.x) * 100) / 100,
                     y: Math.round((pos.y - basePos.y) * 100) / 100,
-                    z: siblingIndex - baseSiblingIndex,
+                    z: Math.round((pos.z - basePos.z) * 100) / 100
                 }
             }
 
@@ -148,6 +178,7 @@ export function init(ctx) {
 
             const mainline = mainlineIslands.map(toEntryWithParent)
             const branches = branchIslands.map(toEntryWithParent)
+            const endless = findEndlessEntrances(worldMap).map(toEndlessEntry)
 
             const worldKey = PlayerProperties.WorldMapSceneDisplayEnum
                 ? PlayerProperties.WorldMapSceneDisplayEnum[worldMap.displayEnum]
@@ -155,12 +186,16 @@ export function init(ctx) {
 
             return {
                 [worldKey]: {
-                    data: { epicTarget: worldMap.MapProps.EPIC_TARGET },
+                    data: {epicTarget: worldMap.MapProps.EPIC_TARGET},
                     map: {
                         mode: "replace",
                         reuseOriginalPositions: true,
                         mainline,
                         branches
+                    },
+                    endless: {
+                        keepOriginal: false,
+                        nodes: endless
                     }
                 }
             }
@@ -187,5 +222,14 @@ export function init(ctx) {
                 return null
             }
         }
+
+        ctx.unsafe.hooks.wrapMethod({
+            target: WorldMap.WorldMap.prototype,
+            methodName: "onLoad",
+            handler: ({thisArg, callNext, args}) => {
+                currentWorldMap = thisArg
+                return callNext(...args)
+            }
+        })
     })
 }

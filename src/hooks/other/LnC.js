@@ -153,7 +153,7 @@ export function init(ctx) {
                     (scale.z ?? scale.x ?? 1) * 0.7,
                 )
 
-                square.setFogLight(thisArg.node.worldPosition.toVec2(), explosionFogClear)
+                square.Square.setFogLight(thisArg.node.worldPosition.toVec2(), explosionFogClear)
 
                 if (screenShakeDuration >= 0.2) {
                     levelController.LevelPlay.shakeScreen(screenShakeDuration)
@@ -247,85 +247,6 @@ export function init(ctx) {
                     rearExplosion.parent = thisArg.inLane.tileLiquidLayer
                     rearExplosion.worldPosition = position
                     rearExplosion.scale = scaleVec
-                }
-            }
-        })
-
-        ctx.unsafe.hooks.wrapMethod({
-            target: proto,
-            methodName: "selection",
-            handler: ({ thisArg }) => {
-                const currentCF = ui.UIInGame.component.currentCF
-                const plantType = currentCF?.Type
-
-                const plantData = plantType
-                    ? plants.plants.getPlantEnumWithPropByPlantTypes(plantType)
-                    : null
-
-                const plantID = plantData?.id ?? NaN
-
-                thisArg.index = 0
-
-                const canPlacePlant =
-                    (thisArg.plantEvolvable(plantType) || thisArg.putPlantAvailable(true, plantID, true, true, plantData?.spf) ||
-                        thisArg.replantable(plantID)) &&
-                    ui.UIInGame.index >= 0 &&
-                    ui.UIInGame.index <= 8
-
-                if (canPlacePlant) {
-                    thisArg.index = 1
-                } else if (square.Square.component?.indexShovel === 1) {
-                    const hasShovelTarget = thisArg
-                        .getAllPlants()
-                        .some(plant => plant.shovelable())
-
-                    if (hasShovelTarget) {
-                        thisArg.index = 1
-                    } else if (levelController.LevelPlay.isBeghouled) {
-                        if (thisArg.crackleCountdown > 0) {
-                            thisArg.index = 1
-                        }
-                    } else if (
-                        levelController.LevelPlay.sandBoxModeOn &&
-                        (
-                            thisArg.iceTile ||
-                            thisArg.crackleCountdown > 0 ||
-                            thisArg.haveTomb ||
-                            thisArg.TileLiquids.length > 0 ||
-                            thisArg.tilesInSquare[0] ||
-                            thisArg.octopus ||
-                            thisArg.iceblock
-                        )
-                    ) {
-                        thisArg.index = 1
-                    }
-                } else {
-                    const canUseSpecialAction =
-                        (thisArg.foodable() && square.Square.component?.indexPF === 1) ||
-                        ui.UIInGame.index === 9 ||
-                        (ui.UIInGame.index === -4 && thisArg.indexPoint === 1) ||
-                        (ui.UIInGame.index === -1 &&
-                            thisArg.vases.length > 0 &&
-                            thisArg.indexPoint === 1)
-
-                    if (canUseSpecialAction) {
-                        thisArg.index = 1
-                    }
-                }
-
-                if (thisArg.index === 0) {
-                    thisArg.selectionDB?.playAnimation("Nope")
-                    return
-                }
-
-                if (thisArg.indexPoint === 0) {
-                    thisArg.selectionDB?.playAnimation(
-                        square.Square.lncSelectionMode === 0 ? "Slow" : "Nope"
-                    )
-                } else if (thisArg.indexPoint === 1) {
-                    thisArg.selectionDB?.playAnimation(
-                        square.Square.lncSelectionMode === 0 ? "Fast" : "Nope"
-                    )
                 }
             }
         })

@@ -12,7 +12,7 @@ export function init(ctx) {
 
                 if (path.startsWith("levels/")) {
                     const levelID = path.replace("levels/", "")
-                    const customLevel = findCustomLevel(levelID)
+                    const customLevel = await findCustomLevel(ctx, levelID)
 
                     if (customLevel) {
                         ctx.log.info(`Loaded custom level: ${levelID}`)

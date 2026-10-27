@@ -208,7 +208,7 @@
           "items": {
             "type": "string"
           },
-          "description": "Level ids for level nodes. level 节点对应的关卡 id 列表。"
+          "description": "Level ids for level nodes"
         },
         "portalLevels": {
           "type": "array",
@@ -245,6 +245,10 @@
             "type": "string"
           },
           "description": "Additional child node ids. For `mainline`, GP-Next auto-links the next mainline item before these declared children. 额外子节点 id 列表；对于 `mainline`，GP-Next 会先自动连接下一项主线，再追加这里声明的子节点。"
+        },
+        "siblingIndex": {
+          "type": "integer",
+          "description": "Sibling order of this island node, independent of its local Z coordinate."
         },
         "warnOverlap": {
           "type": "boolean",
@@ -318,11 +322,10 @@
       ]
     },
     "endlessSpec": {
-      "description": "Separate endless-island declaration. Currently accepted for compatibility but ignored at runtime; vanilla endless islands stay unchanged because endless islands use different runtime semantics from gift/portal special nodes. 独立的无尽岛声明；当前仅为兼容而保留，运行时会忽略并保留原版无尽岛，因为无尽岛的运行时语义与礼盒/传送门特殊节点不同。",
       "oneOf": [
         {
           "type": "array",
-          "description": "Compatibility-only field; runtime currently ignores custom endless replacement. 兼容字段；运行时当前会忽略自定义无尽替换。",
+          "description": "Legacy shorthand for endless-zone definitions.",
           "items": {
             "$ref": "#/$defs/endlessNodeSpec"
           }
@@ -330,14 +333,18 @@
         {
           "type": "object",
           "additionalProperties": false,
+          "required": [
+            "nodes"
+          ],
           "properties": {
             "keepOriginal": {
               "type": "boolean",
-              "description": "Compatibility hint. Vanilla endless islands are currently always kept untouched. 兼容提示；当前原版无尽岛始终保持不变。"
+              "default": true,
+              "description": "Keep original endless zones that weren't selected as templates."
             },
             "nodes": {
               "type": "array",
-              "description": "Compatibility-only field; runtime currently ignores custom endless replacement. 兼容字段；运行时当前会忽略自定义无尽替换。",
+              "description": "Endless-zone entrances to create.",
               "items": {
                 "$ref": "#/$defs/endlessNodeSpec"
               }
@@ -347,15 +354,110 @@
       ]
     },
     "endlessNodeSpec": {
-      "allOf": [
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "template",
+        "levels",
+        "position"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique node name for the endless-zone entrance."
+        },
+        "template": {
+          "$ref": "#/$defs/endlessTemplateSelector"
+        },
+        "levels": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          },
+          "description": "Level IDs passed to KeyListener.goToLevel."
+        },
+        "endlessData": {
+          "type": "string",
+          "description": "WorldMapSceneDisplayEnum key used to load danger-room data."
+        },
+        "isMiniGame": {
+          "type": "boolean",
+          "description": "Whether the entrance uses endless minigame data."
+        },
+        "position": {
+          "$ref": "#/$defs/position"
+        },
+        "siblingIndex": {
+          "type": "integer",
+          "description": "Sibling order of the entrance node."
+        },
+        "label": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "type": "object",
+              "minProperties": 1,
+              "additionalProperties": {
+                "type": ["string", "number"]
+              },
+              "description": "Localized endless-zone name."
+            },
+            "levelNumber": {
+              "type": "object",
+              "minProperties": 1,
+              "additionalProperties": {
+                "type": ["string", "number"]
+              },
+              "description": "Localized level number text. Supports the {level} placeholder."
+            }
+          }
+        }
+      }
+    },
+    "endlessTemplateSelector": {
+      "oneOf": [
         {
-          "$ref": "#/$defs/nodeSpec"
+          "type": "string",
+          "description": "Match an entrance by node name or one of its level IDs."
         },
         {
+          "type": "object",
+          "additionalProperties": false,
+          "minProperties": 1,
           "properties": {
-            "type": {
-              "const": "level",
-              "description": "Endless islands are level nodes. 无尽岛本质上是 level 节点。"
+            "id": {
+              "type": "string",
+              "description": "Exact endless entrance node name."
+            },
+            "levelId": {
+              "type": "string",
+              "description": "Match an entrance containing this level ID."
+            },
+            "levelIds": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ],
+              "description": "Match an entrance containing every listed level ID."
+            },
+            "endlessData": {
+              "type": "string",
+              "description": "Match the endless world's enum key."
+            },
+            "isMiniGame": {
+              "type": "boolean",
+              "description": "Match whether the entrance is a minigame."
             }
           }
         }
@@ -475,15 +577,15 @@
       "properties": {
         "x": {
           "type": "number",
-          "description": "Local X position. 本地 X 坐标。"
+          "description": "Local X position"
         },
         "y": {
           "type": "number",
-          "description": "Local Y position. 本地 Y 坐标。"
+          "description": "Local Y position"
         },
         "z": {
           "type": "number",
-          "description": "Local Z position. 本地 Z 坐标。"
+          "description": "Local Z position"
         }
       }
     },
@@ -494,21 +596,21 @@
         "x",
         "y"
       ],
-      "description": "Offset relative to the resolved parent node position. 相对于父节点解析后位置的偏移量。",
+      "description": "Offset relative to the resolved parent node position.",
       "properties": {
         "x": {
           "type": "number",
-          "description": "Relative X offset. 相对 X 偏移。"
+          "description": "Relative X offset"
         },
         "y": {
           "type": "number",
-          "description": "Relative Y offset. 相对 Y 偏移。"
+          "description": "Relative Y offset"
         },
         "z": {
           "type": "number",
-          "description": "Relative Z offset. 相对 Z 偏移。"
+          "description": "Relative Z offset"
         }
       }
-    }
+    },
   }
 }

@@ -2,10 +2,72 @@ import JSON5 from "json5"
 
 export let libProperties
 export let libWorldmapProperties
-export let customLevels = {}
 
-export function findCustomLevel(levelID) {
+export let customLevels = {}
+export let apiLoadedCustomLevels = {}
+export let loadedContributions = []
+
+export function loadCustomLevelApi(levelID, data) {
+    console.log(`Loaded level "${levelID}" with JS API`)
+    apiLoadedCustomLevels[levelID] = data
+}
+
+export async function findCustomLevel(ctx, levelID) {
+    if (apiLoadedCustomLevels[levelID]) {
+        return apiLoadedCustomLevels[levelID]
+    }
+
+    const contributions = ctx.files.contributions()
+
+    const newContributions = contributions.map((p) => p.namespace)
+    newContributions.sort()
+
+    if (newContributions.join() !== loadedContributions.join()) {
+        console.log(`Found contribution mismatch (${loadedContributions} -> ${newContributions}), reloading custom levels`)
+        await reloadCustomLevels(ctx)
+    }
+
     return customLevels[levelID]
+}
+
+async function reloadCustomLevels(ctx) {
+    const folder = libProperties.CustomLevelFolder.replace(/\\/g, "/").replace(/^\/+|\/+$/g, "")
+    const contributions = ctx.files.contributions()
+
+    loadedContributions = contributions.map((p) => p.namespace)
+    loadedContributions.sort()
+    customLevels = {}
+
+    for (const pack of contributions) {
+        for (const path of pack.listPaths()) {
+            const normalizedPath = path.replace(/\\/g, "/")
+
+            if (!normalizedPath.startsWith(`${folder}/`) || !/\.(json|json5)$/i.test(normalizedPath)) {
+                continue
+            }
+
+            try {
+                const content = await pack.readText(normalizedPath)
+
+                if (content === null) {
+                    continue
+                }
+
+                const fileName = normalizedPath.slice(normalizedPath.lastIndexOf("/") + 1)
+                const levelID = fileName.replace(/\.(json|json5)$/i, "")
+                const data = JSON5.parse(content)
+
+                console.log("Custom level file:", levelID, data)
+                console.log("Custom level definition:", data.objects?.find(obj => obj.objclass === "LevelDefinition"))
+
+                customLevels[levelID] = data
+            } catch (error) {
+                ctx.log.error(`Unable to load custom level file ${normalizedPath}: ${error}`)
+            }
+        }
+    }
+
+    ctx.log.info(`Loaded ${Object.keys(customLevels).length} custom level(s) from ${contributions.length} contributing pack(s): ${contributions.map((p) => p.namespace)}`)
 }
 
 export function init(ctx) {
@@ -39,44 +101,12 @@ export function init(ctx) {
             ctx.log.info("Loaded libProperties")
             ctx.ui.toast("Loaded libProperties", "success")
 
-            try {
-                const folder = libProperties.CustomLevelFolder.replace(/\\/g, "/").replace(/^\/+|\/+$/g, "")
-                const contributions = ctx.files.contributions()
-
-                customLevels = {}
-
-                for (const pack of contributions) {
-                    for (const path of pack.listPaths()) {
-                        const normalizedPath = path.replace(/\\/g, "/")
-
-                        if (!normalizedPath.startsWith(`${folder}/`) || !/\.(json|json5)$/i.test(normalizedPath)) {
-                            continue
-                        }
-
-                        try {
-                            const content = await pack.readText(normalizedPath)
-
-                            if (content === null) {
-                                continue
-                            }
-
-                            const fileName = normalizedPath.slice(normalizedPath.lastIndexOf("/") + 1)
-                            const levelID = fileName.replace(/\.(json|json5)$/i, "")
-                            const data = JSON5.parse(content)
-
-                            console.log("Level file:", levelID, data)
-                            console.log("Level definition:", data.objects?.find(obj => obj.objclass === "LevelDefinition"))
-
-                            customLevels[levelID] = data
-                        } catch (error) {
-                            ctx.log.error(`Unable to load custom level file ${normalizedPath}: ${error}`)
-                        }
-                    }
+            if (libProperties?.CustomLevelFolder) {
+                try {
+                    await reloadCustomLevels(ctx)
+                } catch (error) {
+                    ctx.log.error(`Unable to read custom level directory: ${error}`)
                 }
-
-                ctx.log.info(`Loaded ${Object.keys(customLevels).length} custom level(s) from ${contributions.length} contributing pack(s): ${contributions.map((p)=>p.namespace)}`)
-            } catch (error) {
-                ctx.log.error(`Unable to read custom level directory: ${error}`)
             }
 
             ctx.events.emit("lib-properties")

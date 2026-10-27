@@ -54,7 +54,7 @@ export function init(ctx) {
                     thisArg.boost_progress.node.active = false;
                     thisArg.boost_count_label.node.active = false;
                     thisArg.unlock_button.node.active = thisArg.medals_required_types.every((function(t) {
-                        var plantEnum = plants.plants.getPlantEnumWithPropByPlantTypes(args[0]).id;
+                        const plantEnum = plants.plants.getPlantEnumWithPropByPlantTypes(args[0]).id;
                         return properties.getPlantProgressByID(plantEnum).medal;
                     }));
                 }

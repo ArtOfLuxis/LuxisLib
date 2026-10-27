@@ -288,6 +288,7 @@ export function init(ctx) {
                                 evaluate(action.explosionWidth, context) ?? 3,
                                 evaluate(action.explosionHeight, context) ?? 3,
                                 evaluate(action.explosionLanes, context) ?? [-1, 0, 1],
+                                evaluate(action.fogClearRange, context) ?? 150,
                                 evaluate(action.xOffset, context) ?? 0,
                                 evaluate(action.yOffset, context) ?? 0,
                                 evaluate(action.armorProtection, context) ?? false,

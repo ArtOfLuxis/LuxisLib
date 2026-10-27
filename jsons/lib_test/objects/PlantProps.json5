@@ -1031,6 +1031,15 @@
     {
       "objclass": "PlantProperties",
       "aliases": [
+        "seedling"
+      ],
+      "objdata": {
+        "DoesntExplode": true
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
         "cherry_bomb"
       ],
       "objdata": {
@@ -1544,6 +1553,7 @@
               0,
               1
             ],
+            "fogClearRange": 300,
             "xOffset": 0,
             "yOffset": 0,
             "armorProtection": false,

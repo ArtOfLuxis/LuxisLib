@@ -1,3 +1,4 @@
+import {loadCustomLevelApi} from "./hooks/other/JSONs.js";
 
 const modules = import.meta.glob('./**/*.js', {eager: true});
 
@@ -209,6 +210,17 @@ export async function setup(ctx) {
                 ]
             }
         ]
+    })
+
+    ctx.services.provide({
+        id: "artofluxis.luxislib.api",
+        version: "1.0.0",
+        capabilities: ["register-level"],
+        api: {
+            registerLevel: (levelID, data) => {
+                loadCustomLevelApi(levelID, data)
+            }
+        }
     })
 
 
