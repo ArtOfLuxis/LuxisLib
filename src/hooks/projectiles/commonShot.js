@@ -285,8 +285,9 @@ export function init(ctx) {
                     thisArg.enemyType = character.CharacterType[thisArg.EnemyTypeOverride]
                 }
 
-                if (thisArg._hasSpread || (!thisArg.ProjectileSpread && !thisArg.LobberProjectileSpread))
+                if (thisArg._hasSpread || (!thisArg.ProjectileSpread && !thisArg.LobberProjectileSpread)) {
                     return callNext(...args)
+                }
 
                 const originX = thisArg._worldPositionX
                 const originY = thisArg._worldPositionY
@@ -298,13 +299,16 @@ export function init(ctx) {
                 )
                 const enemyType = thisArg.enemyType
 
+                const projectileData = createProjectileDataForSpread(thisArg)
+
                 if (thisArg.ProjectileSpread) {
                     createProjectileSpread(
                         thisArg.ProjectileSpread,
                         thisArg.inLnC,
                         originX, originY,
                         height, speed,
-                        prjLayer, enemyType
+                        prjLayer, enemyType,
+                        projectileData
                     )
                 }
                 if (thisArg.LobberProjectileSpread) {
@@ -317,7 +321,8 @@ export function init(ctx) {
                         thisArg.inLnC,
                         thisArg.linearVelocity.clone(),
                         thisArg.bodyLinearVelocity,
-                        enemyType
+                        enemyType,
+                        projectileData
                     )
                 }
                 thisArg.fade()
@@ -1059,12 +1064,32 @@ export function init(ctx) {
 
 
 
+        function createProjectileDataForSpread(projectile) {
+            return {
+                "havePeaBuff": projectile.havePeaBuff,
+                "HighRed": projectile.HighRed,
+                "stun": projectile.stun,
+            }
+        }
+
+        function copyProjectileDataForSpread(fromData, to) {
+            if (!fromData) return
+
+            if (fromData.havePeaBuff) {
+                to.addPeaBuff()
+            }
+            if (fromData.HighRed > 0) {
+                to.HighRed = fromData.HighRed
+                to.setStun(fromData.stun)
+            }
+        }
 
         createProjectileSpread = function createProjectileSpread(
             spreadData, scheduler,
             originX, originY,
             height, speed,
-            layer, enemyType
+            layer, enemyType,
+            projectileData
         ) {
             spreadData.forEach((spreadPattern) => {
                 const projectilesPerInterval = Math.floor(spreadPattern.ProjectilesPerInterval)
@@ -1074,48 +1099,49 @@ export function init(ctx) {
                     console.error("ProjectileAmount is not a multiple of ProjectilesPerInterval:", spreadPattern)
                 }
                 scheduler.schedule(async function () {
-                        for (let i = 0; i < projectilesPerInterval; i++) {
-                            const spread = spreadPattern.ProjectileSpreadDegrees
+                    for (let i = 0; i < projectilesPerInterval; i++) {
+                        const spread = spreadPattern.ProjectileSpreadDegrees
 
-                            if (!Array.isArray(spread) || spread.length === 0) {
-                                ctx.ui.toast(`Invalid ProjectileSpreadDegrees: ${spread}`, "error")
-                                ctx.log.error(`Invalid ProjectileSpreadDegrees: ${spread}`);
-                                return;
-                            }
-
-                            const initialDegreeOffset = spreadPattern.InitialDegreeOffset ?? 0
-                            const degreeStep = spreadPattern.DegreeStep ?? 0.1
-
-                            const randomSpread = spread[Math.floor(Math.random() * spread.length)]
-                            const count = Math.floor((randomSpread.max - randomSpread.min) / degreeStep)
-                            const degrees =
-                                randomSpread.min +
-                                Math.floor(Math.random() * (count + 1)) * degreeStep +
-                                initialDegreeOffset
-                            // random degrees from "min" to "max" plus InitialDegreeOffset with DegreeStep steps
-                            const radians = degrees * Math.PI / 180;
-
-                            const velocity = new cc.Vec2(
-                                speed * Math.cos(radians),
-                                speed * Math.sin(radians),
-                            ); // velocity based on degrees
-
-                            const centerOffset = spreadPattern.CenterOffset ?? {"x": 0, "y": 0}
-
-                            const projectile = await prjFunctions.shootOnePea(
-                                spreadPattern.ProjectileType,
-                                {
-                                    x: originX + centerOffset.x * square.Square.SquareWidth,
-                                    y: originY + centerOffset.y * square.Square.SquareHeight
-                                },
-                                height,
-                                layer,
-                                velocity,
-                                enemyType
-                            )
-                            projectile._hasSpread = true
+                        if (!Array.isArray(spread) || spread.length === 0) {
+                            ctx.ui.toast(`Invalid ProjectileSpreadDegrees: ${spread}`, "error")
+                            ctx.log.error(`Invalid ProjectileSpreadDegrees: ${spread}`);
+                            return;
                         }
-                    },
+
+                        const initialDegreeOffset = spreadPattern.InitialDegreeOffset ?? 0
+                        const degreeStep = spreadPattern.DegreeStep ?? 0.1
+
+                        const randomSpread = spread[Math.floor(Math.random() * spread.length)]
+                        const count = Math.floor((randomSpread.max - randomSpread.min) / degreeStep)
+                        const degrees =
+                            randomSpread.min +
+                            Math.floor(Math.random() * (count + 1)) * degreeStep +
+                            initialDegreeOffset
+                        // random degrees from "min" to "max" plus InitialDegreeOffset with DegreeStep steps
+                        const radians = degrees * Math.PI / 180;
+
+                        const velocity = new cc.Vec2(
+                            speed * Math.cos(radians),
+                            speed * Math.sin(radians),
+                        ); // velocity based on degrees
+
+                        const centerOffset = spreadPattern.CenterOffset ?? {"x": 0, "y": 0}
+
+                        const projectile = await prjFunctions.shootOnePea(
+                            spreadPattern.ProjectileType,
+                            {
+                                x: originX + centerOffset.x * square.Square.SquareWidth,
+                                y: originY + centerOffset.y * square.Square.SquareHeight
+                            },
+                            height,
+                            layer,
+                            velocity,
+                            enemyType
+                        )
+                        projectile._hasSpread = true
+
+                        copyProjectileDataForSpread(projectileData, projectile)
+                    }},
                     spreadPattern.ProjectileInterval,
                     intervalTimes - 1,
                     spreadPattern.FirstProjectileInterval,
@@ -1132,6 +1158,7 @@ export function init(ctx) {
             linearVelocity,
             bodyLinearVelocity,
             enemyType,
+            projectileData
         ) {
             spreadData.forEach((spreadPattern) => {
                 const projectilesPerInterval = Math.floor(spreadPattern.ProjectilesPerInterval)
@@ -1442,6 +1469,8 @@ export function init(ctx) {
                             projectile.rotate()
 
                             projectile._hasSpread = true
+
+                            copyProjectileDataForSpread(projectileData, projectile)
                         }
                     },
                     spreadPattern.ProjectileInterval,

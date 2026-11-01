@@ -776,7 +776,7 @@ export function init(ctx) {
                                 position.y,
                                 position.z ?? source.node.position.z
                             ))
-                            node.setSiblingIndex(entry.siblingIndex ?? source.node.getSiblingIndex())
+                            node.setSiblingIndex(entry.siblingIndex ?? source?.node?.getSiblingIndex() ?? Math.round(position.y * 100))
                             node.active = true
 
                             endlessPlans.push({entrance, source, entry})

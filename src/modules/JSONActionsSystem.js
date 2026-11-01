@@ -381,7 +381,8 @@ export function init(ctx) {
                                 evaluate(action.height, context) ?? 0,
                                 evaluate(action.speed, context) ?? 8,
                                 evaluate(action.layer, context) ?? context.target?.inLane?.prjLayer,
-                                character.CharacterType[evaluate(action.enemyType, context) ?? "zombie"]
+                                character.CharacterType[evaluate(action.enemyType, context) ?? "zombie"],
+                                evaluate(action.projectileData, context) ?? {},
                             )
                             break
                         }

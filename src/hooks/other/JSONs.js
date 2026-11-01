@@ -31,7 +31,10 @@ export async function findCustomLevel(ctx, levelID) {
 }
 
 async function reloadCustomLevels(ctx) {
-    const folder = libProperties.CustomLevelFolder.replace(/\\/g, "/").replace(/^\/+|\/+$/g, "")
+    const folder = libProperties.CustomLevelFolder?.replace(/\\/g, "/")?.replace(/^\/+|\/+$/g, "")
+    if (!folder) {
+        console.warn("Couldn't reload custom levels, missing CustomLevelFolder in libPropertiesF")
+    }
     const contributions = ctx.files.contributions()
 
     loadedContributions = contributions.map((p) => p.namespace)
