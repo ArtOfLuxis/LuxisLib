@@ -120,6 +120,7 @@ export function init(ctx) {
             "SplashDamageOnWater": null,
             "DefenceRateList": null,
             "MouseFollow": null,
+            "LeapBack": null,
         }
 
         ctx.unsafe.hooks.wrapMethod({
@@ -782,6 +783,13 @@ export function init(ctx) {
                         speedPotion.min,
                         speedPotion.max
                     )
+
+                const leapBack = thisArg.objDataOwn.LeapBack;
+                if (leapBack !== undefined && (leapBack?.KnockbackDistance ?? 0) > 0) {
+                    zombie.leapBy(
+                        new cc.Vec2(leapBack.KnockbackDistance), true, (leapBack?.LeapTime ?? 0.5), (leapBack?.LeapHeight ?? 20), true, true
+                    )
+                }
 
                 const onZombieDamageActions = thisArg.OnZombieDamageActions
                 if (onZombieDamageActions) {

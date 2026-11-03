@@ -117,7 +117,8 @@ export function init(ctx) {
             "ZIndexOffset": null,
             "WallnutAidOverride": null,
             "LoadProjectilesWithPlant": null,
-            "PlantfoodCallingType": null
+            "PlantfoodCallingType": null,
+            "SeedPacketModifications": null
         })
 
         ctx.unsafe.hooks.wrapMethod({
@@ -125,15 +126,16 @@ export function init(ctx) {
             methodName: "replantable",
             isStatic: false,
             handler({args, thisArg, callNext}) {
-                const wallAidOverride = thisArg.objdataOwn.WallnutAidOverride;
-                if (!wallAidOverride) return callNext(...args);
+                const wallAidOverride = thisArg.objdataOwn?.WallnutAidOverride
+                if (!wallAidOverride) return callNext(...args)
+
                 if (wallAidOverride.CustomCondition) {
                     return evaluate(wallAidOverride.CustomCondition, {
                         target: thisArg,
                         originalResult: false
                     })
                 }
-                 return thisArg.health <= thisArg.toughness * (wallAidOverride.AidHealthPercent ?? 0.75);
+                return thisArg.health <= thisArg.toughness * (wallAidOverride.AidHealthPercent ?? 0.5)
             }
         });
 
@@ -539,7 +541,7 @@ export function init(ctx) {
             target: proto,
             methodName: "shovelable",
             handler: ({args, thisArg, callNext}) => {
-                const forceShovelableMode = thisArg.objdataOwn.ForceShovelableMode
+                const forceShovelableMode = thisArg.objdataOwn?.ForceShovelableMode
                 if (typeof forceShovelableMode === "boolean") return forceShovelableMode
 
                 return callNext(...args)

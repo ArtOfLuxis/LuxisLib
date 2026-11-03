@@ -18,47 +18,52 @@ export function init(ctx) {
             target: allPlayerProperties,
             methodName: "getForceLevel",
             handler: ({args, thisArg, callNext}) => {
+                const getForceLevel = () => {
+                    const forcedLevel = libProperties?.ForceInitialLevel
 
-                const forcedLevel = libProperties?.ForceInitialLevel
+                    if (forcedLevel === undefined || forcedLevel === null) {
+                        return callNext(...args)
+                    }
 
-                if (forcedLevel === undefined || forcedLevel === null) {
-                    return callNext(...args)
-                }
+                    const forcedProgress = thisArg.getLevelProgressByID(forcedLevel)
+                    const isForcedLevelFinished =
+                        forcedProgress?.progress >= playerProperties.LevelProgress.unlocked_willbeFinished
 
-                const forcedProgress = thisArg.getLevelProgressByID(forcedLevel)
-                const isForcedLevelFinished =
-                    forcedProgress?.progress >= playerProperties.LevelProgress.finished
+                    if (isForcedLevelFinished) {
+                        if (
+                            thisArg.currentPlayer.forceLevel === forcedLevel ||
+                            (
+                                tutorialLevels.includes(thisArg.currentPlayer.forceLevel) &&
+                                !tutorialLevels.includes(forcedLevel)
+                            )
+                        ) {
+                            thisArg.currentPlayer.forceLevel = ""
+                            thisArg.savePP()
+                        }
 
-                if (isForcedLevelFinished) {
+                        return callNext(...args)
+                    }
+
                     if (
-                        thisArg.currentPlayer.forceLevel === forcedLevel ||
+                        thisArg.currentPlayer.forceLevel === "" ||
                         (
                             tutorialLevels.includes(thisArg.currentPlayer.forceLevel) &&
-                            !tutorialLevels.includes(forcedLevel)
+                            thisArg.currentPlayer.forceLevel !== forcedLevel
                         )
                     ) {
-                        thisArg.currentPlayer.forceLevel = ""
+                        thisArg.currentPlayer.forceLevel = forcedLevel
                         thisArg.savePP()
                     }
 
-                    return callNext(...args)
+                    return thisArg.currentPlayer.forceLevel
                 }
 
-                if (
-                    (
-                        thisArg.currentPlayer.forceLevel !== "" &&
-                        !thisArg.currentPlayer.forceLevel
-                    ) ||
-                    (
-                        tutorialLevels.includes(thisArg.currentPlayer.forceLevel) &&
-                        !tutorialLevels.includes(forcedLevel)
-                    )
-                ) {
-                    thisArg.currentPlayer.forceLevel = forcedLevel
-                    thisArg.savePP()
+                const forceLevel = getForceLevel()
+                if (libProperties?.DisallowedForceLevels?.includes(forceLevel)) {
+                    return ""
+                } else {
+                    return forceLevel
                 }
-
-                return thisArg.currentPlayer.forceLevel
             }
         })
 
