@@ -18,7 +18,7 @@ export function init(ctx) {
             target: allPlayerProperties,
             methodName: "getForceLevel",
             handler: ({args, thisArg, callNext}) => {
-                const getForceLevel = () => {
+                const getForceLevel = function ()  {
                     const forcedLevel = libProperties?.ForceInitialLevel
 
                     if (forcedLevel === undefined || forcedLevel === null) {
