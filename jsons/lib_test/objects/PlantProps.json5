@@ -7,6 +7,11 @@
         "sunflower"
       ],
       "objdata": {
+        "SeedPacketModifications": {
+          "Offset": { "x": 20, "y": -30 },
+          "Scale": { "x": 0.5, "y": 0.5 },
+          "Color": { "r": 150, "g": 0, "b": 0, "holo": 0, "a": 0, "s": 0 }
+        },
         "SunValue": 100001,
         "ProduceInterval": 2,
         "ProduceIntervalAdditional": 0,
@@ -139,10 +144,20 @@
         "peashooter"
       ],
       "objdata": {
+        "SeedPacketModifications": {
+          "Offset": { "x": 0, "y": 0 },
+          "Scale": { "x": -1, "y": 1 },
+          "Color": { "r": 0, "g": 0, "b": 0, "holo": -0.5, "a": -127, "s": -0.6 }
+        },
         "LoadProjectilesWithPlant": ["pea1", "pea_flame_yellow", "pea_flame_blue"],
-        "ColorOffset": { "r": 0, "g": 0, "b": 0, "holo": -0.5, "a": -127, "s": -0.6},
+        "ColorOffset": { "r": 0, "g": 0, "b": 0, "holo": -0.5, "a": -127, "s": -0.6 },
         "PeaType": "pea1",
-        "DetectorOverride": { "x": 5, "y": 3, "lanes": [-1, 0, 1], "xOffset": 0.2, "yOffset": 0, "isCentered": false },
+        "DetectorOverride": {
+          "x": 5, "y": 3,
+          "lanes": [-1, 0, 1],
+          "xOffset": 0.2, "yOffset": 0,
+          "isCentered": false
+        }
       }
     },
     {
@@ -1031,6 +1046,15 @@
     {
       "objclass": "PlantProperties",
       "aliases": [
+        "seedling"
+      ],
+      "objdata": {
+        "DoesntExplode": true
+      }
+    },
+    {
+      "objclass": "PlantProperties",
+      "aliases": [
         "cherry_bomb"
       ],
       "objdata": {
@@ -1040,9 +1064,10 @@
           "width": 1.5, "height": 1,
           "lanes": [0],
           "xOffset": 0, "yOffset": 0,
+          "fogClearRange": 300, // default is 150
           "showExplosionText": false,
           "scale": { "x": 0.5, "y": 0.5, "z": 0.5 },
-          "color": { "r": 120, "g": 120, "b": 350, "a": 255 },
+          "color": { "r": 120, "g": 120, "b": 400, "a": 255 },
           "armorProtection": true,
           "armorKnockSound": true,
           "bodyKnockSound": true,
@@ -1543,6 +1568,7 @@
               0,
               1
             ],
+            "fogClearRange": 300,
             "xOffset": 0,
             "yOffset": 0,
             "armorProtection": false,

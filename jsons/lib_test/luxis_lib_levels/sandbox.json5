@@ -1,0 +1,292 @@
+{
+  "#comment": "Sandbox",
+  "github_level_conf": {
+    "title": {
+      "en": "Sandbox",
+      "zh": "沙盒"
+    },
+    "description": {
+      "en": "Do most of what you want in this level, but you can never win.",
+      "zh": "在此关卡你可以做你想做的大部分事情，但你没办法取胜。"
+    },
+    "conditions": [
+      [
+        "mowers",
+        "plantfood"
+      ],
+      [
+        "mowers",
+        "plantfood"
+      ]
+    ]
+  },
+  "objects": [
+    {
+      "objclass": "LevelDefinition",
+      "objdata": {
+        "Description": "Sandbox",
+        "LevelNumber": 1,
+        "Loot": "RTID(NoLoot@LevelModules)",
+        "Modules": [
+          "RTID(EightiesZombossIntro@LevelModules)",
+          "RTID(AutoCollect@LevelModules)",
+          "RTID(DefaultSunDropperListenToLawn@LevelModules)",
+          "RTID(ZombiesDeadWinCon@LevelModules)",
+          "RTID(PowerupsTutorial@CurrentLevel)",
+          "RTID(SeedBank@CurrentLevel)",
+          "RTID(Gravestones@CurrentLevel)",
+          "RTID(LostCityTrapTileGroups@CurrentLevel)",
+          "RTID(KongfuTNT@CurrentLevel)",
+          "RTID(LilypadPlacement@CurrentLevel)",
+          "RTID(DefaultZombieWinCondition@LevelModules)"
+        ],
+        "Name": "Sandbox",
+        "NameMultiLanguage": {
+          "en": "Sandbox",
+          "zh": "沙盒"
+        },
+        "StageModule": "RTID(TutorialStage@LevelModules)",
+        "StartingSun": 100,
+        "SandBoxMode": true,
+        "SandBoxWithoutAllLawns": false,
+        "WrittenBy": "南 Garden"
+      }
+    },
+    {
+      "aliases": [
+        "//LostCityTrapTileGroups"
+      ],
+      "objclass": "TrapTileProperties",
+      "objdata": {
+        "TrapTiles": [
+          {
+            "Group": "flame",
+            "Location": {
+              "mX": 4,
+              "mY": 0
+            },
+            "RecoverDelay": 7.5
+          },
+          {
+            "Group": "thunder",
+            "Location": {
+              "mX": 7,
+              "mY": 2
+            },
+            "RecoverDelay": 7.5
+          },
+          {
+            "Group": "thunder",
+            "Location": {
+              "mX": 1,
+              "mY": 2
+            },
+            "RecoverDelay": 7.5
+          },
+          {
+            "Group": "thunder",
+            "Location": {
+              "mX": 4,
+              "mY": 2
+            },
+            "RecoverDelay": 7.5
+          },
+          {
+            "Group": "flame",
+            "Location": {
+              "mX": 4,
+              "mY": 4
+            },
+            "RecoverDelay": 7.5
+          }
+        ]
+      }
+    },
+    {
+      "aliases": [
+        "//LilypadPlacement"
+      ],
+      "objclass": "InitialGridItemProperties",
+      "objdata": {
+        "InitialGridItemMatrixes": [
+          {
+            "GridMatrix": [
+              "000011111",
+              "000011111",
+              "000011111",
+              "000011111",
+              "000011111"
+            ],
+            "TypeName": "potholepuddle"
+          },
+          {
+            "GridMatrix": [
+              "000000000",
+              "000100000",
+              "000000000",
+              "000000000",
+              "000000000"
+            ],
+            "TypeName": "slider_down"
+          },
+          {
+            "GridMatrix": [
+              "000000000",
+              "000000000",
+              "000000000",
+              "000100000",
+              "000000000"
+            ],
+            "TypeName": "slider_up"
+          }
+        ]
+      }
+    },
+    {
+      "aliases": [
+        "//KongfuTNT"
+      ],
+      "objclass": "KongfuTNTProperties",
+      "objdata": {
+        "Speed": 0.5,
+        "TriggerGameLose": false,
+        "DamagesToZombies": false,
+        "DamagesToPlants": true,
+        "SpawnData": [
+          {
+            "Speed": 0.5,
+            "WireLength": 6,
+            "GridX": -1,
+            "GridY": 0
+          },
+          {
+            "Speed": 0.5,
+            "WireLength": 7,
+            "GridX": -1,
+            "GridY": 1
+          },
+          {
+            "Speed": 0.5,
+            "WireLength": 7,
+            "GridX": -1,
+            "GridY": 2
+          },
+          {
+            "Speed": 0.5,
+            "WireLength": 7,
+            "GridX": -1,
+            "GridY": 3
+          },
+          {
+            "Speed": 0.5,
+            "WireLength": 6,
+            "GridX": -1,
+            "GridY": 4
+          }
+        ]
+      }
+    },
+    {
+      "aliases": [
+        "//Gravestones"
+      ],
+      "objclass": "GravestoneProperties",
+      "objdata": {
+        "ForceSpawnData": [
+          {
+            "TypeName": "kongfu_rack_torch",
+            "GridX": 7,
+            "GridY": 0
+          },
+          {
+            "TypeName": "kongfu_rack_blade",
+            "GridX": 7,
+            "GridY": 1
+          },
+          {
+            "TypeName": "kongfu_rack_hammer",
+            "GridX": 5,
+            "GridY": 1
+          },
+          {
+            "TypeName": "kongfu_rack_bomb",
+            "GridX": 7,
+            "GridY": 2
+          },
+          {
+            "TypeName": "kongfu_rack_flag",
+            "GridX": 7,
+            "GridY": 3
+          },
+          {
+            "TypeName": "kongfu_rack_fan",
+            "GridX": 5,
+            "GridY": 2
+          },
+          {
+            "TypeName": "kongfu_rack_helmet",
+            "GridX": 5,
+            "GridY": 3
+          },
+          {
+            "TypeName": "kongfu_rack_nunchaku",
+            "GridX": 7,
+            "GridY": 4
+          }
+        ]
+      }
+    },
+    {
+      "aliases": [
+        "SeedBank"
+      ],
+      "objclass": "SeedBankProperties",
+      "objdata": {
+        "SuppressObjectiveTip": true,
+        "PresetPlantList": [
+          {
+            "PlantType": "peashooter",
+            "Level": -1
+          },
+          {
+            "PlantType": "sunflower",
+            "Level": -1
+          },
+          {
+            "PlantType": "wallnut",
+            "Level": -1
+          },
+          {
+            "PlantType": "potatomine",
+            "Level": -1
+          },
+          {
+            "PlantType": "cabbagepult",
+            "Level": -1
+          },
+          {
+            "PlantType": "bloomerang",
+            "Level": -1
+          },
+          {
+            "PlantType": "iceburg",
+            "Level": -1
+          },
+          {
+            "PlantType": "gravebuster",
+            "Level": -1
+          }
+        ],
+        "SelectionMethod": "preset"
+      }
+    },
+    {
+      "aliases": [
+        "PowerupsTutorial"
+      ],
+      "objclass": "PowerupTutorialIntroProperties",
+      "objdata": {}
+    }
+  ],
+  "version": 1
+}

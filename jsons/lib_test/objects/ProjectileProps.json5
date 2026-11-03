@@ -491,6 +491,7 @@
             },
             "damage": 1800,
             "showExplosionText": true,
+            "fogClearRange": 300,
             "zombieCallback": []
           }
         ]
