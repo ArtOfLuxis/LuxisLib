@@ -784,10 +784,10 @@ export function init(ctx) {
                         speedPotion.max
                     )
 
-                const leapBack = thisArg.objDataOwn.LeapBack;
-                if (leapBack !== undefined && (leapBack?.KnockbackDistance ?? 0) > 0) {
+                const leapBack = thisArg.objdataOwn.LeapBack;
+                if (leapBack && (leapBack?.LeapsAerial || !zombie.flying)) {
                     zombie.leapBy(
-                        new cc.Vec2(leapBack.KnockbackDistance), true, (leapBack?.LeapTime ?? 0.5), (leapBack?.LeapHeight ?? 20), true, true
+                        new cc.Vec2(leapBack?.KnockbackDistance ?? 0.5), true, (leapBack?.LeapTime ?? 0.5), (leapBack?.LeapHeight ?? 20), true, true
                     )
                 }
 
