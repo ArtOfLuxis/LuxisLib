@@ -18,7 +18,7 @@ export function init(ctx) {
             target: allPlayerProperties,
             methodName: "getForceLevel",
             handler: ({args, thisArg, callNext}) => {
-                const getForceLevel = function ()  {
+                const getForceLevel = function () {
                     const forcedLevel = libProperties?.ForceInitialLevel
 
                     if (forcedLevel === undefined || forcedLevel === null) {
@@ -59,6 +59,7 @@ export function init(ctx) {
                 }
 
                 const forceLevel = getForceLevel()
+                console.log(forceLevel, libProperties?.DisallowedForceLevels)
                 if (libProperties?.DisallowedForceLevels?.includes(forceLevel)) {
                     return ""
                 } else {

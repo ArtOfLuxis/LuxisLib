@@ -355,9 +355,11 @@ export function init(ctx) {
                                 evaluate(action.duration, context),
                                 evaluate(action.height, context) ?? 10,
                                 groundFire.GroundFireColorEnum[
-                                    evaluate(action.color, context) ?? "yellow"],
+                                    evaluate(action.color, context) ?? "yellow"
+                               ],
                                 groundFire.GroundFireSpreadStyleEnum[
-                                    evaluate(action.spreadStyle, context) ?? "cross"],
+                                    evaluate(action.spreadStyle, context) ?? "cross"
+                                ],
                                 evaluate(action.spreadSpeed, context) ?? 9,
                                 evaluate(action.spreadDistance, context) ?? 9,
                                 evaluate(action.zombieWhitelist, context) ?? [],
