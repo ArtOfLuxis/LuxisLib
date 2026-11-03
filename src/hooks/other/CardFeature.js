@@ -6,16 +6,18 @@ export function init(ctx) {
     ctx.events.on("engine:ready", () => {
         const cardFeature = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/CardFeature.ts")
         const square = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Square.ts")
+        const Materials = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Materials.ts")
         const proto = cardFeature.CardFeature.prototype
 
         const cc = ctx.unsafe.engine.getCc()
 
-        proto.Prop = { Cooldown: 0, SunCost: 0, BeghouledCost: 0 }
+        const originalSuncostGetter = Object.getOwnPropertyDescriptor(proto, "SUNCOST").get
+
         ctx.unsafe.hooks.wrapProperty({
             target: proto,
             key: "SUNCOST",
-            get: ({thisArg, value}) => {
-                let sun = value
+            get: ({thisArg}) => {
+                let sun = originalSuncostGetter.call(thisArg)
 
                 const costOverride = thisArg.Prop.CostOverride
                 if (square.Square.component?.inLawnLnCs && costOverride) {
@@ -35,14 +37,18 @@ export function init(ctx) {
                     }
 
                     const listSunCost = costOverride.ListSunCost
-                    if (listSunCost.length > 0) {
-                        sun = listSunCost[Math.min(count, listSunCost.length - 1)]
+                    if (listSunCost?.length > 0) {
+                        const index = Math.max(0, Math.min(Math.floor(count), listSunCost.length - 1))
+                        const listCost = listSunCost[index]
+
+                        if (typeof listCost === "number") sun = listCost
                     }
+
                     if (typeof sun === "number")
                         sun += (costOverride.IncrementSunCost ?? 0) * count
                 }
 
-                return sun
+                return sun ?? 0
             }
         })
 
@@ -54,9 +60,87 @@ export function init(ctx) {
                 callNext(...args)
 
                 if (await ctx.settings.get("hideMintIcons")) {
-                    let s = cc.internal.ArmatureDisplay;
-                    thisArg.node.getChildByName("Family").getComponent(s).playAnimation("Nope");
+                    let s = cc.internal.ArmatureDisplay
+                    thisArg.node.getChildByName("Family").getComponent(s).playAnimation("Nope")
                 }
+
+                const db = thisArg.ca._plantDB
+
+                const original = db.___seedPacketOriginals ??= {
+                    scale: db.node.scale.clone(),
+                    position: db.node.position.clone(),
+                    color: db.color.clone(),
+                    material: db.customMaterial
+                }
+
+                db.node.scale = original.scale.clone()
+                db.node.setPosition(original.position)
+                db.color = original.color.clone()
+                db.customMaterial = original.material
+
+                const SeedPacketModifications = thisArg.Prop.SeedPacketModifications
+                if (!SeedPacketModifications) return
+
+                const scale = SeedPacketModifications.Scale
+                db.node.scale = new cc.Vec3(
+                    original.scale.x * (scale?.x ?? 1),
+                    original.scale.y * (scale?.y ?? 1),
+                    original.scale.z
+                )
+
+                const offset = SeedPacketModifications.Offset
+                db.node.setPosition(
+                    original.position.x + (offset?.x ?? 0),
+                    original.position.y + (offset?.y ?? 0),
+                    original.position.z
+                )
+
+                const color = SeedPacketModifications.Color
+                if (color) {
+                    let material = db.___seedPacketMaterial
+
+                    if (!material) {
+                        material = new cc.Material()
+                        material.initialize({
+                            effectAsset: Materials.materialRes.addColorEffect,
+                            defines: {
+                                USE_TEXTURE: true
+                            }
+                        })
+
+                        db.___seedPacketMaterial = material
+                    }
+
+                    const pass = material.passes[0]
+
+                    pass.setUniform(pass.getHandle("addColor"), new cc.Vec4(
+                        (color.r ?? 0) / 255,
+                        (color.g ?? 0) / 255,
+                        (color.b ?? 0) / 255,
+                        1
+                    ))
+
+                    pass.setUniform(pass.getHandle("saturation"), color.s ?? 0)
+                    pass.setUniform(pass.getHandle("holo"), color.holo ?? 0)
+
+                    db.customMaterial = material
+
+                    db.color = new cc.Color(
+                        original.color.r,
+                        original.color.g,
+                        original.color.b,
+                        original.color.a + (color.a ?? 0)
+                    )
+                }
+            }
+        })
+
+        ctx.unsafe.hooks.wrapMethod({
+            target: proto,
+            methodName: "cardGrouperPlant",
+            priority: -10000,
+            handler: async ({thisArg, callNext, args}) => {
+                callNext(...args)
 
                 const assets = cc.assetManager.assets._map
 

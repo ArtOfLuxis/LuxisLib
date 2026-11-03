@@ -323,6 +323,7 @@
         "ProjectileEnumAdd": [],
         // worlds and levels
         "ForceInitialLevel": "egypt1", // default is tutorial1, set to "" to just skip tutorial
+        "DisallowedForceLevels": ["tutorial1","tutorial2","tutorial3","tutorial4"],
         "StartingWorlds": [
           "egypt",
           "future"

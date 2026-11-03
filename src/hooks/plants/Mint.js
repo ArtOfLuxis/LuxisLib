@@ -65,7 +65,7 @@ export function init(ctx) {
             target: proto,
             methodName: "shovelable",
             handler: ({args, thisArg, callNext}) => {
-                const forceShovelableMode = thisArg.objdataOwn.ForceShovelableMode
+                const forceShovelableMode = thisArg.objdataOwn?.ForceShovelableMode
                 if (typeof forceShovelableMode === "boolean") return forceShovelableMode
 
                 return callNext(...args)
