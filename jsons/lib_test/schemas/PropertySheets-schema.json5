@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "integer"
+    },
+    "objects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["objclass", "aliases", "objdata"],
+        "properties": {
+          "objclass": {
+            "type": "string"
+          },
+          "aliases": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "objdata": {
+            "type": "object"
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "objclass": {
+                  "const": "LuxisLibWorldmapProps"
+                }
+              },
+              "required": ["objclass"]
+            },
+            "then": {
+              "properties": {
+                "objdata": {
+                  "$ref": "./worldmap-schema.json5"
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "required": ["version", "objects"]
+}
