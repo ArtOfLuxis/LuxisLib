@@ -561,7 +561,7 @@ export function init(ctx) {
 
         ctx.unsafe.hooks.wrapMethod({
             target: proto,
-            methodName: "defaultSetHypnoTized",
+            methodName: "defaultSetHypnotized",
             handler: ({args, thisArg, callNext}) => {
                 const immuneToHypno = thisArg.objdataOwn.ImmuneToHypno
 

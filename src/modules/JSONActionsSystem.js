@@ -288,6 +288,7 @@ export function init(ctx) {
                                 evaluate(action.explosionWidth, context) ?? 3,
                                 evaluate(action.explosionHeight, context) ?? 3,
                                 evaluate(action.explosionLanes, context) ?? [-1, 0, 1],
+                                evaluate(action.fogClearRange, context) ?? 150,
                                 evaluate(action.xOffset, context) ?? 0,
                                 evaluate(action.yOffset, context) ?? 0,
                                 evaluate(action.armorProtection, context) ?? false,
@@ -354,11 +355,11 @@ export function init(ctx) {
                                 evaluate(action.duration, context),
                                 evaluate(action.height, context) ?? 10,
                                 groundFire.GroundFireColorEnum[
-                                    evaluate(action.color, context) ?? "yellow"
-                                ],
+                                evaluate(action.color, context) ?? "yellow"
+                                    ],
                                 groundFire.GroundFireSpreadStyleEnum[
-                                    evaluate(action.spreadStyle, context) ?? "cross"
-                                ],
+                                evaluate(action.spreadStyle, context) ?? "cross"
+                                    ],
                                 evaluate(action.spreadSpeed, context) ?? 9,
                                 evaluate(action.spreadDistance, context) ?? 9,
                                 evaluate(action.zombieWhitelist, context) ?? [],
@@ -380,7 +381,8 @@ export function init(ctx) {
                                 evaluate(action.height, context) ?? 0,
                                 evaluate(action.speed, context) ?? 8,
                                 evaluate(action.layer, context) ?? context.target?.inLane?.prjLayer,
-                                character.CharacterType[evaluate(action.enemyType, context) ?? "zombie"]
+                                character.CharacterType[evaluate(action.enemyType, context) ?? "zombie"],
+                                evaluate(action.projectileData, context) ?? {},
                             )
                             break
                         }
@@ -860,7 +862,7 @@ export function init(ctx) {
         }
     })
 
-    ctx.events.on("properties", () => {
+    ctx.events.on("lib-properties", () => {
         try {
             if (libProperties.JSONActionHooks?.length) {
                 ctx.log.info("Loading JSONActionHooks from libProperties")

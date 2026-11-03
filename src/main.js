@@ -1,3 +1,4 @@
+import {loadCustomLevelApi} from "./hooks/other/JSONs.js";
 
 const modules = import.meta.glob('./**/*.js', {eager: true});
 
@@ -20,16 +21,16 @@ async function shouldForcePageReload(ctx) {
 }
 
 export async function setup(ctx) {
-    const oldGetSystemModule = ctx.unsafe.engine.getSystemModule
-    if (!oldGetSystemModule.___LuxisLibEdited) {
-        oldGetSystemModule.___LuxisLibEdited = true
-
-        ctx.unsafe.engine.getSystemModule = (module) => {
-            const result = oldGetSystemModule(module)
-            console.log("[Luxis Lib Debug] Loading System Module:",  module, "exists: ", !!result)
-            return result
-        }
-    }
+    // const oldGetSystemModule = ctx.unsafe.engine.getSystemModule
+    // if (!oldGetSystemModule.___LuxisLibEdited) {
+    //     oldGetSystemModule.___LuxisLibEdited = true
+    //
+    //     ctx.unsafe.engine.getSystemModule = (module) => {
+    //         const result = oldGetSystemModule(module)
+    //         console.log("[Luxis Lib Debug] Loading System Module:",  module, "exists: ", !!result)
+    //         return result
+    //     }
+    // }
     const oldWarn = console.warn
     if (!oldWarn.___LuxisLibEdited) {
         oldWarn.___LuxisLibEdited = true
@@ -41,9 +42,20 @@ export async function setup(ctx) {
     }
 
     ctx.ui.toast("Initialized >w<", "success")
-    for (const initModule of Object.values(modules)) {
+    const moduleEntries = Object.entries(modules)
+
+    const orderedModules = [
+        ...moduleEntries.filter(([path]) =>
+            !path.endsWith("JSONs.js")
+        ),
+        ...moduleEntries.filter(([path]) =>
+            path.endsWith("JSONs.js")
+        ),
+    ]
+
+    for (const [, initModule] of orderedModules) {
         try {
-            initModule.init(ctx)
+            initModule.init?.(ctx)
         } catch (err) {
             ctx.ui.toast("error encountered :c", "error")
             ctx.log.error(err.message)
@@ -52,12 +64,6 @@ export async function setup(ctx) {
 
     const isAdvanced = await ctx.settings.get("isAdvanced")
     const advancedFields = [
-        {
-            key: "luxisLibAlias",
-            label: "Lib Props Alias",
-            type: "text",
-            default: "LuxisLibProps"
-        },
         {
             key: "seedPacketSettings",
             label: "SeedPacket Settings",
@@ -90,13 +96,8 @@ export async function setup(ctx) {
     ]
     const normalFields = [
         {
-            key: "seedPacketSettings",
-            label: "SeedPacket Settings",
-            type: "readonly"
-        },
-        {
             key: "seedPacketCount",
-            label: "Count",
+            label: "SeedPacket Count",
             type: "slider",
             min: 2,
             max: 16,
@@ -137,6 +138,12 @@ export async function setup(ctx) {
             label: "Hide SeedPacket Mint Icons",
             type: "toggle",
             default: false
+        },
+        {
+            key: "deterministicPinatas",
+            label: "Deterministic Pinata Parties",
+            type: "toggle",
+            default: true
         },
         {
             key: "deltaTimeThreshold",
@@ -203,6 +210,17 @@ export async function setup(ctx) {
                 ]
             }
         ]
+    })
+
+    ctx.services.provide({
+        id: "artofluxis.luxislib.api",
+        version: "1.0.0",
+        capabilities: ["register-level"],
+        api: {
+            registerLevel: (levelID, data) => {
+                loadCustomLevelApi(levelID, data)
+            }
+        }
     })
 
 

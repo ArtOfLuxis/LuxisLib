@@ -39,6 +39,7 @@ export function init(ctx) {
                     explosionOverride.width,
                     explosionOverride.height,
                     explosionOverride.lanes,
+                    explosionOverride.fogClearRange,
                     explosionOverride.xOffset,
                     explosionOverride.yOffset,
                     explosionOverride.armorProtection,
