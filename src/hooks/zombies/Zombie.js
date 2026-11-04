@@ -145,6 +145,10 @@ export function init(ctx) {
             "SapSpeedMultiplier": null,
             "DarkmatterHealthRatioMultiplier": null,
             "DarkmatterSpeedMultiplier": null,
+
+            "UmbrellaLeafKnockbackMultiplier": null,
+            "CannotBeBlownByBlover": null,
+            "CannotBeBouncedByUmbrellaLeaf": null
         })
 
 
@@ -197,6 +201,58 @@ export function init(ctx) {
                 thisArg.body.db.customMaterial = thisArg.material
 
                 return { color, colorMult, saturation, holo }
+            }
+        })
+
+        ctx.unsafe.hooks.wrapMethod({
+            target: proto,
+            methodName: "blowAway",
+            isStatic: false,
+            handler({ args, thisArg, callNext}) {
+                if (thisArg.objdataOwn.CannotBeBlownByBlover) {
+                    return;
+                }
+                callNext(...args);
+            }
+        })
+
+        ctx.unsafe.hooks.wrapMethod({
+            target: proto,
+            methodName: "onLeapEnd",
+            isStatic: false,
+            handler({ args, thisArg, callNext}) {
+                if (args[0] === undefined) args[0] = true;
+                thisArg.specialOnLeapEnd();
+                if (args[0] && thisArg.isAlive() && !thisArg.hypnotized && !thisArg.objdataOwn.CannotBeBouncedByUmbrellaLeaf) {
+                    let bounce = false;
+                    thisArg.setBodyRec();
+                    characterManager.Umbrellas.umbrellas.forEach((function(umbrella) {
+                            let inRange = false;
+                            if (umbrella && !bounce && umbrella.owner && !umbrella.owner.sheepend) {
+                                let plant = umbrella.owner;
+                                let lane = plant.inLane
+                                if (lane)
+                                {
+                                    let lowerLane = lane.LowerLane, upperLane = lane.UpperLane;
+                                    if ((thisArg.inLane === lane || thisArg.inLane === lowerLane || thisArg.inLane === upperLane)
+                                    && umbrella.detector.judgeCrossRec(thisArg.bodyRec))
+                                    {
+                                        inRange = true;
+                                    }
+                                }
+                            }
+                            if (inRange && umbrella.owner.umbrellable()) {
+                                umbrella.owner.bounce();
+                                bounce = true;
+                            }
+                        }
+                    ))
+                    if (bounce)
+                    {
+                        thisArg.leapBy(new cc.Vec2(10 * (thisArg.objdataOwn.UmbrellaLeafKnockbackMultiplier ?? 1), 0), true, 0.5, 80, false);
+                    }
+                }
+                if (thisArg.inLane && (thisArg.inLane.LaneIndex < 0 || thisArg.inLane.LaneIndex > 4)) thisArg.playDie()
             }
         })
 
