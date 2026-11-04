@@ -120,6 +120,8 @@ export function init(ctx) {
             "SplashDamageOnWater": null,
             "DefenceRateList": null,
             "MouseFollow": null,
+            "LeapBack": null,
+            "AngleChangePerSecond": null
         }
 
         ctx.unsafe.hooks.wrapMethod({
@@ -477,6 +479,18 @@ export function init(ctx) {
                 const speedScalePerSecond = thisArg.SpeedScalePerSecond
                 if (speedScalePerSecond) thisArg.speedScale += speedScalePerSecond * deltaTime
 
+                const angleChangePerSecond = thisArg.objdataOwn.AngleChangePerSecond
+                if (angleChangePerSecond) {
+                    let angleChange = angleChangePerSecond * (Math.PI / 180);
+                    let velocity = thisArg.linearVelocity;
+                    let speedValue = Math.hypot(velocity.x, velocity.y);
+                    let angle = Math.atan2(velocity.y, velocity.x);
+                    velocity.x = speedValue * Math.cos(angle + (angleChange * deltaTime));
+                    velocity.y = speedValue * Math.sin(angle + (angleChange * deltaTime));
+                    thisArg.linearVelocity = velocity;
+                    thisArg.rotate()
+                }
+
                 if (
                     !thisArg.AlreadyInverted &&
                     thisArg.InvertDirectionOnTheLeft &&
@@ -782,6 +796,13 @@ export function init(ctx) {
                         speedPotion.min,
                         speedPotion.max
                     )
+
+                const leapBack = thisArg.objdataOwn.LeapBack;
+                if (leapBack && (leapBack?.LeapsAerial || !zombie.flying)) {
+                    zombie.leapBy(
+                        new cc.Vec2(leapBack?.KnockbackDistance ?? 0.5), true, (leapBack?.LeapTime ?? 0.5), (leapBack?.LeapHeight ?? 20), true, true
+                    )
+                }
 
                 const onZombieDamageActions = thisArg.OnZombieDamageActions
                 if (onZombieDamageActions) {
