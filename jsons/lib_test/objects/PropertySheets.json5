@@ -182,8 +182,10 @@
         // general
         "MaxSunAmount": 999999, // default value is 9900
         "FastForwardSpeed": 3, // default value is 1.5
+
         "ImitaterSlotPlant": "wallnut", // default value is "imitater"
         "PutAllAvailableCostumesInShop": true,
+
         "MedalBoostAmount": 2,
         "MedalBoostAmountSpecific": {
           "wallnut": 3,
@@ -191,11 +193,15 @@
           "peashooter": 5
         },
         "MedalBoostPageString": "Unlock each plant with uhhh i forgot",
+
         "SeedChooserLevelingSwitchButtonText": "LVLaaaa current/max",
         "SeedChooserLevelingSwitchButtonOffset": 65,
+
         "YetiResetTimesPerDay": 86400,
         "DecodeResetTimesPerDay": 86400,
         "ClearDecodeGemTextOnRefresh": true,
+
+        "UnpickupableSunModes": ["Red", "Blue"], // "Yellow", "Red", "Blue"
         "SunValueOverrides": {
           "5": 5,
           "25": 25,
@@ -238,12 +244,8 @@
             "CoinSilver"
           ]
         },
-        "PlantSunCostFontScale": 0.75,
-        "PlantSunCostHeightScale": 1,
-        "ArbitraryProjectileProperties": {
-          "FrozenType": null // default value
-          // check ActsLikeTorchwood for more info
-        },
+
+
         // decoding minigame
         "DecodeGemFormula": "\
           Math.round(\
@@ -252,6 +254,7 @@
           ) + 9999\
         ", // use \ for new lines
         // this is the vanilla formula but adds 9999 to it
+
         "DecodeRecordScale": {
           "x": 0.7,
           "y": 0.7
@@ -316,11 +319,23 @@
             "Target": "megagatlingpea"
           }
         ],
+
+
         // plants
+        "PlantSunCostFontScale": 0.75,
+        "PlantSunCostHeightScale": 1,
         "GlacierShroomSaturation": -1, // default is 0.5
         "PeaVineDamageBoost": 10, // default is 1.5
+
+
         // projectiles
         "ProjectileEnumAdd": [],
+        "ArbitraryProjectileProperties": {
+          "FrozenType": null // default value
+          // check ActsLikeTorchwood for more info
+        },
+
+
         // worlds and levels
         "ForceInitialLevel": "egypt1", // default is tutorial1, set to "" to just skip tutorial
         "DisallowedForceLevels": ["tutorial1","tutorial2","tutorial3","tutorial4"],
@@ -347,8 +362,10 @@
           "Kongfu",
           "Eighties",
         ],
+
         // your pack.json must have `"depends": ["luxislib"]` to work with this
         "CustomLevelFolder": "jsons/luxis_lib_levels",
+
         "MainMenuCustomLevelSettings": {
           "buttonScale": [
             0.3,

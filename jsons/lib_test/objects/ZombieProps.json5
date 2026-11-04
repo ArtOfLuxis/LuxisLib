@@ -49,7 +49,7 @@
         "ra"
       ],
       "objdata": {
-        "SunAbsorptionSpeed": 4
+        "SunAbsorptionSpeed": 0.75
       }
     },
     {

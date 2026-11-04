@@ -15,7 +15,9 @@ export function init(ctx) {
             methodName: "specialGoToUI",
             handler: ({ args, thisArg, callNext }) => {
                 const sunOverrides = libProperties?.SunValueOverrides
-                if (!sunOverrides) return callNext(...args)
+                if (!sunOverrides) {
+                    return callNext(...args)
+                }
 
                 droppings.droppings.deleteSun(thisArg)
 
@@ -39,6 +41,18 @@ export function init(ctx) {
                     null,
                     true
                 )
+            }
+        })
+
+        ctx.unsafe.hooks.wrapMethod({
+            target: proto,
+            methodName: "goToUI",
+            handler: ({ args, thisArg, callNext }) => {
+                if (libProperties?.UnpickupableSunModes?.includes(thisArg.mode)) {
+                    return
+                }
+
+                return callNext(...args)
             }
         })
 
