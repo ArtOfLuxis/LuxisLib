@@ -125,6 +125,7 @@ export function init(ctx) {
             "CannotBeCarriedByInferno": null,
             "HurrikalePushSpeedMult": null,
             "MagnetHeadAbsorptionSpeed": null,
+            "SunAbsorptionSpeed": null,
 
             "GlitteringDurationMultiplier": null,
             "PoisonDurationMultiplier": null,

@@ -46,6 +46,15 @@
     {
       "objclass": "ZombieProperties",
       "aliases": [
+        "ra"
+      ],
+      "objdata": {
+        "SunAbsorptionSpeed": 4
+      }
+    },
+    {
+      "objclass": "ZombieProperties",
+      "aliases": [
         "dark_gargantuar"
       ],
       "objdata": {

@@ -59,7 +59,6 @@ export function init(ctx) {
                 }
 
                 const forceLevel = getForceLevel()
-                console.log(forceLevel, libProperties?.DisallowedForceLevels)
                 if (libProperties?.DisallowedForceLevels?.includes(forceLevel)) {
                     return ""
                 } else {

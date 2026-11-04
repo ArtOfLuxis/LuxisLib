@@ -41,5 +41,28 @@ export function init(ctx) {
                 )
             }
         })
+
+        ctx.unsafe.hooks.wrapMethod({
+            target: sun.sun.prototype,
+            methodName: "specialDroppingUpdate",
+            handler: ({args, callNext, thisArg}) => {
+                const speedMult = thisArg.absorber?.objdataOwn?.SunAbsorptionSpeed
+                if (typeof speedMult === "number") {
+                    const previousSpeed = thisArg.absorber.shouldSpeedScaleThisTick
+                    thisArg.absorber.shouldSpeedScaleThisTick *= speedMult
+
+                    let result
+                    try {
+                        result = callNext(...args)
+                    } finally {
+                        thisArg.absorber.shouldSpeedScaleThisTick = previousSpeed
+                    }
+
+                    return result
+                }
+
+                return callNext(...args)
+            }
+        })
     })
 }
