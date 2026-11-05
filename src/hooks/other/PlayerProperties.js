@@ -5,10 +5,11 @@ export function init(ctx) {
         const playerProperties = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/PlayerProperties.ts")
         const allPlayerProperties = playerProperties.AllPlayerProperties
 
-        if (libProperties?.StartingWorlds)
+        if (libProperties?.StartingWorlds) {
             allPlayerProperties.StartingWorlds = libProperties.StartingWorlds.map((world) => {
-            return playerProperties.WorldMapSceneDisplayEnum[world]
-        })
+                return playerProperties.WorldMapSceneDisplayEnum[world]
+            })
+        }
 
         const tutorialLevels = [
             "tutorial1", "tutorial2", "tutorial3", "tutorial4"

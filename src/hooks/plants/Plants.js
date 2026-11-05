@@ -1,4 +1,3 @@
-import {evaluate} from "../../modules/JSONActionsSystem.js";
 
 export function init(ctx) {
     ctx.events.on("engine:ready", () => {

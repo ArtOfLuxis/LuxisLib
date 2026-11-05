@@ -344,13 +344,13 @@
           "future"
         ],
         "WorldOrder": [
-          // deleting a world from here won't remove it from the order and
-          // will just cause the world to be in front the ones in the list
           "Future",
           "Crack",
           "Pirate",
           "Unknown",
           "Sky",
+        ],
+        "RemovedWorldIcons": [
           "Modern",
           "Egypt",
           "Cowboy",

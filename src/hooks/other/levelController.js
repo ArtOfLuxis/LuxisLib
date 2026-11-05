@@ -1,5 +1,5 @@
 import {libProperties} from "./JSONs";
-import {executeActions} from "../../modules/JSONActionsSystem";
+import {executeActions} from "../../modules/JSONActionsSystem.ts";
 
 export let isGameRunning
 

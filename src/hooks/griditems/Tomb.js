@@ -1,5 +1,5 @@
 import {isGameRunning} from "../other/levelController";
-import {executeActions} from "../../modules/JSONActionsSystem";
+import {executeActions} from "../../modules/JSONActionsSystem.ts";
 import {libProperties} from "../other/JSONs";
 
 export function init(ctx) {

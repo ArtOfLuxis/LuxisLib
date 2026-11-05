@@ -1,8 +1,29 @@
+
 import {loadCustomLevelApi} from "./hooks/other/JSONs.js";
+import {GPNContext} from "./tsclasses/api";
 
-const modules = import.meta.glob('./**/*.js', {eager: true});
+interface ModExport {
+    init?: (ctx: GPNContext) => void
+}
 
-async function shouldForcePageReload(ctx) {
+interface ModEntry extends Array<string | ModExport> {
+    0: string
+    1: ModExport
+}
+
+const javascriptModules =
+    import.meta.glob<ModExport>("./**/*.js", {eager: true})
+const typescriptModules =
+    import.meta.glob<ModExport>("./**/*.ts", {eager: true})
+
+declare global {
+    interface Window {
+        __luxisReloadScheduled?: boolean
+        __luxisLoadedThisDocument?: boolean
+    }
+}
+
+async function shouldForcePageReload(ctx: GPNContext): Promise<boolean> {
     if (!(await ctx.settings.get("allowForceReload"))) {
         return false
     }
@@ -12,7 +33,8 @@ async function shouldForcePageReload(ctx) {
 
     window.__luxisLoadedThisDocument = true
 
-    const navigation = performance.getEntriesByType("navigation")[0]
+    const navigation =
+        performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined
 
     const pageWasReloaded =
         navigation?.type === "reload"
@@ -20,49 +42,65 @@ async function shouldForcePageReload(ctx) {
     return !pageWasReloaded || !firstLoadThisDocument
 }
 
-export async function setup(ctx) {
-    // const oldGetSystemModule = ctx.unsafe.engine.getSystemModule
-    // if (!oldGetSystemModule.___LuxisLibEdited) {
-    //     oldGetSystemModule.___LuxisLibEdited = true
-    //
-    //     ctx.unsafe.engine.getSystemModule = (module) => {
-    //         const result = oldGetSystemModule(module)
-    //         console.log("[Luxis Lib Debug] Loading System Module:",  module, "exists: ", !!result)
-    //         return result
-    //     }
-    // }
-    const oldWarn = console.warn
+export function requestPageReload(ctx: GPNContext, message: string) {
+    if (window.__luxisReloadScheduled) {
+        return
+    }
+
+    window.__luxisReloadScheduled = true
+
+    ctx.log.info(message)
+    ctx.ui.toast(message, "info")
+
+    setTimeout(() => location.reload(), 500)
+}
+
+export async function setup(ctx: GPNContext): Promise<void> {
+    const oldWarn = console.warn as typeof console.warn & {
+        ___LuxisLibEdited?: boolean
+    }
+
     if (!oldWarn.___LuxisLibEdited) {
         oldWarn.___LuxisLibEdited = true
 
-        console.warn = (...messages) => {
-            if (!messages?.[0]?.includes("Can't find the plant with type name: \"\""))
+        console.warn = (...messages: any[]) => {
+            if (!messages?.[0]?.includes("Can't find the plant with type name: \"\"")) {
                 oldWarn(...messages)
+            }
         }
     }
 
     ctx.ui.toast("Initialized >w<", "success")
-    const moduleEntries = Object.entries(modules)
 
-    const orderedModules = [
-        ...moduleEntries.filter(([path]) =>
-            !path.endsWith("JSONs.js")
-        ),
-        ...moduleEntries.filter(([path]) =>
-            path.endsWith("JSONs.js")
-        ),
+    const modules: [string, ModExport][] = [
+        ...Object.entries(javascriptModules),
+        ...Object.entries(typescriptModules)
     ]
 
-    for (const [, initModule] of orderedModules) {
+    const orderedModules = [
+        ...modules.filter(([path]) =>
+            !path.endsWith("JSONs.js") &&
+            !path.endsWith("JSONs.ts")
+        ),
+        ...modules.filter(([path]) =>
+            path.endsWith("JSONs.js") ||
+            path.endsWith("JSONs.ts")
+        )
+    ]
+
+    for (const [path, initModule] of orderedModules) {
         try {
             initModule.init?.(ctx)
         } catch (err) {
-            ctx.ui.toast("error encountered :c", "error")
-            ctx.log.error(err.message)
+            ctx.ui.toast(`error encountered in ${path} :c`, "error")
+            ctx.log.error(
+                `error encountered in ${path}` + (err instanceof Error ? err.message : String(err))
+            )
         }
     }
 
     const isAdvanced = await ctx.settings.get("isAdvanced")
+
     const advancedFields = [
         {
             key: "seedPacketSettings",
@@ -92,8 +130,9 @@ export async function setup(ctx) {
             label: "Spacing Y",
             type: "number",
             default: 3
-        },
+        }
     ]
+
     const normalFields = [
         {
             key: "seedPacketCount",
@@ -103,10 +142,10 @@ export async function setup(ctx) {
             max: 16,
             step: 1,
             default: 7
-        },
+        }
     ]
-    const fields = isAdvanced ? advancedFields : normalFields
 
+    const fields = isAdvanced ? advancedFields : normalFields
 
     const defaultFields = [
         {
@@ -168,14 +207,14 @@ export async function setup(ctx) {
             max: 8,
             step: 0.05,
             default: 1.5
-        },
+        }
     ]
 
     await ctx.settings.defineSchema({
         title: "Luxis Lib",
         fields: [
             ...defaultFields,
-            ...fields,
+            ...fields
         ]
     })
 
@@ -184,15 +223,15 @@ export async function setup(ctx) {
     const allPlayerProperties = playerProperties.AllPlayerProperties
 
     ctx.controls.definePanel({
-        title: 'Luxis Lib',
+        title: "Luxis Lib",
         groups: [
             {
-                title: 'Quick Actions',
+                title: "Quick Actions",
                 items: [
                     {
-                        type: 'action',
-                        key: 'worldKey',
-                        label: '+1 World Key',
+                        type: "action",
+                        key: "worldKey",
+                        label: "+1 World Key",
                         async onClick() {
                             allPlayerProperties.currentPlayer.worldkey += 1
                             allPlayerProperties.savePP()
@@ -200,9 +239,9 @@ export async function setup(ctx) {
                         }
                     },
                     {
-                        type: 'action',
-                        key: 'restart',
-                        label: 'Quick Game Restart',
+                        type: "action",
+                        key: "restart",
+                        label: "Quick Game Restart",
                         async onClick() {
                             location.reload()
                         }
@@ -217,18 +256,14 @@ export async function setup(ctx) {
         version: "1.0.0",
         capabilities: ["register-level"],
         api: {
-            registerLevel: (levelID, data) => {
+            registerLevel: (levelID: string, data: any) => {
                 loadCustomLevelApi(levelID, data)
             }
         }
     })
 
-
     if (await shouldForcePageReload(ctx)) {
-        ctx.log.info("Mod runtime reload detected; reloading page")
-        ctx.ui.toast("Mod runtime reload detected; reloading page", "info")
-
-        setTimeout(() => {location.reload()}, 0.7)
+        requestPageReload(ctx, "Mod runtime reload detected; reloading page")
         return
     }
 

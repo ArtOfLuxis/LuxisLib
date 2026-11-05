@@ -1,17 +1,22 @@
 import {createProjectileSpread} from "../hooks/projectiles/commonShot";
 import {libProperties} from "../hooks/other/JSONs";
+import type {GPNContext} from "../tsclasses/api";
 
-export let executeActions
-export let evaluateExpression
-export let evaluate
+type JSONAction = Record<string, any>
+type JSONExpression = Record<string, any>
+type EvaluationContext = Record<string, any>
 
-function resolveProperty(action, context) {
+export let executeActions: (actions: JSONAction[], context: EvaluationContext) => void
+export let evaluateExpression: (expr: JSONExpression, context: EvaluationContext) => any
+export let evaluate: (value: any, context: EvaluationContext) => any
+
+function resolveProperty(action: JSONAction, context: EvaluationContext) {
     const object = action.object
         ? evaluate(action.object, context)
         : context.target
 
     const path = evaluate(action.property, context).split(".")
-    const last = path.pop()
+    const last = path.pop()!
 
     let target = object
     for (const key of path) {
@@ -21,7 +26,7 @@ function resolveProperty(action, context) {
     return { target, last }
 }
 
-function withVariable(context, name, value, fn) {
+function withVariable(context: EvaluationContext, name: string, value: any, fn: () => any): any {
     const old = context[name]
     const existed = name in context
 
@@ -37,7 +42,7 @@ function withVariable(context, name, value, fn) {
     }
 }
 
-export function init(ctx) {
+export function init(ctx: GPNContext): void {
     ctx.events.on("engine:ready", () => {
         const projectiles = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Projectiles.ts")
         const character = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Character.ts")
@@ -54,7 +59,7 @@ export function init(ctx) {
 
         const cc = ctx.unsafe.engine.getCc()
 
-        executeActions = function (actions, context) {
+        executeActions = function (actions: JSONAction[], context: EvaluationContext): void {
             for (const action of actions) {
                 try {
                     switch (action.kind) {
@@ -117,7 +122,7 @@ export function init(ctx) {
 
                             for (const [property, value] of Object.entries(properties)) {
                                 const path = property.split(".")
-                                const last = path.pop()
+                                const last = path.pop()!
 
                                 let target = object
                                 for (const key of path) {
@@ -207,7 +212,7 @@ export function init(ctx) {
 
                             for (const choices of evaluate(action.properties, context)) {
                                 const totalWeight = choices.reduce(
-                                    (sum, choice) => sum + (choice.weight ?? 1),
+                                    (sum: number, choice: any) => sum + (choice.weight ?? 1),
                                     0
                                 )
 
@@ -224,7 +229,7 @@ export function init(ctx) {
 
                                 for (const [property, value] of Object.entries(selected.properties ?? {})) {
                                     const path = property.split(".")
-                                    const last = path.pop()
+                                    const last = path.pop()!
 
                                     let target = object
                                     for (const key of path) {
@@ -355,11 +360,11 @@ export function init(ctx) {
                                 evaluate(action.duration, context),
                                 evaluate(action.height, context) ?? 10,
                                 groundFire.GroundFireColorEnum[
-                                    evaluate(action.color, context) ?? "yellow"
-                                ],
+                                evaluate(action.color, context) ?? "yellow"
+                                    ],
                                 groundFire.GroundFireSpreadStyleEnum[
-                                    evaluate(action.spreadStyle, context) ?? "cross"
-                                ],
+                                evaluate(action.spreadStyle, context) ?? "cross"
+                                    ],
                                 evaluate(action.spreadSpeed, context) ?? 9,
                                 evaluate(action.spreadDistance, context) ?? 9,
                                 evaluate(action.zombieWhitelist, context) ?? [],
@@ -427,15 +432,15 @@ export function init(ctx) {
             }
         }
 
-        evaluateExpression = function (expr, context) {
+        evaluateExpression = function (expr: JSONExpression, context: EvaluationContext): any {
             try {
                 switch (expr.kind) {
                     case "InvokeJavaScript": {
                         const code = evaluate(expr.code, context)
-                        const vars = {}
+                        const vars: Record<string, any> = {}
 
-                        const variables = evaluate(expr.variables, context) ?? {}
-                        const defaultVariables = {
+                        const variables: Record<string, any> = evaluate(expr.variables, context) ?? {}
+                        const defaultVariables: Record<string, any> = {
                             "Eval": {evaluate, evaluateExpression, executeActions}
                         }
 
@@ -460,7 +465,7 @@ export function init(ctx) {
                             : context.target
 
                         const path = evaluate(expr.method, context).split(".")
-                        const last = path.pop()
+                        const last = path.pop()!
 
                         for (const key of path) {
                             object = object?.[key]
@@ -599,8 +604,8 @@ export function init(ctx) {
 
                         return characterManager.Rectangle.createRectangleCenter(
                             center,
-                            square.Square.SquareWidth * evaluate(expr.width, context) ?? 0,
-                            square.Square.SquareHeight * evaluate(expr.height, context) ?? 0,
+                            square.Square.SquareWidth * evaluate(expr.width, context),
+                            square.Square.SquareHeight * evaluate(expr.height, context),
                         )
                     }
                     case "CreateVec2": {
@@ -745,7 +750,7 @@ export function init(ctx) {
                         const array = evaluate(expr.array, context)
                         const variable = evaluate(expr.variable, context)
 
-                        return array.filter(item =>
+                        return array.filter((item: any) =>
                             withVariable(context, variable, item, () =>
                                 evaluate(expr.condition, context)
                             )
@@ -755,7 +760,7 @@ export function init(ctx) {
                         const array = evaluate(expr.array, context)
                         const variable = evaluate(expr.variable, context)
 
-                        return array.find(item =>
+                        return array.find((item: any) =>
                             withVariable(context, variable, item, () =>
                                 evaluate(expr.condition, context)
                             )
@@ -765,7 +770,7 @@ export function init(ctx) {
                         const array = evaluate(expr.array, context)
                         const variable = evaluate(expr.variable ?? "item", context)
 
-                        return array.every(item =>
+                        return array.every((item: any) =>
                             withVariable(context, variable, item, () =>
                                 evaluate(expr.condition, context)
                             )
@@ -841,7 +846,7 @@ export function init(ctx) {
             }
         }
 
-        evaluate = function (value, context) {
+        evaluate = function (value: any, context: EvaluationContext): any {
             if (value === null || value === undefined)
                 return null
 
@@ -854,7 +859,7 @@ export function init(ctx) {
             if ("kind" in value)
                 return evaluateExpression(value, context)
 
-            const result = {}
+            const result: Record<string, any> = {}
             for (const key in value)
                 result[key] = evaluate(value[key], context)
 
@@ -868,17 +873,17 @@ export function init(ctx) {
                 ctx.log.info("Loading JSONActionHooks from libProperties")
             }
 
-            libProperties.JSONActionHooks?.forEach(hook => {
+            libProperties.JSONActionHooks?.forEach((hook: any) => {
                 const context = {}
 
                 const classValue = evaluate(hook.className, context)
                 const methodName = evaluate(hook.method, context)
                 const isStatic = !!evaluate(hook.isStatic, context)
 
-                const wrapOptions = {
+                const wrapOptions: any = {
                     methodName,
                     isStatic,
-                    handler: ({ args, thisArg, callNext }) => {
+                    handler: ({ args, thisArg, callNext }: { args: any[], thisArg: any, callNext: (...args: any[]) => any }) => {
                         const hookContext = {
                             target: thisArg,
                             [evaluate(hook.thisVariable, context) ?? "this"]: thisArg,
@@ -915,7 +920,7 @@ export function init(ctx) {
             }
         } catch (err) {
             ctx.ui.toast("error encountered in JSONActionHooks :c", "error")
-            ctx.log.error(err.message)
+            ctx.log.error(err instanceof Error ? err.message : String(err))
         }
     })
 }

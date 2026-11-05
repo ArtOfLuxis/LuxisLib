@@ -1,6 +1,4 @@
 import {libProperties} from "../other/JSONs";
-import {isGameRunning} from "../other/levelController";
-import {executeActions} from "../../modules/JSONActionsSystem";
 
 export function init(ctx) {
     ctx.events.on("engine:ready", () => {

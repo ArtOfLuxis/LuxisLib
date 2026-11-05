@@ -1,4 +1,4 @@
-import {evaluate, executeActions} from "../../modules/JSONActionsSystem"
+import {evaluate, executeActions} from "../../modules/JSONActionsSystem.ts"
 import {isGameRunning} from "../other/levelController"
 import {libProperties} from "../other/JSONs";
 

@@ -1,4 +1,4 @@
-import {evaluate} from "../../modules/JSONActionsSystem";
+import {evaluate} from "../../modules/JSONActionsSystem.ts";
 import {imitatorSeedPacketPlants} from "../plants/Imitater";
 
 export function init(ctx) {

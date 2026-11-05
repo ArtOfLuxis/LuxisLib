@@ -16,6 +16,7 @@ export function init(ctx) {
         ctx.unsafe.hooks.wrapProperty({
             target: proto,
             key: "SUNCOST",
+            priority: 99999999,
             get: ({thisArg}) => {
                 let sun = originalSuncostGetter.call(thisArg)
 
