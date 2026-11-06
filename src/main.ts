@@ -219,9 +219,10 @@ export async function setup(ctx: GPNContext): Promise<void> {
         ]
     })
 
-    const worldKeyCount = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/WorldKeyCount.ts")
-    const playerProperties = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/PlayerProperties.ts")
-    const allPlayerProperties = playerProperties.AllPlayerProperties
+    const WorldKeyCount = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/WorldKeyCount.ts")
+    const TicketCount = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/TicketCount.ts")
+    const PlayerProperties = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/PlayerProperties.ts")
+    const AllPlayerProperties = PlayerProperties.AllPlayerProperties
 
     ctx.controls.definePanel({
         title: "Luxis Lib",
@@ -232,21 +233,75 @@ export async function setup(ctx: GPNContext): Promise<void> {
                     {
                         type: "action",
                         key: "worldKey",
-                        label: "+1 World Key",
+                        label: "+1  World Key",
                         async onClick() {
-                            allPlayerProperties.currentPlayer.worldkey += 1
-                            allPlayerProperties.savePP()
-                            worldKeyCount.WorldKeyCount.component?.start()
+                            AllPlayerProperties.currentPlayer.worldkey += 1
+                            AllPlayerProperties.savePP()
+                            WorldKeyCount.WorldKeyCount.component?.start()
+                        }
+                    },
+                    {
+                        type: "action",
+                        key: "worldKey",
+                        label: "-1  World Key",
+                        async onClick() {
+                            AllPlayerProperties.currentPlayer.worldkey -= 1
+                            AllPlayerProperties.savePP()
+                            WorldKeyCount.WorldKeyCount.component?.start()
+                        }
+                    },
+                    {
+                        type: "action",
+                        key: "ticket_add100",
+                        label: "+100 Tickets",
+                        async onClick() {
+                            AllPlayerProperties.currentPlayer.ticket += 100
+                            AllPlayerProperties.savePP()
+                            TicketCount.TicketCount.component?.start()
+                            ctx.ui.toast("Successfully added 100 tickets", "info")
+                        }
+                    },
+                    {
+                        type: "action",
+                        key: "ticket_add1000",
+                        label: "+1000 Tickets",
+                        async onClick() {
+                            AllPlayerProperties.currentPlayer.ticket += 1000
+                            AllPlayerProperties.savePP()
+                            TicketCount.TicketCount.component?.start()
+                            ctx.ui.toast("Successfully added 1000 tickets", "info")
+                        }
+                    },
+                    {
+                        type: "action",
+                        key: "ticket_remove100",
+                        label: "-100 Tickets",
+                        async onClick() {
+                            AllPlayerProperties.currentPlayer.ticket -= 100
+                            AllPlayerProperties.savePP()
+                            TicketCount.TicketCount.component?.start()
+                            ctx.ui.toast("Successfully removed 100 tickets", "info")
+                        }
+                    },
+                    {
+                        type: "action",
+                        key: "ticket_remove1000",
+                        label: "-1000 Tickets",
+                        async onClick() {
+                            AllPlayerProperties.currentPlayer.ticket -= 100
+                            AllPlayerProperties.savePP()
+                            TicketCount.TicketCount.component?.start()
+                            ctx.ui.toast("Successfully removed 1000 tickets", "info")
                         }
                     },
                     {
                         type: "action",
                         key: "restart",
-                        label: "Quick Game Restart",
+                        label: "Quick Restart",
                         async onClick() {
                             location.reload()
                         }
-                    }
+                    },
                 ]
             }
         ]

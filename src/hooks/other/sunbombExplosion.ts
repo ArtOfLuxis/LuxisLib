@@ -1,5 +1,6 @@
+import {GPNContext} from "../../tsclasses/api.ts";
 
-export function init(ctx) {
+export function init(ctx: GPNContext) {
     ctx.events.on("engine:ready", () => {
         const sunbombExplosion = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/sunbombExplosion.ts")
 

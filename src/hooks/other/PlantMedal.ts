@@ -1,6 +1,7 @@
 import {libProperties} from "./JSONs";
+import {GPNContext} from "../../tsclasses/api.ts";
 
-export function init(ctx) {
+export function init(ctx: GPNContext) {
     ctx.events.on("engine:ready", () => {
         const medaldisplay = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/PlantMedalDisplayer.ts")
         const playerproperties = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/PlayerProperties.ts")
@@ -68,17 +69,22 @@ export function init(ctx) {
 
                 if (thisArg.isMint) {
                     const properties = playerproperties.AllPlayerProperties
+
                     thisArg.plantDB_boost.node.parent.active = false
                     thisArg.boost_progress.node.active = false
                     thisArg.boost_count_label.node.active = false
-                    thisArg.unlock_button.node.active = thisArg.medals_required_types.every((function(t) {
-                        const plantEnum = plants.plants.getPlantEnumWithPropByPlantTypes(args[0]).id
-                        return properties.getPlantProgressByID(plantEnum).medal
-                    }))
+
+                    thisArg.unlock_button.node.active =
+                        thisArg.medals_required_types.every(((t: any) => {
+                            const plantEnum =
+                                plants.plants.getPlantEnumWithPropByPlantTypes(args[0]).id
+                            return properties.getPlantProgressByID(plantEnum).medal
+                        }))
                 }
                 else {
                     const properties = playerproperties.AllPlayerProperties
                     const boost = properties.getPlantProgressByID(args[0]).boost
+
                     thisArg.boost_progress.progress = boost / boostAmount
                     thisArg.boost_count_label.string = boost.toString() + "/" + boostAmount.toString()
                     thisArg.unlock_button.node.active = ((boost / boostAmount) >= 1 && !thisArg.pp.medal)
