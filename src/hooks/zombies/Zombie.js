@@ -1,7 +1,7 @@
 import {libProperties} from "../other/JSONs"
 
 import {executeActions} from "../../modules/JSONActionsSystem.ts";
-import {isGameRunning} from "../other/levelController";
+import {isGameRunning} from "../other/levelController.ts";
 
 const zombiePropDefaults = {}
 let wrapped = false

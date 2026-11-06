@@ -1,6 +1,7 @@
 import {wrapObjDataOwnPlant} from "./Plant";
+import {GPNContext} from "../../tsclasses/api.ts";
 
-export function init(ctx) {
+export function init(ctx: GPNContext) {
     ctx.events.on("engine:ready", () => {
         const moonflower = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Moonflower.ts")
         const proto = moonflower.MoonflowerPlant.prototype

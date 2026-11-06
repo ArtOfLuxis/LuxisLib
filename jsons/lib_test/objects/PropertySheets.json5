@@ -13,11 +13,12 @@
           "egypt": {
             "map": {
               "mode": "replace",
+              "zoom": 0.5,
               "autoLayout": {
-                "xStep": 250,
+                "xStep": 300,
                 "yStep": 120,
-                "branchXStep": 140,
-                "branchYStep": 130,
+                "branchXStep": 130,
+                "branchYStep": 180,
                 "ySmoothness": 6,
               },
               "mainline": [
@@ -28,6 +29,7 @@
                   "levels": [
                     "egypt1"
                   ],
+                  "template": "modern:modern1",
                   "title": "lvl 1"
                 },
                 {
@@ -37,6 +39,7 @@
                   "levels": [
                     "egypt2"
                   ],
+                  "template": "pirate:pirate2",
                   "title": "lvl 2"
                 },
                 {
@@ -44,7 +47,15 @@
                   "type": "plant",
                   "plantReward": "dandelion",
                   "appearance": "normal",
+                  "template": "future:future4",
                   "children": ["branch-1"]
+                },
+                {
+                  "id": "plant-2",
+                  "type": "plant",
+                  "plantReward": "wallnut",
+                  "appearance": "normal",
+                  "template": "beach:beach3"
                 },
                 {
                   "id": "lvl-3",
@@ -53,6 +64,7 @@
                   "levels": [
                     "egypt3"
                   ],
+                  "template": "sky:sky3",
                   "title": "lvl 3"
                 },
               ],
@@ -64,6 +76,7 @@
                   "levels": [
                     "custom_level_test"
                   ],
+                  "template": "modern:modern2",
                   "children": ["branch-2"],
                   "title": "lvl branch"
                 },
@@ -72,6 +85,7 @@
                   "type": "AAAAAAAAAAAAA",
                   "appearance": "AAAAAAAAAAAAA",
                   "levels": [],
+                  "template": "modern:modern2",
                   "children": ["branch-3"],
                   "title": "lvl branch error"
                 },
@@ -82,6 +96,7 @@
                   "levels": [
                     "custom_level_test2"
                   ],
+                  "template": "modern:modern2",
                   "title": "lvl branch 3"
                 }
               ]
@@ -100,7 +115,7 @@
                   "endlessData": "egypt",
                   "isMiniGame": false,
                   "position": {
-                    "x": 1000,
+                    "x": 1400,
                     "y": 20,
                     "z": 0
                   },
@@ -117,7 +132,7 @@
                   "endlessData": "egypt",
                   "isMiniGame": true,
                   "position": {
-                    "x": 1400,
+                    "x": 1800,
                     "y": 127,
                     "z": 0
                   },
@@ -134,7 +149,7 @@
                   "endlessData": "egypt",
                   "isMiniGame": false,
                   "position": {
-                    "x": 1700,
+                    "x": 2200,
                     "y": 60,
                     "z": 0
                   },
@@ -151,7 +166,7 @@
                   "endlessData": "egypt",
                   "isMiniGame": false,
                   "position": {
-                    "x": 2200,
+                    "x": 2600,
                     "y": 60,
                     "z": 0
                   },
@@ -349,10 +364,10 @@
           "Pirate",
           "Unknown",
           "Sky",
+          "Egypt"
         ],
         "RemovedWorldIcons": [
           "Modern",
-          "Egypt",
           "Cowboy",
           "Dark",
           "LostCity",

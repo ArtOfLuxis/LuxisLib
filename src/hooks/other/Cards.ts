@@ -1,6 +1,7 @@
 import {libProperties} from "./JSONs.js";
+import {GPNContext} from "../../tsclasses/api";
 
-export function init(ctx) {
+export function init(ctx: GPNContext) {
     ctx.events.on("engine:ready", () => {
         const cards = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Cards.ts")
         const levelController = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/levelController.ts")

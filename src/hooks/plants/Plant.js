@@ -1,5 +1,5 @@
 import {evaluate, executeActions} from "../../modules/JSONActionsSystem.ts"
-import {isGameRunning} from "../other/levelController"
+import {isGameRunning} from "../other/levelController.ts"
 import {libProperties} from "../other/JSONs";
 
 const prototypeDefaults = new WeakMap()

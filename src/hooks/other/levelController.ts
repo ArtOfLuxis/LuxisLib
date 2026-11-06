@@ -1,9 +1,9 @@
-import {libProperties} from "./JSONs";
 import {executeActions} from "../../modules/JSONActionsSystem.ts";
+import {GPNContext} from "../../tsclasses/api";
 
-export let isGameRunning
+export let isGameRunning: () => boolean
 
-export function init(ctx) {
+export function init(ctx: GPNContext) {
     ctx.events.on("engine:ready", () => {
         const levelController = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/levelController.ts")
         const levelPlay = levelController.LevelPlay
@@ -45,15 +45,15 @@ export function init(ctx) {
             }
         })
 
-        proto.module_MaxSunAmountProps = function (data) {
+        proto.module_MaxSunAmountProps = function (data: any) {
             this.MaxSunAmount = data.MaxSunAmount
         }
 
-        proto.module_SetOnStartActions = function (data) {
+        proto.module_SetOnStartActions = function (data: any) {
             this.OnStartActions = data.Actions
         }
 
-        proto.module_SetOnUpdateActions = function (data) {
+        proto.module_SetOnUpdateActions = function (data: any) {
             this.OnUpdateActions = data.Actions
         }
 
@@ -72,7 +72,7 @@ export function init(ctx) {
             }
         })
 
-        proto.readWave_ExecuteActions = function (data) {
+        proto.readWave_ExecuteActions = function (data: any) {
             executeActions(data.Actions, {
                 target: this,
                 source: this

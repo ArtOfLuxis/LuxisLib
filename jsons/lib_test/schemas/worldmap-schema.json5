@@ -101,6 +101,12 @@
           "type": "number",
           "description": "Warn if nodes are closer than this distance. 节点距离小于该值时给出重叠警告。"
         },
+        "zoom": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "default": 1,
+          "description": "Scale of the world map islands and level nodes. Defaults to 1."
+        },
         "autoLayout": {
           "$ref": "#/$defs/autoLayout"
         },
@@ -195,7 +201,7 @@
         },
         "template": {
           "$ref": "#/$defs/templateSelector",
-          "description": "Template selector used only while cloning visuals/components from the loaded runtime map. For `giftBox` / `epicPortal`, `type` selectors are restricted to real vanilla special-node candidates instead of generic same-type fallback. 仅在从当前已加载运行时地图克隆视觉/组件时使用的模板选择器。对于 `giftBox` / `epicPortal`，按 `type` 选择时会限制为真正的原版特殊节点候选，而不是泛化同类回退。"
+          "description": "Template selector used when cloning island visuals/components. String references support `world:templateId`; without a namespace, the current world is used. Plant nodes can select templates by island ID or displayed plant codename, or by using an object selector with plantDisplayed."
         },
         "position": {
           "$ref": "#/$defs/position"
@@ -421,7 +427,9 @@
       "oneOf": [
         {
           "type": "string",
-          "description": "Match an entrance by node name or one of its level IDs."
+          "minLength": 1,
+          "pattern": "^[^:]+(:[^:]+)?$",
+          "description": "Template ID, optionally prefixed with a world CODENAME. For plant islands, the ID can also be the displayed plant codename. Examples: `modern2`, `egypt:egypt2`, `egypt:peashooter`."
         },
         {
           "type": "object",
@@ -464,7 +472,7 @@
       ]
     },
     "templateSelector": {
-      "description": "Selector used only when cloning from existing runtime nodes. `levelId` can match either ordinary levelJsonsID or endless-island entrance levelsID. 仅在从现有运行时节点克隆时使用的模板选择器；其中 `levelId` 既可匹配普通 levelJsonsID，也可匹配无尽岛入口的 levelsID。",
+      "description": "Selector used when cloning from existing runtime nodes. String references support `world:levelId`, where `world` is a world CODENAME and `levelId` is the template's level ID. Without a namespace, the current world is used. Object selectors match templates in the current world only.",
       "oneOf": [
         {
           "type": "object",
@@ -472,15 +480,15 @@
           "properties": {
             "id": {
               "type": "string",
-              "description": "Match by stable runtime/custom id. 按稳定运行时/custom id 匹配。"
+              "description": "Match by stable runtime/custom id."
             },
             "customId": {
               "type": "string",
-              "description": "Match by GP-Next custom id. 按 GP-Next 自定义 id 匹配。"
+              "description": "Match by GP-Next custom id."
             },
             "levelId": {
               "type": "string",
-              "description": "Match a level island by ordinary levelJsonsID or endless entrance levelsID. 按普通 levelJsonsID 或无尽入口 levelsID 匹配 level 岛。"
+              "description": "Match a level island by ordinary levelJsonsID or endless entrance levelsID."
             },
             "levelIds": {
               "oneOf": [
@@ -495,11 +503,11 @@
                   "minItems": 1
                 }
               ],
-              "description": "Match a level island by all listed ordinary/endless level ids. 按给出的普通/无尽关卡 id 集合匹配 level 岛。"
+              "description": "Match a level island by all listed ordinary/endless level IDs."
             },
             "portalLevelId": {
               "type": "string",
-              "description": "Match an epic portal by one represented epic level id. 按单个史诗关卡 id 匹配传送门。"
+              "description": "Match an epic portal by one represented epic level ID."
             },
             "portalLevelIds": {
               "oneOf": [
@@ -514,7 +522,7 @@
                   "minItems": 1
                 }
               ],
-              "description": "Match an epic portal by all represented epic level ids. 按整组史诗关卡 id 匹配传送门。"
+              "description": "Match an epic portal by all represented epic level IDs."
             },
             "type": {
               "type": "string",
@@ -525,7 +533,7 @@
                 "upgrade",
                 "epicPortal"
               ],
-              "description": "Match by runtime island type. For `giftBox` / `epicPortal`, GP-Next only accepts real vanilla special-node candidates that already carry the corresponding runtime visual/component chain. 按运行时节点类型匹配。对于 `giftBox` / `epicPortal`，GP-Next 只接受已经携带对应运行时视觉/组件链的真正原版特殊节点候选。"
+              "description": "Match by runtime island type."
             },
             "appearance": {
               "type": "string",
@@ -535,7 +543,7 @@
                 "gargantuar",
                 "zomboss"
               ],
-              "description": "Match by level-node appearance family. 按 level 节点外观族匹配。"
+              "description": "Match by level-node appearance family."
             },
             "plantDisplayed": {
               "oneOf": [
@@ -546,7 +554,7 @@
                   "type": "number"
                 }
               ],
-              "description": "Match a plant node by displayed reward. 按展示的植物奖励匹配植物节点。"
+              "description": "Match a plant node by displayed reward."
             },
             "upgradeDisplayed": {
               "oneOf": [
@@ -557,13 +565,16 @@
                   "type": "number"
                 }
               ],
-              "description": "Match an upgrade node by displayed reward. 按展示的升级奖励匹配升级节点。"
+              "description": "Match an upgrade node by displayed reward."
             }
           },
           "minProperties": 1
         },
         {
-          "type": "string"
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[^:]+(:[^:]+)?$",
+          "description": "Template level ID, optionally prefixed with a world CODENAME. Examples: `modern2`, `egypt:egypt2`, `future:future5`."
         }
       ]
     },

@@ -1,5 +1,6 @@
+import {GPNContext} from "../../tsclasses/api";
 
-export function init(ctx) {
+export function init(ctx: GPNContext) {
     ctx.events.on("engine:ready", () => {
         const character = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Character.ts")
         const square = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/Square.ts")
