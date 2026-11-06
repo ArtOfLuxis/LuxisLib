@@ -1,6 +1,7 @@
 
 import {loadCustomLevelApi} from "./hooks/other/JSONs.js";
 import {GPNContext} from "./tsclasses/api";
+import {wrapProperty, WrapPropertyArgs} from "./HookApi";
 
 interface ModExport {
     init?: (ctx: GPNContext) => void
@@ -254,10 +255,13 @@ export async function setup(ctx: GPNContext): Promise<void> {
     ctx.services.provide({
         id: "artofluxis.luxislib.api",
         version: "1.0.0",
-        capabilities: ["register-level"],
+        capabilities: ["register-level", "wrap-property"],
         api: {
             registerLevel: (levelID: string, data: any) => {
                 loadCustomLevelApi(levelID, data)
+            },
+            wrapProperty(args: WrapPropertyArgs) {
+                return wrapProperty(args)
             }
         }
     })

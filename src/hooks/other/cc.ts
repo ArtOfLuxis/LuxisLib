@@ -1,5 +1,6 @@
+import {GPNContext} from "../../tsclasses/api";
 
-export function init(ctx) {
+export function init(ctx: GPNContext) {
     ctx.events.on("engine:ready", async () => {
         const cc = ctx.unsafe.engine.getCc()
 

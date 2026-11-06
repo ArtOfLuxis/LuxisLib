@@ -288,6 +288,14 @@ export function init(ctx: GPNContext): void {
                                 evaluate(action.showExplosionText, context) ?? false,
                                 null,
                                 null,
+                                (zombie: any) => {
+                                    const originalTarget = context.target
+                                    if (action.zombieCallback) {
+                                        context.target = zombie
+                                        executeActions(action.zombieCallback, context)
+                                    }
+                                    context.target = originalTarget
+                                },
                                 evaluate(action.color, context) ?? null,
                                 evaluate(action.scale, context) ?? { x: 1, y: 1, z: 1 },
                                 evaluate(action.explosionWidth, context) ?? 3,
@@ -302,12 +310,7 @@ export function init(ctx: GPNContext): void {
                                 evaluate(action.damageType, context) ?? "fire",
                                 evaluate(action.screenShakeDuration, context) ?? 0.2,
                                 evaluate(action.positionOverride, context) ?? null,
-                                evaluate(action.playSound, context) ?? true,
-                                () => {
-                                    if (action.zombieCallback) {
-                                        executeActions(action.zombieCallback, context)
-                                    }
-                                },
+                                evaluate(action.playSound, context) ?? true
                             )
 
                             break

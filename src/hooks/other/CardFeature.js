@@ -1,4 +1,5 @@
 import {zombieAnimations} from "./CardFeatureZombie.js";
+import {wrapProperty} from "../../HookApi.ts";
 
 export let plantAnimations
 
@@ -11,14 +12,12 @@ export function init(ctx) {
 
         const cc = ctx.unsafe.engine.getCc()
 
-        const originalSuncostGetter = Object.getOwnPropertyDescriptor(proto, "SUNCOST").get
-
-        ctx.unsafe.hooks.wrapProperty({
+        wrapProperty({
             target: proto,
             key: "SUNCOST",
             priority: 99999999,
-            get: ({thisArg}) => {
-                let sun = originalSuncostGetter.call(thisArg)
+            get: ({thisArg, getNext}) => {
+                let sun = getNext()
 
                 const costOverride = thisArg.Prop.CostOverride
                 if (square.Square.component?.inLawnLnCs && costOverride) {

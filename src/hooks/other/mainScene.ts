@@ -1,6 +1,21 @@
-import {findCustomLevel, libProperties} from "./JSONs";
+import {libProperties} from "./JSONs"
+import {GPNContext} from "../../tsclasses/api";
 
-export function init(ctx) {
+export function init(ctx: GPNContext) {
+    const addedButtons: any[] = []
+    const modifiedScenes = new Set<any>()
+
+    ctx.runtime.onDispose(() => {
+        addedButtons.forEach(button => button.destroy())
+
+        modifiedScenes.forEach(scene => {
+            delete scene.___LuxisLibFanmadeButtonAdded
+        })
+
+        addedButtons.length = 0
+        modifiedScenes.clear()
+    })
+
     ctx.events.on("lib-properties", () => {
         const KeyListener = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/KeyListener.ts")
         const mainScene = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/mainScene.ts")
@@ -10,7 +25,7 @@ export function init(ctx) {
         ctx.unsafe.hooks.wrapMethod({
             target: mainScene.mainScene.prototype,
             methodName: "update",
-            handler: ({ args, thisArg, callNext }) => {
+            handler: ({args, thisArg, callNext}) => {
                 const result = callNext(...args)
 
                 if (!thisArg.___LuxisLibFanmadeButtonAdded) {
@@ -56,10 +71,12 @@ export function init(ctx) {
                             await KeyListener.KeyListener.goToLevel([level.id])
                         })
 
+                        addedButtons.push(button)
                         index++
                     }
 
                     thisArg.___LuxisLibFanmadeButtonAdded = true
+                    modifiedScenes.add(thisArg)
                 }
 
                 return result

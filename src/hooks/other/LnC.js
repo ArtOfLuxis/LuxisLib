@@ -123,11 +123,12 @@ export function init(ctx) {
                     showExplosionText = false,
                     explosionPrefab = null,
                     explosionSound = null,
+                    extraZombieCallback = (zombie) => {},
                     color = null,
-                    scale = { "x": 1, "y": 1, "z": 1 },
+                    scale = {x: 1, y: 1, z: 1},
                     explosionWidth = 3,
                     explosionHeight = 3,
-                    explosionLanes = [-1,0,1],
+                    explosionLanes = [-1, 0, 1],
                     explosionFogClear = 150,
                     xOffset = 0,
                     yOffset = 0,
@@ -137,8 +138,7 @@ export function init(ctx) {
                     damageType = "fire",
                     screenShakeDuration = 0.2,
                     position = null,
-                    playSound = true,
-                    extraZombieCallback = (zombie) => {}
+                    playSound = true
                 ] = args
 
                 position = (position ?? thisArg.node.worldPosition).clone()
@@ -150,12 +150,12 @@ export function init(ctx) {
                 const scaleVec = new cc.Vec3(
                     (scale.x ?? 1) * 0.7,
                     (scale.y ?? 1) * 0.7,
-                    (scale.z ?? scale.x ?? 1) * 0.7,
+                    (scale.z ?? scale.x ?? 1) * 0.7
                 )
 
-                square.Square.setFogLight(thisArg.node.worldPosition.toVec2(), explosionFogClear)
+                square.Square.setFogLight(position.toVec2(), explosionFogClear)
 
-                if (screenShakeDuration >= 0.2) {
+                if (screenShakeDuration > 0) {
                     levelController.LevelPlay.shakeScreen(screenShakeDuration)
                 }
 
@@ -184,8 +184,9 @@ export function init(ctx) {
                 )
 
                 zombies.forEach((zombie) => {
-                    if (extraZombieCallback)
+                    if (extraZombieCallback) {
                         extraZombieCallback(zombie)
+                    }
 
                     const direction = new cc.Vec2(
                         zombie.worldPositionX - thisArg.node.worldPosition.x,

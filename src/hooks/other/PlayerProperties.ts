@@ -1,12 +1,13 @@
 import {libProperties} from "./JSONs";
+import {GPNContext} from "../../tsclasses/api";
 
-export function init(ctx) {
+export function init(ctx: GPNContext) {
     ctx.events.on("lib-properties", () => {
         const playerProperties = ctx.unsafe.engine.getSystemModule("chunks:///_virtual/PlayerProperties.ts")
         const allPlayerProperties = playerProperties.AllPlayerProperties
 
         if (libProperties?.StartingWorlds) {
-            allPlayerProperties.StartingWorlds = libProperties.StartingWorlds.map((world) => {
+            allPlayerProperties.StartingWorlds = libProperties.StartingWorlds.map((world: any) => {
                 return playerProperties.WorldMapSceneDisplayEnum[world]
             })
         }
@@ -61,10 +62,11 @@ export function init(ctx) {
 
                 const forceLevel = getForceLevel()
                 if (libProperties?.DisallowedForceLevels?.includes(forceLevel)) {
-                    return ""
+                    thisArg.currentPlayer.forceLevel = ""
                 } else {
-                    return forceLevel
+                    thisArg.currentPlayer.forceLevel = forceLevel
                 }
+                return callNext(...args)
             }
         })
 
@@ -86,7 +88,7 @@ export function init(ctx) {
 
                 const currentDate = new Date()
 
-                function getPeriod(date, resetsPerDay) {
+                function getPeriod(date: Date, resetsPerDay: number) {
                     resetsPerDay = Math.max(0.00001, resetsPerDay)
 
                     return Math.floor(

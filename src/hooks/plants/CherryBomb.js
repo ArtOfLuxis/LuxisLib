@@ -33,7 +33,7 @@ export function init(ctx) {
                 thisArg.inLnC.explodeCherry3x3(
                     damage,
                     explosionOverride.showExplosionText,
-                    null, null,
+                    null, null, null,
                     explosionOverride.color,
                     explosionOverride.scale,
                     explosionOverride.width,
